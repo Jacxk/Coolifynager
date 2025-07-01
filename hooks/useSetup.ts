@@ -32,7 +32,7 @@ export default function useSetup() {
 
     await AsyncStorage.setItem('SetupComplete', "false");
 
-    router.navigate("/setup/serverAddress")
+    router.dismissTo("/setup/serverAddress")
   };
 
   useEffect(() => {

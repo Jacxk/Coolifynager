@@ -1,15 +1,11 @@
-import Button from "@/components/ui/Button";
+import SetupScreenContainer from "@/components/SetupScreenContainer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
 import useSetup from "@/hooks/useSetup";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert } from "react-native";
 
 export default function ServerStep() {
   const coolify = useSetup();
@@ -20,7 +16,7 @@ export default function ServerStep() {
   const saveServerAddress = async () => {
     if (valid) {
       await coolify.setServerAddress(server);
-      router.navigate("/setup/apikey")
+      router.navigate("/setup/apikey");
     } else {
       Alert.alert("Please set a server");
     }
@@ -36,46 +32,21 @@ export default function ServerStep() {
   }, [server]);
 
   useEffect(() => {
-    coolify.getServerAddress().then((server) => setServer(server ?? ""))
-  }, [])
+    coolify.getServerAddress().then((server) => setServer(server ?? ""));
+  }, []);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.container}
-    >
-      <Text style={styles.paragraph}>Enter your Coolify instance URL</Text>
-      <TextInput
-        style={styles.textInput}
+    <SetupScreenContainer>
+      <Text>Enter your Coolify instance URL</Text>
+      <Input
         onChangeText={setServer}
         value={server}
         placeholder="http://localhost:8000"
         autoCapitalize="none"
       />
       <Button onPress={saveServerAddress} disabled={!valid}>
-        Continue
+        <Text>Continue</Text>
       </Button>
-    </KeyboardAvoidingView>
+    </SetupScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 8,
-    gap: 8,
-  },
-  paragraph: {
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  textInput: {
-    height: 35,
-    borderColor: "gray",
-    borderRadius: 8,
-    borderWidth: 1,
-    padding: 6,
-  },
-});

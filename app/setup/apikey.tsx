@@ -1,15 +1,11 @@
-import Button from "@/components/ui/Button";
+import SetupScreenContainer from "@/components/SetupScreenContainer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
 import useSetup from "@/hooks/useSetup";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert } from "react-native";
 
 export default function ApiKeyStep() {
   const coolify = useSetup();
@@ -20,7 +16,7 @@ export default function ApiKeyStep() {
   const saveKey = () => {
     if (valid) {
       coolify.setApiKey(key);
-      router.navigate("/main")
+      router.dismissTo("/main");
     } else {
       Alert.alert("Please set a key");
     }
@@ -35,41 +31,12 @@ export default function ApiKeyStep() {
   }, []);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.container}
-    >
-      <Text style={styles.paragraph}>Enter your Coolify API key</Text>
-      <TextInput
-        style={styles.textInput}
-        onChangeText={setKey}
-        value={key}
-        placeholder="API Key"
-      />
+    <SetupScreenContainer>
+      <Text>Enter your Coolify API key</Text>
+      <Input onChangeText={setKey} value={key} placeholder="API Key" />
       <Button onPress={saveKey} disabled={!valid}>
-        Save
+        <Text>Save</Text>
       </Button>
-    </KeyboardAvoidingView>
+    </SetupScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 8,
-    gap: 8,
-  },
-  paragraph: {
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  textInput: {
-    height: 35,
-    borderColor: "gray",
-    borderRadius: 8,
-    borderWidth: 1,
-    padding: 6,
-  },
-});
