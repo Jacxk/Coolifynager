@@ -8,14 +8,14 @@ import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
 export default function ApiKeyStep() {
-  const coolify = useSetup();
+  const setup = useSetup();
 
   const [key, setKey] = useState("");
   const [valid, setValid] = useState(false);
 
   const saveKey = () => {
     if (valid) {
-      coolify.setApiKey(key);
+      setup.setApiKey(key);
       router.dismissTo("/main");
     } else {
       Alert.alert("Please set a key");
@@ -27,7 +27,7 @@ export default function ApiKeyStep() {
   }, [key]);
 
   useEffect(() => {
-    coolify.getApiKey().then((key) => setKey(key ?? ""));
+    setup.getApiKey().then((key) => setKey(key ?? ""));
   }, []);
 
   return (

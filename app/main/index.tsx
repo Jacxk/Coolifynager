@@ -4,14 +4,14 @@ import useSetup from "@/hooks/useSetup";
 import { View } from "react-native";
 
 export default function Index() {
-  const coolify = useSetup();
+  const setup = useSetup();
 
   return (
     <View className="p-8">
       <Text>App index</Text>
       <Button
         onPress={() => {
-          coolify.resetSetup();
+          setup.resetSetup();
         }}
       >
         <Text>Reset</Text>

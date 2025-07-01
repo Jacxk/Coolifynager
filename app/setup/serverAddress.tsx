@@ -8,14 +8,14 @@ import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
 export default function ServerStep() {
-  const coolify = useSetup();
+  const setup = useSetup();
 
   const [server, setServer] = useState("");
   const [valid, setValid] = useState(false);
 
   const saveServerAddress = async () => {
     if (valid) {
-      await coolify.setServerAddress(server);
+      await setup.setServerAddress(server);
       router.navigate("/setup/apikey");
     } else {
       Alert.alert("Please set a server");
@@ -32,7 +32,7 @@ export default function ServerStep() {
   }, [server]);
 
   useEffect(() => {
-    coolify.getServerAddress().then((server) => setServer(server ?? ""));
+    setup.getServerAddress().then((server) => setServer(server ?? ""));
   }, []);
 
   return (
