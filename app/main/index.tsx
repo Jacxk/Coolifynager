@@ -2,10 +2,12 @@ import { getApplications } from "@/api/application";
 import { getProjects } from "@/api/projects";
 import { getServers } from "@/api/servers";
 import { getServices } from "@/api/services";
+import { getTeams } from "@/api/teams";
 import { ApplicationCard } from "@/components/ApplicationCard";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ServerCard } from "@/components/ServerCard";
 import { ServiceCard } from "@/components/ServiceCard";
+import { TeamCard } from "@/components/TeamCard";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import useSetup from "@/hooks/useSetup";
@@ -17,6 +19,7 @@ export default function Index() {
   const { data: projects } = useQuery(getProjects);
   const { data: servers } = useQuery(getServers);
   const { data: services } = useQuery(getServices);
+  const { data: teams } = useQuery(getTeams);
 
   const setup = useSetup();
 
@@ -45,6 +48,10 @@ export default function Index() {
       <Text>Services</Text>
       {services?.map((service) => (
         <ServiceCard service={service} key={service.uuid} />
+      ))}
+      <Text>Teams</Text>
+      {teams?.map((team) => (
+        <TeamCard team={team} key={team.id} />
       ))}
     </View>
   );
