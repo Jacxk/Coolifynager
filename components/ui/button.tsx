@@ -62,6 +62,9 @@ type ButtonProps = React.ComponentProps<typeof Pressable> & VariantProps<typeof 
 };
 
 function Button({ ref, className, variant, size, ...props }: ButtonProps) {
+
+  props.disabled = props.disabled || props.loading
+
   return (
     <TextClassContext.Provider
       value={buttonTextVariants({ variant, size, className: 'web:pointer-events-none' })}
@@ -73,7 +76,6 @@ function Button({ ref, className, variant, size, ...props }: ButtonProps) {
         )}
         ref={ref}
         role='button'
-        disabled={props.disabled || props.loading}
         {...props}
       >
         {props.loading ? <ActivityIndicator /> : props.children}
