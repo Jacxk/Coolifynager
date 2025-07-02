@@ -7,7 +7,7 @@ import { H2 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { Keyboard, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ApplicationLogs() {
@@ -32,12 +32,11 @@ export default function ApplicationLogs() {
       );
 
     return (
-      <ScrollView>
+      <ScrollView className="flex-1" onScrollBeginDrag={Keyboard.dismiss}>
         <View className="flex-1">
-          {logData.logs.split("\n").map((line, index) => (
-            <View key={index} className="flex-row items-stretch">
-
-              <Text className="font-mono">
+          {logData.logs.split("\n").map((line) => (
+            <View className={"flex-row items-stretch w-full"}>
+              <Text className="font-mono" selectable>
                 {line}
               </Text>
             </View>
@@ -62,7 +61,11 @@ export default function ApplicationLogs() {
           onChangeText={setLines}
           className="flex-1"
         />
-        <Button className="w-32" onPress={() => refetch()} loading={isRefetching}>
+        <Button
+          className="w-32"
+          onPress={() => refetch()}
+          loading={isRefetching}
+        >
           <Text>Refresh</Text>
         </Button>
       </View>
