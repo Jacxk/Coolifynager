@@ -3,37 +3,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import useSetup from "@/hooks/useSetup";
-import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
-export default function ApiKeyStep() {
+export default function ApiTokenStep() {
   const setup = useSetup();
 
-  const [key, setKey] = useState("");
+  const [token, setToken] = useState("");
   const [valid, setValid] = useState(false);
 
   const saveKey = () => {
     if (valid) {
-      setup.setApiKey(key);
-      router.dismissTo("/main");
+      setup.setApiToken(token).catch(console.error);
     } else {
-      Alert.alert("Please set a key");
+      Alert.alert("Please set a token");
     }
   };
 
   useEffect(() => {
-    setValid(key.trim() !== "");
-  }, [key]);
-
-  useEffect(() => {
-    setup.getApiKey().then((key) => setKey(key ?? ""));
-  }, []);
+    setValid(token.trim() !== "");
+  }, [token]);
 
   return (
     <SetupScreenContainer>
-      <Text>Enter your Coolify API key</Text>
-      <Input onChangeText={setKey} value={key} placeholder="API Key" />
+      <Text>Enter your Coolify API Token</Text>
+      <Input
+        autoCapitalize="none"
+        onChangeText={setToken}
+        value={token}
+        placeholder="API TOKEN"
+      />
       <Button onPress={saveKey} disabled={!valid}>
         <Text>Save</Text>
       </Button>

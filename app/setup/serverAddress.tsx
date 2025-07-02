@@ -17,14 +17,14 @@ export default function ServerStep() {
   const saveServerAddress = async () => {
     if (valid) {
       setLoading(true);
-      await setup.setServerAddress(server);
-      const healthy = await setup.testServerAddress();
-
-      if (healthy) {
-        router.navigate("/setup/apikey");
-      } else {
-        Alert.alert("Could not connect to server, make sure the api is enabled.");
-      }
+      setup
+        .setServerAddress(server)
+        .then(() => router.navigate("/setup/api_token"))
+        .catch(() =>
+          Alert.alert(
+            "Could not connect to server, make sure the api is enabled."
+          )
+        );
     } else {
       Alert.alert("Please set a server");
     }
@@ -41,7 +41,7 @@ export default function ServerStep() {
   }, [server]);
 
   useEffect(() => {
-    setup.getServerAddress().then((server) => setServer(server ?? ""));
+    setup.getServerAddress().then((s) => setServer(s ?? server ?? ""));
   }, []);
 
   return (
