@@ -1,9 +1,13 @@
+import { getApplications } from "@/api/application";
+import { ApplicationCard } from "@/components/ApplicationCard";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import useSetup from "@/hooks/useSetup";
+import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
 
 export default function Index() {
+  const { data } = useQuery(getApplications);
   const setup = useSetup();
 
   return (
@@ -16,6 +20,9 @@ export default function Index() {
       >
         <Text>Reset</Text>
       </Button>
+      {data?.map((application) => (
+        <ApplicationCard application={application} key={application.id} />
+      ))}
     </View>
   );
 }
