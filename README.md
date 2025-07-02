@@ -1,50 +1,48 @@
-# Welcome to your Expo app 👋
+# Coolifynager
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Coolifynager is a mobile app that lets you manage your [Coolify](https://coolify.io) instance on the go. Effortlessly control your applications, servers, services, teams, deployments, databases, resources, and keys.
 
-## Get started
+## Features
 
-1. Install dependencies
+- View and manage your Coolify applications
+- Monitor and control servers and services
+- Manage teams and deployments
+- Access and organize databases, resources, and keys
+- Intuitive, mobile-first interface
 
+## Getting Started
+
+1. **Install dependencies**
    ```bash
    npm install
    ```
-
-2. Start the app
-
+2. **Start the app**
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+> _Note: This app requires only the standard Expo setup. No special configuration is needed beyond what Expo requires._
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Screenshots
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+<!-- Add screenshots of your app below. Example: -->
+<!--
+![Dashboard](assets/images/screenshot-dashboard.png)
+![Servers](assets/images/screenshot-servers.png)
+-->
 
-## Get a fresh project
+_Soon_
 
-When you're ready, run:
+## Contributing
 
-```bash
-npm run reset-project
-```
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/YourFeature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin feature/YourFeature`)
+5. Open a pull request
 
-## Learn more
+## License
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
