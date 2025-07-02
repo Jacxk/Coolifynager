@@ -13,6 +13,6 @@ export default function RootIndex() {
 
   if (setupComplete === null) return null;
 
-  if (setupComplete) return <Redirect href="/main" />
-  else return <Redirect href="/setup/serverAddress" />
+  if (setupComplete) return <Redirect href="/main" />;
+  else return <Redirect href="/setup/serverAddress" />;
 }

@@ -1,6 +1,10 @@
 import { KeyboardAvoidingView, Platform } from "react-native";
 
-export default function SetupScreenContainer({ children }: { children: React.ReactNode }) {
+export default function SetupScreenContainer({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <KeyboardAvoidingView
       className="flex-1 justify-center p-8 gap-4"
@@ -9,4 +13,4 @@ export default function SetupScreenContainer({ children }: { children: React.Rea
       {children}
     </KeyboardAvoidingView>
   );
-} 
+}

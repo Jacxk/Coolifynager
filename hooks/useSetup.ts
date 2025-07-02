@@ -12,11 +12,12 @@ export default function useSetup() {
   const getApiToken = () => SecureStore.getItemAsync(Secrets.API_TOKEN);
   const setApiToken = async (key: string) => {
     const { success, message } = await validateToken(key);
-    
-    if (message === "Unauthenticated." || message === "Invalid token.") throw new Error("INVALID_TOKEN");
+
+    if (message === "Unauthenticated." || message === "Invalid token.")
+      throw new Error("INVALID_TOKEN");
     else if (message === "API is disabled.") throw new Error("API_DISABLED");
-    else if (success === false) throw new Error(message)
-    
+    else if (success === false) throw new Error(message);
+
     await SecureStore.setItemAsync(Secrets.API_TOKEN, key);
     setApiTokenSaved(true);
   };

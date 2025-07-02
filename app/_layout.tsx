@@ -1,18 +1,18 @@
 import "@/global.css";
 
-import { NAV_THEME } from "@/lib/constants";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { NAV_THEME } from "@/lib/constants";
 import {
   DarkTheme,
   DefaultTheme,
   Theme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
 import { Platform } from "react-native";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const LIGHT_THEME: Theme = {
