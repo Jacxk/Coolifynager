@@ -81,3 +81,7 @@ export type Application = {
   http_basic_auth_username: string;
   http_basic_auth_password: string;
 };
+
+export type ApplicationLogs = {
+  logs: string;
+};

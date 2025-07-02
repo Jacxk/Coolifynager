@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
 
 export default function Index() {
-  const { data } = useQuery(getApplications);
+  const { data: applications } = useQuery(getApplications);
   const setup = useSetup();
 
   return (
@@ -20,8 +20,9 @@ export default function Index() {
       >
         <Text>Reset</Text>
       </Button>
-      {data?.map((application) => (
-        <ApplicationCard application={application} key={application.id} />
+      <Text>Applications</Text>
+      {applications?.map((application) => (
+        <ApplicationCard application={application} key={application.uuid} />
       ))}
     </View>
   );
