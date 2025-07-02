@@ -11,8 +11,8 @@ export const getApplication = (uuid: string) => ({
   queryFn: (): Promise<Application> => coolifyFetch(`/applications/${uuid}`),
 });
 
-export const getApplicationLogs = (uuid: string) => ({
-  queryKey: ["applications.logs", uuid],
+export const getApplicationLogs = (uuid: string, lines = 100) => ({
+  queryKey: ["applications.logs", uuid, lines],
   queryFn: (): Promise<ApplicationLogs> =>
-    coolifyFetch(`/applications/${uuid}/logs`),
+    coolifyFetch(`/applications/${uuid}/logs?lines=${lines}`),
 });
