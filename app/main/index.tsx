@@ -4,26 +4,26 @@ import { getServers } from "@/api/servers";
 import { getServices } from "@/api/services";
 import { getTeams } from "@/api/teams";
 import { ApplicationCard } from "@/components/ApplicationCard";
+import LoadingScreen from "@/components/LoadingScreen";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ServerCard } from "@/components/ServerCard";
 import { ServiceCard } from "@/components/ServiceCard";
 import { TeamCard } from "@/components/TeamCard";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { H1, H2 } from "@/components/ui/typography";
 import useSetup from "@/hooks/useSetup";
 import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
 
-import LoadingScreen from "@/components/LoadingScreen";
-
 export default function Index() {
-  const {
-    data: applications,
-    isPending: isPendingApplications,
-  } = useQuery(getApplications);
-  const { data: projects, isPending: isPendingProjects } = useQuery(getProjects);
+  const { data: applications, isPending: isPendingApplications } =
+    useQuery(getApplications);
+  const { data: projects, isPending: isPendingProjects } =
+    useQuery(getProjects);
   const { data: servers, isPending: isPendingServers } = useQuery(getServers);
-  const { data: services, isPending: isPendingServices } = useQuery(getServices);
+  const { data: services, isPending: isPendingServices } =
+    useQuery(getServices);
   const { data: teams, isPending: isPendingTeams } = useQuery(getTeams);
 
   const setup = useSetup();
@@ -41,7 +41,7 @@ export default function Index() {
 
   return (
     <View className="p-8">
-      <Text>App index</Text>
+      <H1>App index</H1>
       <Button
         onPress={() => {
           setup.resetSetup();
@@ -49,23 +49,23 @@ export default function Index() {
       >
         <Text>Reset</Text>
       </Button>
-      <Text>Applications</Text>
+      <H2>Applications</H2>
       {applications?.map((application) => (
         <ApplicationCard application={application} key={application.uuid} />
       ))}
-      <Text>Projects</Text>
+      <H2>Projects</H2>
       {projects?.map((project) => (
         <ProjectCard project={project} key={project.uuid} />
       ))}
-      <Text>Servers</Text>
+      <H2>Servers</H2>
       {servers?.map((server) => (
         <ServerCard server={server} key={server.uuid} />
       ))}
-      <Text>Services</Text>
+      <H2>Services</H2>
       {services?.map((service) => (
         <ServiceCard service={service} key={service.uuid} />
       ))}
-      <Text>Teams</Text>
+      <H2>Teams</H2>
       {teams?.map((team) => (
         <TeamCard team={team} key={team.id} />
       ))}
