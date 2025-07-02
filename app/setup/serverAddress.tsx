@@ -36,6 +36,8 @@ export default function ServerStep() {
     } catch {
       setValid(false);
     }
+
+    setError(undefined);
   }, [server]);
 
   useEffect(() => {
@@ -47,9 +49,14 @@ export default function ServerStep() {
       <Text>Enter your Coolify instance URL</Text>
       <Input
         onChangeText={setServer}
+        onSubmitEditing={saveServerAddress}
         value={server}
         placeholder="http://localhost:8000"
         autoCapitalize="none"
+        autoComplete="off"
+        keyboardType="url"
+        enterKeyHint="next"
+        enablesReturnKeyAutomatically
       />
       <Button onPress={saveServerAddress} disabled={!valid} loading={loading}>
         <Text>Continue</Text>

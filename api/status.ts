@@ -5,11 +5,13 @@ export async function getHealth(address: string): Promise<string> {
   return fetch(`${address}/api/v1/health`).then((res) => res.text());
 }
 
-export async function validToken(token: string): Promise<boolean> {
+export async function validateToken(
+  token: string
+): Promise<{ message: string; success: boolean }> {
   const address = await SecureStore.getItemAsync(Secrets.SERVER_ADDRESS);
-  return fetch(`${address}/api/v1/applications`, {
+  return fetch(`${address}/api/v1/version`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-  }).then((res) => res.ok);
+  }).then((res) => res.json());
 }

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import useSetup from "@/hooks/useSetup";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
@@ -20,6 +21,7 @@ export default function ApiTokenStep() {
       setup
         .setApiToken(token)
         .then(() => setError(undefined))
+        .then(() => router.dismissTo("/main"))
         .catch((e) => setError(e.message))
         .finally(() => setLoading(false));
     } else {
@@ -29,6 +31,7 @@ export default function ApiTokenStep() {
 
   useEffect(() => {
     setValid(token.trim() !== "");
+    setError(undefined);
   }, [token]);
 
   return (
@@ -36,9 +39,14 @@ export default function ApiTokenStep() {
       <Text>Enter your Coolify API Token</Text>
       <Input
         autoCapitalize="none"
+        autoComplete="off"
+        enterKeyHint="done"
         onChangeText={setToken}
+        onSubmitEditing={saveKey}
         value={token}
         placeholder="API TOKEN"
+        enablesReturnKeyAutomatically
+        secureTextEntry
       />
       <Button onPress={saveKey} disabled={!valid} loading={loading}>
         <Text>Save</Text>

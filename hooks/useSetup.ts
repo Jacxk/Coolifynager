@@ -1,4 +1,4 @@
-import { getHealth, validToken } from "@/api/status";
+import { getHealth, validateToken } from "@/api/status";
 import { Secrets } from "@/constants/Secrets";
 import SecureStore from "@/utils/SecureStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -11,10 +11,12 @@ export default function useSetup() {
 
   const getApiToken = () => SecureStore.getItemAsync(Secrets.API_TOKEN);
   const setApiToken = async (key: string) => {
-    const isValid = await validToken(key)
-    if (!isValid) 
-      throw new Error("INVALID_TOKEN");
-
+    const { success, message } = await validateToken(key);
+    
+    if (message === "Unauthenticated." || message === "Invalid token.") throw new Error("INVALID_TOKEN");
+    else if (message === "API is disabled.") throw new Error("API_DISABLED");
+    else if (success === false) throw new Error(message)
+    
     await SecureStore.setItemAsync(Secrets.API_TOKEN, key);
     setApiTokenSaved(true);
   };
@@ -30,8 +32,7 @@ export default function useSetup() {
 
     const health = await getHealth(address);
 
-    if (health !== "OK")
-      throw new Error("INVALID_SERVER");
+    if (health !== "OK") throw new Error("INVALID_SERVER");
 
     await SecureStore.setItemAsync(
       Secrets.SERVER_ADDRESS,
