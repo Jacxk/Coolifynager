@@ -14,14 +14,30 @@ import useSetup from "@/hooks/useSetup";
 import { useQuery } from "@tanstack/react-query";
 import { View } from "react-native";
 
+import LoadingScreen from "@/components/LoadingScreen";
+
 export default function Index() {
-  const { data: applications } = useQuery(getApplications);
-  const { data: projects } = useQuery(getProjects);
-  const { data: servers } = useQuery(getServers);
-  const { data: services } = useQuery(getServices);
-  const { data: teams } = useQuery(getTeams);
+  const {
+    data: applications,
+    isPending: isPendingApplications,
+  } = useQuery(getApplications);
+  const { data: projects, isPending: isPendingProjects } = useQuery(getProjects);
+  const { data: servers, isPending: isPendingServers } = useQuery(getServers);
+  const { data: services, isPending: isPendingServices } = useQuery(getServices);
+  const { data: teams, isPending: isPendingTeams } = useQuery(getTeams);
 
   const setup = useSetup();
+
+  const isPending =
+    isPendingApplications ||
+    isPendingProjects ||
+    isPendingServers ||
+    isPendingServices ||
+    isPendingTeams;
+
+  if (isPending) {
+    return <LoadingScreen />;
+  }
 
   return (
     <View className="p-8">

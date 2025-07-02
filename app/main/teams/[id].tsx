@@ -1,4 +1,5 @@
 import { getTeam } from "@/api/teams";
+import LoadingScreen from "@/components/LoadingScreen";
 import { Text } from "@/components/ui/text";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
@@ -6,7 +7,11 @@ import { View } from "react-native";
 
 export default function Team() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data } = useQuery(getTeam(id));
+  const { data, isPending } = useQuery(getTeam(id));
+
+  if (isPending) {
+    return <LoadingScreen />;
+  }
 
   return (
     <View>
