@@ -19,10 +19,22 @@ export default function useSetup() {
   const setServerAddress = async (address: string) => {
     try {
       new URL(address);
-      await SecureStore.setItemAsync(Secrets.SERVER_ADDRESS, address);
+      await SecureStore.setItemAsync(
+        Secrets.SERVER_ADDRESS,
+        address.replace(/\/api$|\/$/, "")
+      );
       setServerAddressSaved(true);
     } catch (e) {
       throw new Error("Invalid server address. Please provide a valid URL.");
+    }
+  };
+  const testServerAddress = async () => {
+    const address = await getServerAddress();
+    try {
+      const response = await fetch(`${address}/api/health`);
+      return response.ok;
+    } catch (e) {
+      return false;
     }
   };
 
@@ -30,9 +42,9 @@ export default function useSetup() {
     await SecureStore.deleteItemAsync(Secrets.API_KEY);
     await SecureStore.deleteItemAsync(Secrets.SERVER_ADDRESS);
 
-    await AsyncStorage.setItem('SetupComplete', "false");
+    await AsyncStorage.setItem("SetupComplete", "false");
 
-    router.dismissTo("/setup/serverAddress")
+    router.dismissTo("/setup/serverAddress");
   };
 
   useEffect(() => {
@@ -41,7 +53,10 @@ export default function useSetup() {
   }, []);
 
   useEffect(() => {
-    AsyncStorage.setItem('SetupComplete', String(apiKeySaved && serverAddressSaved));
+    AsyncStorage.setItem(
+      "SetupComplete",
+      String(apiKeySaved && serverAddressSaved)
+    );
   }, [apiKeySaved, serverAddressSaved]);
 
   return {
@@ -50,5 +65,6 @@ export default function useSetup() {
     setServerAddress,
     getServerAddress,
     resetSetup,
+    testServerAddress,
   };
 }
