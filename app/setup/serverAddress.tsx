@@ -13,22 +13,20 @@ export default function ServerStep() {
   const [server, setServer] = useState("");
   const [valid, setValid] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>();
 
   const saveServerAddress = async () => {
     if (valid) {
       setLoading(true);
       setup
         .setServerAddress(server)
+        .then(() => setError(undefined))
         .then(() => router.navigate("/setup/api_token"))
-        .catch(() =>
-          Alert.alert(
-            "Could not connect to server, make sure the api is enabled."
-          )
-        );
+        .catch((e) => setError(e.message))
+        .finally(() => setLoading(false));
     } else {
       Alert.alert("Please set a server");
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -56,6 +54,7 @@ export default function ServerStep() {
       <Button onPress={saveServerAddress} disabled={!valid} loading={loading}>
         <Text>Continue</Text>
       </Button>
+      <Text className="color-red-500">{error}</Text>
     </SetupScreenContainer>
   );
 }

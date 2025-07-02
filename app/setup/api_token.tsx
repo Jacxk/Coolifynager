@@ -11,10 +11,17 @@ export default function ApiTokenStep() {
 
   const [token, setToken] = useState("");
   const [valid, setValid] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>();
 
   const saveKey = () => {
     if (valid) {
-      setup.setApiToken(token).catch(console.error);
+      setLoading(true);
+      setup
+        .setApiToken(token)
+        .then(() => setError(undefined))
+        .catch((e) => setError(e.message))
+        .finally(() => setLoading(false));
     } else {
       Alert.alert("Please set a token");
     }
@@ -33,9 +40,10 @@ export default function ApiTokenStep() {
         value={token}
         placeholder="API TOKEN"
       />
-      <Button onPress={saveKey} disabled={!valid}>
+      <Button onPress={saveKey} disabled={!valid} loading={loading}>
         <Text>Save</Text>
       </Button>
+      <Text className="color-red-500">{error}</Text>
     </SetupScreenContainer>
   );
 }
