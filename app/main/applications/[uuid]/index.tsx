@@ -1,9 +1,9 @@
-import { getApplication, getApplicationLogs } from "@/api/application";
+import { getApplication } from "@/api/application";
 import LoadingScreen from "@/components/LoadingScreen";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { Link, router, useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -12,13 +12,10 @@ export default function Application() {
   const { data, isPending: isPendingApplication } = useQuery(
     getApplication(uuid)
   );
-  const { data: logData, isPending: isPendingLogs } = useQuery(
-    getApplicationLogs(uuid)
-  );
 
   const inset = useSafeAreaInsets();
 
-  if (isPendingApplication || isPendingLogs) {
+  if (isPendingApplication) {
     return <LoadingScreen />;
   }
 
@@ -35,11 +32,9 @@ export default function Application() {
       <Text>{data?.git_branch}</Text>
       <Text>{data?.git_commit_sha}</Text>
       <Text>{data?.git_repository}</Text>
-      <Textarea
-        className="h-full"
-        value={logData?.logs ?? "No logs found"}
-        editable={false}
-      />
+      <Button onPress={() => router.push(`/main/applications/${uuid}/logs`)}>
+        <Text>Logs</Text>
+      </Button>
     </View>
   );
 }
