@@ -11,7 +11,7 @@ export function TeamCard({ team }: TeamCardProps) {
     <Link
       href={{
         pathname: "/main/teams/[id]",
-        params: { id: team.id },
+        params: { id: team.id, name: team.name },
       }}
     >
       <Card className="w-full max-w-sm">

@@ -1,4 +1,3 @@
-import { getProject } from "@/api/projects";
 import { getServer } from "@/api/servers";
 import { Text } from "@/components/ui/text";
 import { useQuery } from "@tanstack/react-query";

@@ -11,7 +11,7 @@ export function ServerCard({ server }: ServerCardProps) {
     <Link
       href={{
         pathname: "/main/servers/[uuid]",
-        params: { uuid: server.uuid },
+        params: { uuid: server.uuid, name: server.name },
       }}
     >
       <Card className="w-full max-w-sm">

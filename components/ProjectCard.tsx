@@ -11,7 +11,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <Link
       href={{
         pathname: "/main/projects/[uuid]",
-        params: { uuid: project.uuid },
+        params: { uuid: project.uuid, name: project.name },
       }}
     >
       <Card className="w-full max-w-sm">

@@ -11,7 +11,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
     <Link
       href={{
         pathname: "/main/applications/[uuid]",
-        params: { uuid: application.uuid },
+        params: { uuid: application.uuid, name: application.name },
       }}
     >
       <Card className="w-full max-w-sm">

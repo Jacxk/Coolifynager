@@ -11,7 +11,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
     <Link
       href={{
         pathname: "/main/services/[uuid]",
-        params: { uuid: service.uuid },
+        params: { uuid: service.uuid, name: service.name },
       }}
     >
       <Card className="w-full max-w-sm">
