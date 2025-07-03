@@ -32,10 +32,16 @@ export default function ApplicationLogs() {
       );
 
     return (
-      <ScrollView className="flex-1" onScrollBeginDrag={Keyboard.dismiss}>
+      <ScrollView
+        className="flex-1 px-4 rounded-md border border-input"
+        onScrollBeginDrag={Keyboard.dismiss}
+      >
         <View className="flex-1">
-          {logData.logs.split("\n").map((line) => (
-            <View className={"flex-row items-stretch w-full"}>
+          {logData.logs.split("\n").map((line, index) => (
+            <View
+              className={"flex-row items-stretch w-full"}
+              key={`line-${index}`}
+            >
               <Text className="font-mono" selectable>
                 {line}
               </Text>
@@ -48,26 +54,33 @@ export default function ApplicationLogs() {
 
   return (
     <View
-      className="flex-1 gap-4"
+      className="flex-1 m-4 gap-2"
       style={{
         paddingBottom: inset.bottom,
+        paddingLeft: inset.left,
+        paddingRight: inset.right,
       }}
     >
-      <View className="flex flex-row gap-2">
-        <Input
-          maxLength={10}
-          keyboardType="numeric"
-          value={lines}
-          onChangeText={setLines}
-          className="flex-1"
-        />
-        <Button
-          className="w-32"
-          onPress={() => refetch()}
-          loading={isRefetching}
-        >
-          <Text>Refresh</Text>
-        </Button>
+      <View className="flex">
+        <Text className="text-muted-foreground text-sm">
+          Only Show Number of Lines
+        </Text>
+        <View className="flex flex-row gap-2">
+          <Input
+            maxLength={10}
+            keyboardType="numeric"
+            value={lines}
+            onChangeText={setLines}
+            className="flex-1"
+          />
+          <Button
+            className="w-32"
+            onPress={() => refetch()}
+            loading={isRefetching}
+          >
+            <Text>Refresh</Text>
+          </Button>
+        </View>
       </View>
       <Logs />
     </View>
