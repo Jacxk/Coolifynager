@@ -30,10 +30,10 @@ function DomainsSelect({ domains }: { domains: string[] }) {
 
   return (
     <Select>
-      <SelectTrigger className="w-[250px]">
-        <Text>Domains</Text>
+      <SelectTrigger>
+        <Text>Links</Text>
       </SelectTrigger>
-      <SelectContent insets={contentInsets} className="w-[250px]">
+      <SelectContent insets={contentInsets}>
         <SelectGroup>
           {domains.map((domain) => (
             <SelectItem
@@ -78,7 +78,10 @@ export default function Application() {
       }
     >
       <SafeView className="p-4 gap-4 pt-0">
-        <ApplicationActions />
+        <View className="flex flex-row gap-2 items-center justify-between">
+          <DomainsSelect domains={data?.fqdn.split(",") as string[]} />
+          <ApplicationActions />
+        </View>
         <View>
           <View className="flex flex-row justify-between items-center">
             <H1>{data?.name}</H1>
@@ -94,7 +97,6 @@ export default function Application() {
         <Text>{data?.git_branch}</Text>
         <Text>{data?.git_commit_sha}</Text>
         <Text>{data?.git_repository}</Text>
-        <DomainsSelect domains={data?.fqdn.split(",") as string[]} />
       </SafeView>
     </ScrollView>
   );

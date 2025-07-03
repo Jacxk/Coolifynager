@@ -169,8 +169,9 @@ function SelectItem({
   return (
     <SelectPrimitive.Item
       className={cn(
-        "relative web:group flex flex-row w-full web:cursor-default web:select-none items-center rounded-sm py-1.5 native:py-2 pl-8 native:pl-10 pr-2 web:hover:bg-accent/50 active:bg-accent web:outline-none web:focus:bg-accent",
+        "relative web:group flex flex-row w-full web:cursor-default web:select-none items-center rounded-sm py-1.5 native:py-2 px-2 web:hover:bg-accent/50 active:bg-accent web:outline-none web:focus:bg-accent",
         props.disabled && "web:pointer-events-none opacity-50",
+        !hideIndicator && "pl-8 native:pl-10",
         className
       )}
       {...props}
