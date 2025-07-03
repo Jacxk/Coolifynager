@@ -8,6 +8,7 @@ import {
   Theme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { PortalHost } from "@rn-primitives/portal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -59,6 +60,7 @@ export default function RootLayout() {
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
         <QueryClientProvider client={queryClient}>
           <Stack screenOptions={{ headerShown: false }} />
+          <PortalHost />
         </QueryClientProvider>
       </ThemeProvider>
     </SafeAreaProvider>
