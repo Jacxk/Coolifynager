@@ -1,37 +1,9 @@
-import { Tabs } from "expo-router";
-import { Home, Logs, Rocket, Settings } from "lucide-react-native";
+import { Stack } from "expo-router";
 
-export default function TabLayout() {
+export default function ApplicationLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => <Home size={28} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="deployments"
-        options={{
-          title: "Deployments",
-          tabBarIcon: ({ color }) => <Rocket size={28} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="logs"
-        options={{
-          title: "Logs",
-          tabBarIcon: ({ color }) => <Logs size={28} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ color }) => <Settings size={28} color={color} />,
-        }}
-      />
-    </Tabs>
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    </Stack>
   );
 }

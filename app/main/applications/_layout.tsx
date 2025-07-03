@@ -1,9 +1,5 @@
 import { Stack } from "expo-router";
 
 export default function ApplicationsLayout() {
-  return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="[uuid]" />
-    </Stack>
-  );
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
