@@ -35,6 +35,11 @@ export default function Application() {
       <Button onPress={() => router.push(`/main/applications/${uuid}/logs`)}>
         <Text>Logs</Text>
       </Button>
+      <Button
+        onPress={() => router.push(`/main/applications/${uuid}/deployments`)}
+      >
+        <Text>Deployments</Text>
+      </Button>
     </View>
   );
 }

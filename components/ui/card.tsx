@@ -1,22 +1,33 @@
-import * as React from 'react';
-import { Text, type TextProps, View, type ViewProps } from 'react-native';
-import { cn } from '@/lib/utils';
-import { TextClassContext } from '@/components/ui/text';
+import { TextClassContext } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
+import { Text, type TextProps, View, type ViewProps } from "react-native";
 
-function Card({
-  className,
-  ...props
-}: ViewProps & {
-  ref?: React.RefObject<View>;
-}) {
+const cardVariants = cva(
+  "rounded-lg border border-border bg-card shadow-sm shadow-foreground/10",
+  {
+    variants: {
+      variant: {
+        default: "",
+        destructive: "border-l-red-500 border-l-4",
+        success: "border-l-green-500 border-l-4",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
+
+type CardProps = ViewProps &
+  VariantProps<typeof cardVariants> & {
+    ref?: React.RefObject<View>;
+  };
+
+function Card({ className, variant, ...props }: CardProps) {
   return (
-    <View
-      className={cn(
-        'rounded-lg border border-border bg-card shadow-sm shadow-foreground/10',
-        className
-      )}
-      {...props}
-    />
+    <View className={cn(cardVariants({ variant, className }))} {...props} />
   );
 }
 
@@ -26,7 +37,12 @@ function CardHeader({
 }: ViewProps & {
   ref?: React.RefObject<View>;
 }) {
-  return <View className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />;
+  return (
+    <View
+      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      {...props}
+    />
+  );
 }
 
 function CardTitle({
@@ -37,10 +53,10 @@ function CardTitle({
 }) {
   return (
     <Text
-      role='heading'
+      role="heading"
       aria-level={3}
       className={cn(
-        'text-2xl text-card-foreground font-semibold leading-none tracking-tight',
+        "text-2xl text-card-foreground font-semibold leading-none tracking-tight",
         className
       )}
       {...props}
@@ -54,7 +70,12 @@ function CardDescription({
 }: TextProps & {
   ref?: React.RefObject<Text>;
 }) {
-  return <Text className={cn('text-sm text-muted-foreground', className)} {...props} />;
+  return (
+    <Text
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  );
 }
 
 function CardContent({
@@ -64,8 +85,8 @@ function CardContent({
   ref?: React.RefObject<View>;
 }) {
   return (
-    <TextClassContext.Provider value='text-card-foreground'>
-      <View className={cn('p-6 pt-0', className)} {...props} />
+    <TextClassContext.Provider value="text-card-foreground">
+      <View className={cn("p-6 pt-0", className)} {...props} />
     </TextClassContext.Provider>
   );
 }
@@ -76,7 +97,19 @@ function CardFooter({
 }: ViewProps & {
   ref?: React.RefObject<View>;
 }) {
-  return <View className={cn('flex flex-row items-center p-6 pt-0', className)} {...props} />;
+  return (
+    <View
+      className={cn("flex flex-row items-center p-6 pt-0", className)}
+      {...props}
+    />
+  );
 }
 
-export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle };
+export {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+};
