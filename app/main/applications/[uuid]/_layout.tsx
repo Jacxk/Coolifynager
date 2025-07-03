@@ -5,7 +5,7 @@ export default function TabLayout() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
 
   return (
-    <Tabs>
+    <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
         name="index"
         options={{
