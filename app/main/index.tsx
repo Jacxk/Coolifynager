@@ -1,3 +1,7 @@
+import { Layers } from "@/components/icons/Layers";
+import { PackageOpen } from "@/components/icons/PackageOpen";
+import { Server } from "@/components/icons/Server";
+import { Users } from "@/components/icons/Users";
 import {
   Card,
   CardDescription,
@@ -12,22 +16,22 @@ const cards = [
   {
     label: "Projects",
     route: "/main/projects" as const,
-    icon: "📁",
+    icon: <Layers className="text-primary" />,
   },
   {
     label: "Applications",
     route: "/main/applications" as const,
-    icon: "🗂️",
+    icon: <PackageOpen className="text-primary" />,
   },
   {
     label: "Servers",
     route: "/main/servers" as const,
-    icon: "🖥️",
+    icon: <Server className="text-primary" />,
   },
   {
     label: "Teams",
     route: "/main/teams" as const,
-    icon: "👥",
+    icon: <Users className="text-primary" />,
   },
 ];
 
@@ -40,7 +44,7 @@ export default function MainIndex() {
           <Link key={card.label} href={card.route} className="flex w-1/2 p-2">
             <Card className="w-full">
               <CardHeader className="flex items-center justify-center">
-                <CardTitle className="text-8xl">{card.icon}</CardTitle>
+                <CardTitle>{card.icon}</CardTitle>
                 <CardDescription className="text-lg font-semibold">
                   {card.label}
                 </CardDescription>

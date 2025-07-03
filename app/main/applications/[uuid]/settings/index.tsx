@@ -1,7 +1,7 @@
+import { ChevronRight } from "@/components/icons/ChevronRight";
+import { Code } from "@/components/icons/Code";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
-import { ChevronRight } from "@/lib/icons/ChevronRight";
-import { Code } from "@/lib/icons/Code";
 import { Link } from "expo-router";
 import { ScrollView, View } from "react-native";
 
