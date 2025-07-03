@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Keyboard, ScrollView, View } from "react-native";
 
 export default function ApplicationLogs() {
   const [lines, setLines] = useState("100");
-  const { uuid } = useLocalSearchParams<{ uuid: string }>();
+  const { uuid } = useGlobalSearchParams<{ uuid: string }>();
   const {
     data: logData,
     isPending: isPendingLogs,
@@ -47,7 +47,7 @@ export default function ApplicationLogs() {
   };
 
   return (
-    <SafeView className="gap-2">
+    <SafeView className="gap-2" bottomInset={false}>
       <View className="flex">
         <Text className="text-muted-foreground text-sm">
           Only Show Number of Lines

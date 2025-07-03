@@ -5,11 +5,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface SafeViewProps extends ViewProps {
   topInset?: boolean;
+  bottomInset?: boolean;
   className?: string;
 }
 
 export const SafeView = React.forwardRef<View, SafeViewProps>(
-  ({ topInset = false, className, style, ...props }, ref) => {
+  (
+    { topInset = false, bottomInset = true, className, style, ...props },
+    ref
+  ) => {
     const inset = useSafeAreaInsets();
     return (
       <View
@@ -20,8 +24,8 @@ export const SafeView = React.forwardRef<View, SafeViewProps>(
           {
             paddingLeft: inset.left,
             paddingRight: inset.right,
-            paddingBottom: inset.bottom,
             ...(topInset ? { paddingTop: inset.top } : {}),
+            ...(bottomInset ? { paddingBottom: inset.bottom } : {}),
           },
         ]}
         {...props}

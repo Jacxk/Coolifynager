@@ -4,13 +4,11 @@ import { SafeView } from "@/components/SafeView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { FlatList } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ApplicationDeployments() {
-  const inset = useSafeAreaInsets();
-  const { uuid } = useLocalSearchParams<{ uuid: string }>();
+  const { uuid } = useGlobalSearchParams<{ uuid: string }>();
   const { data, isPending, refetch, isFetching } = useQuery(
     getApplicationDeployments(uuid)
   );
@@ -29,11 +27,7 @@ export default function ApplicationDeployments() {
 
   return (
     <FlatList
-      className="flex-1 px-4"
-      style={{
-        paddingTop: inset.top,
-        marginBottom: inset.bottom,
-      }}
+      className="flex-1 p-4"
       data={data.deployments}
       keyExtractor={(item) => item.deployment_uuid}
       refreshing={isFetching}
