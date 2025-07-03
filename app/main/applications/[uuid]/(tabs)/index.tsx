@@ -1,4 +1,5 @@
 import { getApplication } from "@/api/application";
+import { ApplicationActions } from "@/components/ApplicationActions";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
 import {
@@ -9,6 +10,8 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
+import { H1 } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
@@ -51,23 +54,48 @@ function DomainsSelect({ domains }: { domains: string[] }) {
 
 export default function Application() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
-  const { data, isPending: isPendingApplication } = useQuery(
-    getApplication(uuid)
-  );
+  const {
+    data,
+    isPending: isPendingApplication,
+    refetch,
+  } = useQuery(getApplication(uuid));
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (isPendingApplication) {
     return <LoadingScreen />;
   }
 
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    refetch().finally(() => setIsRefreshing(false));
+  };
+
   return (
-    <SafeView className="p-4">
-      <Text>{data?.name}</Text>
-      <Text>{data?.description}</Text>
-      <Text>{data?.status}</Text>
-      <Text>{data?.git_branch}</Text>
-      <Text>{data?.git_commit_sha}</Text>
-      <Text>{data?.git_repository}</Text>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+      }
+    >
+      <SafeView className="p-4 gap-4 pt-0">
+        <ApplicationActions />
+        <View>
+          <View className="flex flex-row justify-between items-center">
+            <H1>{data?.name}</H1>
+            <View
+              className={cn("size-4 rounded-full animate-pulse", {
+                "bg-green-500": data?.status === "running:healthy",
+              })}
+            />
+          </View>
+          <Text className="text-muted-foreground">{data?.description}</Text>
+        </View>
+        <Text>{data?.status}</Text>
+        <Text>{data?.git_branch}</Text>
+        <Text>{data?.git_commit_sha}</Text>
+        <Text>{data?.git_repository}</Text>
         <DomainsSelect domains={data?.fqdn.split(",") as string[]} />
-    </SafeView>
+      </SafeView>
+    </ScrollView>
   );
 }
