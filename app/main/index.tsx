@@ -33,11 +33,11 @@ const cards = [
 
 export default function MainIndex() {
   return (
-    <ScrollView className="p-8 gap-4">
+    <ScrollView className="p-6 gap-4">
       <H1>Main Dashboard</H1>
       <View className="flex flex-row flex-wrap">
         {cards.map((card) => (
-          <Link key={card.label} href={card.route} className="flex w-1/2">
+          <Link key={card.label} href={card.route} className="flex w-1/2 p-2">
             <Card className="w-full">
               <CardHeader className="flex items-center justify-center">
                 <CardTitle className="text-8xl">{card.icon}</CardTitle>

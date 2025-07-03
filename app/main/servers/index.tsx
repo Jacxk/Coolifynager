@@ -1,13 +1,16 @@
 import { getServers } from "@/api/servers";
 import LoadingScreen from "@/components/LoadingScreen";
+import { SafeView } from "@/components/SafeView";
 import { ServerCard } from "@/components/ServerCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
 import { FlatList, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ServersIndex() {
   const { data, isPending } = useQuery(getServers);
+  const inset = useSafeAreaInsets();
 
   if (isPending) {
     return <LoadingScreen />;
@@ -15,15 +18,15 @@ export default function ServersIndex() {
 
   if (!data || data.length === 0) {
     return (
-      <View className="flex-1 justify-center items-center p-8">
+      <SafeView>
         <H1>Servers</H1>
         <Text>No servers found.</Text>
-      </View>
+      </SafeView>
     );
   }
 
   return (
-    <View className="flex-1 p-8">
+    <SafeView>
       <H1>Servers</H1>
       <FlatList
         className="flex-1 mt-4"
@@ -32,6 +35,6 @@ export default function ServersIndex() {
         renderItem={({ item }) => <ServerCard server={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
       />
-    </View>
+    </SafeView>
   );
 }

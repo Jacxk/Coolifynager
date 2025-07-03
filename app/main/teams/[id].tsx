@@ -1,9 +1,9 @@
 import { getTeam } from "@/api/teams";
 import LoadingScreen from "@/components/LoadingScreen";
+import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { View } from "react-native";
 
 export default function Team() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -14,7 +14,7 @@ export default function Team() {
   }
 
   return (
-    <View>
+    <SafeView>
       <Text>{data?.name}</Text>
       <Text>{data?.description}</Text>
       <Text>{data?.id}</Text>
@@ -24,6 +24,6 @@ export default function Team() {
           {member.name} ({member.email})
         </Text>
       ))}
-    </View>
+    </SafeView>
   );
 }

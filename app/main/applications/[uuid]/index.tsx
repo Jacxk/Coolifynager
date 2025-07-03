@@ -1,10 +1,10 @@
 import { getApplication } from "@/api/application";
 import LoadingScreen from "@/components/LoadingScreen";
+import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Application() {
@@ -20,12 +20,7 @@ export default function Application() {
   }
 
   return (
-    <View
-      className="p-4 flex-1"
-      style={{
-        paddingBottom: inset.bottom,
-      }}
-    >
+    <SafeView className="p-4">
       <Text>{data?.name}</Text>
       <Text>{data?.description}</Text>
       <Text>{data?.status}</Text>
@@ -40,6 +35,6 @@ export default function Application() {
       >
         <Text>Deployments</Text>
       </Button>
-    </View>
+    </SafeView>
   );
 }

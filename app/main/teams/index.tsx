@@ -1,13 +1,16 @@
 import { getTeams } from "@/api/teams";
 import LoadingScreen from "@/components/LoadingScreen";
+import { SafeView } from "@/components/SafeView";
 import { TeamCard } from "@/components/TeamCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
 import { FlatList, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TeamsIndex() {
   const { data, isPending } = useQuery(getTeams);
+  const inset = useSafeAreaInsets();
 
   if (isPending) {
     return <LoadingScreen />;
@@ -15,15 +18,15 @@ export default function TeamsIndex() {
 
   if (!data || data.length === 0) {
     return (
-      <View className="flex-1 justify-center items-center p-8">
+      <SafeView>
         <H1>Teams</H1>
         <Text>No teams found.</Text>
-      </View>
+      </SafeView>
     );
   }
 
   return (
-    <View className="flex-1 p-8">
+    <SafeView>
       <H1>Teams</H1>
       <FlatList
         className="flex-1 mt-4"
@@ -32,6 +35,6 @@ export default function TeamsIndex() {
         renderItem={({ item }) => <TeamCard team={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
       />
-    </View>
+    </SafeView>
   );
 }

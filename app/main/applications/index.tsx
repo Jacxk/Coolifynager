@@ -1,6 +1,7 @@
 import { getApplications } from "@/api/application";
 import { ApplicationCard } from "@/components/ApplicationCard";
 import LoadingScreen from "@/components/LoadingScreen";
+import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
@@ -23,7 +24,7 @@ export default function ApplicationsIndex() {
   }
 
   return (
-    <View className="flex-1 p-8">
+    <SafeView>
       <H1>Applications</H1>
       <FlatList
         className="flex-1 mt-4"
@@ -32,6 +33,6 @@ export default function ApplicationsIndex() {
         renderItem={({ item }) => <ApplicationCard application={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
       />
-    </View>
+    </SafeView>
   );
 }

@@ -1,5 +1,6 @@
 import { getApplicationLogs } from "@/api/application";
 import LoadingScreen from "@/components/LoadingScreen";
+import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -8,7 +9,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Keyboard, ScrollView, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ApplicationLogs() {
   const [lines, setLines] = useState("100");
@@ -19,8 +19,6 @@ export default function ApplicationLogs() {
     refetch,
     isRefetching,
   } = useQuery(getApplicationLogs(uuid, Number(lines)));
-
-  const inset = useSafeAreaInsets();
 
   const Logs = () => {
     if (isPendingLogs) return <LoadingScreen />;
@@ -53,14 +51,7 @@ export default function ApplicationLogs() {
   };
 
   return (
-    <View
-      className="flex-1 m-4 gap-2"
-      style={{
-        paddingBottom: inset.bottom,
-        paddingLeft: inset.left,
-        paddingRight: inset.right,
-      }}
-    >
+    <SafeView className="gap-2">
       <View className="flex">
         <Text className="text-muted-foreground text-sm">
           Only Show Number of Lines
@@ -83,6 +74,6 @@ export default function ApplicationLogs() {
         </View>
       </View>
       <Logs />
-    </View>
+    </SafeView>
   );
 }
