@@ -4,7 +4,6 @@ import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { H2 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -21,32 +20,29 @@ export default function ApplicationLogs() {
   } = useQuery(getApplicationLogs(uuid, Number(lines)));
 
   const Logs = () => {
-    if (isPendingLogs) return <LoadingScreen />;
+    if (isPendingLogs) return <LoadingScreen className="pt-4" />;
     if (!logData)
       return (
-        <View className="flex-1 justify-center items-center">
-          <H2 className="border-0 text-muted-foreground">No logs found</H2>
+        <View className="flex-1 pt-4 items-center">
+          <Text className="border-0 text-muted-foreground font-mono">
+            No logs found
+          </Text>
         </View>
       );
 
     return (
-      <ScrollView
-        className="flex-1 px-4 rounded-md border border-input"
-        onScrollBeginDrag={Keyboard.dismiss}
-      >
-        <View className="flex-1">
-          {logData.logs.split("\n").map((line, index) => (
-            <View
-              className={"flex-row items-stretch w-full"}
-              key={`line-${index}`}
-            >
-              <Text className="font-mono" selectable>
-                {line}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
+      <View className="flex-1">
+        {logData.logs.split("\n").map((line, index) => (
+          <View
+            className={"flex-row items-stretch w-full"}
+            key={`line-${index}`}
+          >
+            <Text className="font-mono" selectable>
+              {line}
+            </Text>
+          </View>
+        ))}
+      </View>
     );
   };
 
@@ -73,7 +69,13 @@ export default function ApplicationLogs() {
           </Button>
         </View>
       </View>
-      <Logs />
+
+      <ScrollView
+        className="flex-1 p-4 rounded-md border border-input"
+        onScrollBeginDrag={Keyboard.dismiss}
+      >
+        <Logs />
+      </ScrollView>
     </SafeView>
   );
 }
