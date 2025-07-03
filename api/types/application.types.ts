@@ -85,3 +85,36 @@ export type Application = {
 export type ApplicationLogs = {
   logs: string;
 };
+
+export type ApplicationEnv = {
+  id: number;
+  uuid: string;
+  resourceable_type: string;
+  resourceable_id: number;
+  is_build_time: boolean;
+  is_literal: boolean;
+  is_multiline: boolean;
+  is_preview: boolean;
+  is_shared: boolean;
+  is_shown_once: boolean;
+  key: string;
+  value: string;
+  real_value: string;
+  version: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateApplicationEnvBody = {
+  key: string;
+  value: string;
+  is_preview: boolean;
+  is_build_time: boolean;
+  is_literal: boolean;
+  is_multiline: boolean;
+  is_shown_once: boolean;
+};
+
+export type CreateApplicationEnvResponse = {
+  uuid: string;
+};

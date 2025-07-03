@@ -1,17 +1,16 @@
-import { ApplicationEnv, getApplicationEnvs } from "@/api/application";
+import { getApplicationEnvs } from "@/api/application";
+import { ApplicationEnv } from "@/api/types/application.types";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
-import { useGlobalSearchParams } from "expo-router";
 import React from "react";
 import { View } from "react-native";
 import { Card, CardContent } from "./ui/card";
 
-export default function EnvironmentVariableList() {
-  const { uuid } = useGlobalSearchParams<{ uuid: string }>();
+export default function EnvironmentVariableList({ uuid }: { uuid: string }) {
   const { data: envs, isPending } = useQuery(getApplicationEnvs(uuid));
 
   if (isPending) return <LoadingScreen />;
