@@ -16,22 +16,22 @@ const cards = [
   {
     label: "Projects",
     route: "/main/projects" as const,
-    icon: <Layers className="text-primary" />,
+    icon: <Layers />,
   },
   {
     label: "Applications",
     route: "/main/applications" as const,
-    icon: <PackageOpen className="text-primary" />,
+    icon: <PackageOpen />,
   },
   {
     label: "Servers",
     route: "/main/servers" as const,
-    icon: <Server className="text-primary" />,
+    icon: <Server />,
   },
   {
     label: "Teams",
     route: "/main/teams" as const,
-    icon: <Users className="text-primary" />,
+    icon: <Users />,
   },
 ];
 
