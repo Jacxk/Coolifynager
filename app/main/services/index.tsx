@@ -1,7 +1,7 @@
 import { getServices } from "@/api/services";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
-import { ServiceCard } from "@/components/ServiceCard";
+import { ServiceCard } from "@/components/cards/ServiceCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";

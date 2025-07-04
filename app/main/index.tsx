@@ -1,7 +1,9 @@
+import { FavoritesList } from "@/components/FavoritesList";
 import { Layers } from "@/components/icons/Layers";
 import { PackageOpen } from "@/components/icons/PackageOpen";
 import { Server } from "@/components/icons/Server";
 import { Users } from "@/components/icons/Users";
+import { SafeView } from "@/components/SafeView";
 import {
   Card,
   CardDescription,
@@ -37,22 +39,25 @@ const cards = [
 
 export default function MainIndex() {
   return (
-    <ScrollView className="p-6 gap-4">
-      <H1>Main Dashboard</H1>
-      <View className="flex flex-row flex-wrap">
-        {cards.map((card) => (
-          <Link key={card.label} href={card.route} className="flex w-1/2 p-2">
-            <Card className="w-full">
-              <CardHeader className="flex items-center justify-center">
-                <CardTitle>{card.icon}</CardTitle>
-                <CardDescription className="text-lg font-semibold">
-                  {card.label}
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </View>
+    <ScrollView>
+      <SafeView>
+        <H1>Main Dashboard</H1>
+        <View className="flex flex-row flex-wrap">
+          {cards.map((card) => (
+            <Link key={card.label} href={card.route} className="flex w-1/2 p-2">
+              <Card className="w-full">
+                <CardHeader className="flex items-center justify-center">
+                  <CardTitle>{card.icon}</CardTitle>
+                  <CardDescription className="text-lg font-semibold">
+                    {card.label}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          ))}
+        </View>
+        <FavoritesList />
+      </SafeView>
     </ScrollView>
   );
 }

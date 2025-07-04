@@ -1,6 +1,6 @@
 import { getProjects } from "@/api/projects";
+import { ProjectCard } from "@/components/cards/ProjectCard";
 import LoadingScreen from "@/components/LoadingScreen";
-import { ProjectCard } from "@/components/ProjectCard";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";

@@ -1,7 +1,7 @@
 import { getServers } from "@/api/servers";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
-import { ServerCard } from "@/components/ServerCard";
+import { ServerCard } from "@/components/cards/ServerCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";

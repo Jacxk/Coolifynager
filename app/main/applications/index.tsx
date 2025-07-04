@@ -1,5 +1,5 @@
 import { getApplications } from "@/api/application";
-import { ApplicationCard } from "@/components/ApplicationCard";
+import { ApplicationCard } from "@/components/cards/ApplicationCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
@@ -32,7 +32,14 @@ export default function ApplicationsIndex() {
         className="flex-1 mt-4"
         data={data}
         keyExtractor={(item) => item.uuid}
-        renderItem={({ item }) => <ApplicationCard application={item} />}
+        renderItem={({ item }) => (
+          <ApplicationCard
+            uuid={item.uuid}
+            name={item.name}
+            description={item.description}
+            status={item.status}
+          />
+        )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         refreshing={isRefreshing}
         onRefresh={() => {
