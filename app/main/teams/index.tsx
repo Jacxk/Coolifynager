@@ -5,11 +5,13 @@ import { TeamCard } from "@/components/TeamCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TeamsIndex() {
-  const { data, isPending } = useQuery(getTeams);
+  const { data, isPending, refetch } = useQuery(getTeams);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const inset = useSafeAreaInsets();
 
   if (isPending) {
@@ -34,6 +36,11 @@ export default function TeamsIndex() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <TeamCard team={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        refreshing={isRefreshing}
+        onRefresh={() => {
+          setIsRefreshing(true);
+          refetch().finally(() => setIsRefreshing(false));
+        }}
       />
     </SafeView>
   );

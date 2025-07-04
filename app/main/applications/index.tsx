@@ -5,10 +5,12 @@ import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { FlatList, View } from "react-native";
 
 export default function ApplicationsIndex() {
-  const { data, isPending } = useQuery(getApplications);
+  const { data, isPending, refetch } = useQuery(getApplications);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (isPending) {
     return <LoadingScreen />;
@@ -32,6 +34,11 @@ export default function ApplicationsIndex() {
         keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => <ApplicationCard application={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        refreshing={isRefreshing}
+        onRefresh={() => {
+          setIsRefreshing(true);
+          refetch().finally(() => setIsRefreshing(false));
+        }}
       />
     </SafeView>
   );

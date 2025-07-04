@@ -5,11 +5,13 @@ import { ServiceCard } from "@/components/ServiceCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ServicesIndex() {
-  const { data, isPending } = useQuery(getServices);
+  const { data, isPending, refetch } = useQuery(getServices);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const inset = useSafeAreaInsets();
 
   if (isPending) {
@@ -34,6 +36,11 @@ export default function ServicesIndex() {
         keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => <ServiceCard service={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        refreshing={isRefreshing}
+        onRefresh={() => {
+          setIsRefreshing(true);
+          refetch().finally(() => setIsRefreshing(false));
+        }}
       />
     </SafeView>
   );

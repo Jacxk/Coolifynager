@@ -5,11 +5,13 @@ import { ServerCard } from "@/components/ServerCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ServersIndex() {
-  const { data, isPending } = useQuery(getServers);
+  const { data, isPending, refetch } = useQuery(getServers);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const inset = useSafeAreaInsets();
 
   if (isPending) {
@@ -34,6 +36,11 @@ export default function ServersIndex() {
         keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => <ServerCard server={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        refreshing={isRefreshing}
+        onRefresh={async () => {
+          setIsRefreshing(true);
+          await refetch().finally(() => setIsRefreshing(false));
+        }}
       />
     </SafeView>
   );

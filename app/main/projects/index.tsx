@@ -5,11 +5,13 @@ import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProjectsIndex() {
-  const { data, isPending } = useQuery(getProjects);
+  const { data, isPending, refetch } = useQuery(getProjects);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const inset = useSafeAreaInsets();
 
   if (isPending) {
@@ -34,6 +36,11 @@ export default function ProjectsIndex() {
         keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => <ProjectCard project={item} />}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        refreshing={isRefreshing}
+        onRefresh={() => {
+          setIsRefreshing(true);
+          refetch().finally(() => setIsRefreshing(false));
+        }}
       />
     </SafeView>
   );

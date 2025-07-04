@@ -43,7 +43,10 @@ export default function ApplicationEnvironmentsCreate() {
   };
 
   return (
-    <ScrollView onScrollBeginDrag={Keyboard.dismiss} keyboardShouldPersistTaps>
+    <ScrollView
+      onScrollBeginDrag={Keyboard.dismiss}
+      keyboardShouldPersistTaps="always"
+    >
       <SafeView className="gap-4">
         <H3>New Environment Variable</H3>
         <View>
