@@ -118,3 +118,17 @@ export type CreateApplicationEnvBody = {
 export type CreateApplicationEnvResponse = {
   uuid: string;
 };
+
+export type ApplicationStartResponse = {
+  message: string;
+  deployment_uuid: string;
+};
+
+export type ApplicationStopResponse = {
+  message: string;
+};
+
+export type ApplicationRestartResponse = {
+  message: string;
+  deployment_uuid: string;
+};

@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { Link } from "expo-router";
 import { ScrollView, View } from "react-native";
@@ -57,6 +58,9 @@ export default function MainIndex() {
           ))}
         </View>
         <FavoritesList />
+        <Link href="/setup/api_token">
+          <Text>Change api token</Text>
+        </Link>
       </SafeView>
     </ScrollView>
   );

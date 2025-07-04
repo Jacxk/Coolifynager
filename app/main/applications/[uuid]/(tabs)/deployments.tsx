@@ -40,6 +40,8 @@ export default function ApplicationDeployments() {
               ? "success"
               : deployment.status === "failed"
               ? "destructive"
+              : deployment.status === "in_progress"
+              ? "info"
               : "default"
           }
         >

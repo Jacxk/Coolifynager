@@ -1,4 +1,5 @@
 import { Pause } from "@/components/icons/Pause";
+import { Play } from "@/components/icons/Play";
 import { RotateCw } from "@/components/icons/RotateCw";
 import { RotateCwSquare } from "@/components/icons/RotateCwSquare";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { Text } from "./ui/text";
 
 interface RestartActionProps {
   onRestart?: () => void;
+  disabled?: boolean;
 }
 
 interface RedeployActionProps {
@@ -26,19 +28,35 @@ interface RedeployActionProps {
 
 interface StopActionProps {
   onStop?: () => void;
+  disabled?: boolean;
+}
+
+interface StartActionProps {
+  onStart?: () => void;
+  disabled?: boolean;
 }
 
 type ApplicationActionsProps = {
   className?: string;
+  isRunning?: boolean;
+  onStart?: () => void;
+  startDisabled?: boolean;
+  stopDisabled?: boolean;
+  restartDisabled?: boolean;
 } & RestartActionProps &
   RedeployActionProps &
   StopActionProps;
 
-function RestartAction({ onRestart }: RestartActionProps) {
+function RestartAction({ onRestart, disabled }: RestartActionProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" aria-label="Restart">
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label="Restart"
+          disabled={disabled}
+        >
           <RotateCw className="text-yellow-500" />
         </Button>
       </DialogTrigger>
@@ -55,7 +73,7 @@ function RestartAction({ onRestart }: RestartActionProps) {
               <Text>Cancel</Text>
             </Button>
           </DialogClose>
-          <Button onPress={onRestart}>
+          <Button onPress={onRestart} disabled={disabled}>
             <Text>Restart</Text>
           </Button>
         </DialogFooter>
@@ -94,11 +112,16 @@ function RedeployAction({ onRedeploy }: RedeployActionProps) {
   );
 }
 
-function StopAction({ onStop }: StopActionProps) {
+function StopAction({ onStop, disabled }: StopActionProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" aria-label="Stop">
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label="Stop"
+          disabled={disabled}
+        >
           <Pause className="text-red-500" />
         </Button>
       </DialogTrigger>
@@ -115,8 +138,43 @@ function StopAction({ onStop }: StopActionProps) {
               <Text>Cancel</Text>
             </Button>
           </DialogClose>
-          <Button onPress={onStop}>
+          <Button onPress={onStop} disabled={disabled}>
             <Text>Stop</Text>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function StartAction({ onStart, disabled }: StartActionProps) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label="Start"
+          disabled={disabled}
+        >
+          <Play className="text-green-500" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="m-4">
+        <DialogHeader>
+          <DialogTitle>Start Application</DialogTitle>
+          <DialogDescription>
+            Do you want to start this application?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex flex-row gap-2 self-end">
+          <DialogClose asChild>
+            <Button variant="secondary">
+              <Text>Cancel</Text>
+            </Button>
+          </DialogClose>
+          <Button onPress={onStart} disabled={disabled}>
+            <Text>Start</Text>
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -126,15 +184,26 @@ function StopAction({ onStop }: StopActionProps) {
 
 export function ApplicationActions({
   className,
+  isRunning,
+  startDisabled,
+  stopDisabled,
+  restartDisabled,
   onRedeploy,
   onRestart,
   onStop,
+  onStart,
 }: ApplicationActionsProps) {
   return (
     <View className={cn("flex flex-row gap-2", className)}>
-      <RedeployAction onRedeploy={onRedeploy} />
-      <RestartAction onRestart={onRestart} />
-      <StopAction onStop={onStop} />
+      {isRunning ? (
+        <>
+          <RedeployAction onRedeploy={onRedeploy} />
+          <RestartAction onRestart={onRestart} disabled={restartDisabled} />
+          <StopAction onStop={onStop} disabled={stopDisabled} />
+        </>
+      ) : (
+        <StartAction onStart={onStart} disabled={startDisabled} />
+      )}
     </View>
   );
 }
