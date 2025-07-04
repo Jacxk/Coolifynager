@@ -4,7 +4,9 @@ import { RotateCw } from "@/components/icons/RotateCw";
 import { RotateCwSquare } from "@/components/icons/RotateCwSquare";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Terminal, X } from "lucide-react-native";
 import { View } from "react-native";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import {
   Dialog,
   DialogClose,
@@ -127,19 +129,42 @@ function StopAction({ onStop, disabled }: StopActionProps) {
       </DialogTrigger>
       <DialogContent className="m-4">
         <DialogHeader>
-          <DialogTitle>Stop Application</DialogTitle>
-          <DialogDescription>
-            Do you want to stop this application?
+          <DialogTitle>Confirm Application Stopping?</DialogTitle>
+          <DialogDescription asChild>
+            <Alert icon={Terminal} variant="destructive">
+              <AlertTitle>Warning</AlertTitle>
+              <AlertDescription>
+                This operation is permanent and cannot be undone. Please think
+                again before proceeding!
+              </AlertDescription>
+            </Alert>
           </DialogDescription>
         </DialogHeader>
+
+        <Text className="text-muted-foreground">
+          The following actions will be performed:
+        </Text>
+        <View className="flex flex-row">
+          <X color="red" />
+          <Text className="text-red-500">
+            This application will be stopped.
+          </Text>
+        </View>
+        <View className="flex flex-row">
+          <X color="red" />
+          <Text className="text-red-500">
+            All non-persistent data of this application will be deleted.
+          </Text>
+        </View>
+
         <DialogFooter className="flex flex-row gap-2 self-end">
           <DialogClose asChild>
             <Button variant="secondary">
               <Text>Cancel</Text>
             </Button>
           </DialogClose>
-          <Button onPress={onStop} disabled={disabled}>
-            <Text>Stop</Text>
+          <Button onPress={onStop} disabled={disabled} variant="destructive">
+            <Text>Confirm</Text>
           </Button>
         </DialogFooter>
       </DialogContent>
