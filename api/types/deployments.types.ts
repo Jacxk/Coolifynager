@@ -36,3 +36,13 @@ export type DeploymentResponse = {
     deployment_uuid: string;
   }[];
 };
+
+export type DeploymentLogData = {
+  command?: string;
+  output: string;
+  type: string;
+  timestamp: string;
+  hidden: boolean;
+  batch: number;
+  order?: number;
+};

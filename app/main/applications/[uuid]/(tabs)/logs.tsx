@@ -1,5 +1,6 @@
 import { getApplicationLogs } from "@/api/application";
 import LoadingScreen from "@/components/LoadingScreen";
+import LogsViewer from "@/components/LogsViewer";
 import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,33 +19,6 @@ export default function ApplicationLogs() {
     refetch,
     isRefetching,
   } = useQuery(getApplicationLogs(uuid, Number(lines)));
-
-  const Logs = () => {
-    if (isPendingLogs) return <LoadingScreen className="pt-4" />;
-    if (!logData)
-      return (
-        <View className="flex-1 pt-4 items-center">
-          <Text className="border-0 text-muted-foreground font-mono">
-            No logs found
-          </Text>
-        </View>
-      );
-
-    return (
-      <View className="flex-1">
-        {logData.logs.split("\n").map((line, index) => (
-          <View
-            className={"flex-row items-stretch w-full"}
-            key={`line-${index}`}
-          >
-            <Text className="font-mono" selectable>
-              {line}
-            </Text>
-          </View>
-        ))}
-      </View>
-    );
-  };
 
   return (
     <SafeView className="gap-2" bottomInset={false}>
@@ -74,7 +48,17 @@ export default function ApplicationLogs() {
         className="flex-1 p-4 rounded-md border border-input"
         onScrollBeginDrag={Keyboard.dismiss}
       >
-        <Logs />
+        {isPendingLogs ? (
+          <LoadingScreen className="pt-4" />
+        ) : !logData ? (
+          <View className="flex-1 pt-4 items-center">
+            <Text className="border-0 text-muted-foreground font-mono">
+              No logs found
+            </Text>
+          </View>
+        ) : (
+          <LogsViewer logs={logData.logs} />
+        )}
       </ScrollView>
     </SafeView>
   );

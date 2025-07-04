@@ -13,6 +13,7 @@ const cardVariants = cva(
         destructive: "border-l-red-500 border-l-4",
         success: "border-l-green-500 border-l-4",
         info: "border-l-yellow-500 border-l-4",
+        ghost: "border-l-foreground border-l-4",
       },
     },
     defaultVariants: {
