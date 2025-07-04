@@ -1,16 +1,10 @@
 import { FAVORITES_STORAGE_KEY } from "@/constants/AppDetails";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
-// Only import useFocusEffect if available (for React Navigation/Expo Router)
-let useFocusEffect: any = null;
-try {
-  // Dynamically require to avoid breaking in non-navigation environments
-  useFocusEffect = require("@react-navigation/native").useFocusEffect;
-} catch {}
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 
 export function useFavorites<T extends Record<string, any>>(
-  uniqueKey: keyof T = "uuid" as keyof T,
-  options?: { refreshOnFocus?: boolean }
+  uniqueKey: keyof T = "uuid" as keyof T
 ) {
   const [favorites, setFavorites] = useState<T[]>([]);
 
@@ -20,18 +14,11 @@ export function useFavorites<T extends Record<string, any>>(
     });
   }, []);
 
-  // If refreshOnFocus is true and useFocusEffect is available, use it
-  if (options?.refreshOnFocus && useFocusEffect) {
-    useFocusEffect(
-      useCallback(() => {
-        loadFavorites();
-      }, [loadFavorites])
-    );
-  } else {
-    useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
       loadFavorites();
-    }, [loadFavorites]);
-  }
+    }, [loadFavorites])
+  );
 
   const isFavorite = useCallback(
     (item: T) => favorites.some((fav) => fav[uniqueKey] === item[uniqueKey]),
@@ -39,17 +26,17 @@ export function useFavorites<T extends Record<string, any>>(
   );
 
   const toggleFavorite = useCallback(
-    (item: T) => {
-      setFavorites((prev) => {
-        let data;
-        if (prev.some((fav) => fav[uniqueKey] === item[uniqueKey])) {
-          data = prev.filter((fav) => fav[uniqueKey] !== item[uniqueKey]);
-        } else {
-          data = [...prev, item];
-        }
-        AsyncStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(data));
-        return data;
-      });
+    async (item: T) => {
+      const favoriteString = await AsyncStorage.getItem(FAVORITES_STORAGE_KEY);
+      const prev: T[] = JSON.parse(favoriteString ?? "[]");
+      let data;
+      if (prev.some((fav) => fav[uniqueKey] === item[uniqueKey])) {
+        data = prev.filter((fav) => fav[uniqueKey] !== item[uniqueKey]);
+      } else {
+        data = [...prev, item];
+      }
+      await AsyncStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(data));
+      setFavorites(data);
     },
     [uniqueKey]
   );

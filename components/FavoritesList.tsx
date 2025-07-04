@@ -15,7 +15,7 @@ import {
 import { H2 } from "./ui/typography";
 
 export function FavoritesList() {
-  const { favorites } = useFavorites<any>("uuid", { refreshOnFocus: true });
+  const { favorites } = useFavorites<any>("uuid");
 
   if (!favorites.length) {
     return (
