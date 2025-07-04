@@ -29,16 +29,19 @@ const LogsViewer: React.FC<LogsViewerProps> = ({ logs, className }) => {
   if (typeof logs === "string") {
     return (
       <View className={className || "flex-1"}>
-        {logs.split("\n").map((line, index) => (
-          <View
-            className={"flex-row items-stretch w-full"}
-            key={`line-${index}`}
-          >
-            <Text className="font-mono" selectable>
-              {line}
-            </Text>
-          </View>
-        ))}
+        {logs
+          .split("\n")
+          .reverse()
+          .map((line, index) => (
+            <View
+              className={"flex-row items-stretch w-full"}
+              key={`line-${index}`}
+            >
+              <Text className="font-mono" selectable>
+                {line}
+              </Text>
+            </View>
+          ))}
       </View>
     );
   }

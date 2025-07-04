@@ -2,23 +2,31 @@ import { getApplicationLogs } from "@/api/application";
 import LoadingScreen from "@/components/LoadingScreen";
 import LogsViewer from "@/components/LogsViewer";
 import { SafeView } from "@/components/SafeView";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useQuery } from "@tanstack/react-query";
-import { useGlobalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useFocusEffect, useGlobalSearchParams } from "expo-router";
+import { useCallback, useState } from "react";
 import { Keyboard, ScrollView, View } from "react-native";
 
 export default function ApplicationLogs() {
-  const [lines, setLines] = useState("100");
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
-  const {
-    data: logData,
-    isPending: isPendingLogs,
-    refetch,
-    isRefetching,
-  } = useQuery(getApplicationLogs(uuid, Number(lines)));
+
+  const [lines, setLines] = useState("100");
+  const [isFocused, setIsFocused] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => setIsFocused(false);
+    }, [])
+  );
+
+  const { data: logData, isPending: isPendingLogs } = useQuery({
+    ...getApplicationLogs(uuid, Number(lines)),
+    refetchInterval: 2000,
+    enabled: isFocused,
+  });
 
   return (
     <SafeView className="gap-2" bottomInset={false}>
@@ -34,13 +42,6 @@ export default function ApplicationLogs() {
             onChangeText={setLines}
             className="flex-1"
           />
-          <Button
-            className="w-32"
-            onPress={() => refetch()}
-            loading={isRefetching}
-          >
-            <Text>Refresh</Text>
-          </Button>
         </View>
       </View>
 
