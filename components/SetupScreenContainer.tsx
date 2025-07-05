@@ -14,6 +14,7 @@ export default function SetupScreenContainer({
         onScrollBeginDrag={Keyboard.dismiss}
         keyboardShouldPersistTaps="handled"
         contentContainerClassName="flex-1 justify-center gap-2"
+        bounces={false}
       >
         {children}
       </ScrollView>
