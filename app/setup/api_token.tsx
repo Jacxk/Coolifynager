@@ -1,11 +1,22 @@
+import Info from "@/components/icons/Info";
 import SetupScreenContainer from "@/components/SetupScreenContainer";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { APP_NAME } from "@/constants/AppDetails";
 import useSetup from "@/hooks/useSetup";
 import { router } from "expo-router";
+import { openBrowserAsync } from "expo-web-browser";
 import React, { useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert as NativeAlert, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ApiTokenStep() {
   const setup = useSetup();
@@ -14,6 +25,14 @@ export default function ApiTokenStep() {
   const [valid, setValid] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
+
+  const insets = useSafeAreaInsets();
+  const contentInsets = {
+    top: insets.top,
+    bottom: insets.bottom,
+    left: 12,
+    right: 12,
+  };
 
   const saveKey = () => {
     if (valid) {
@@ -25,8 +44,14 @@ export default function ApiTokenStep() {
         .catch((e) => setError(e.message))
         .finally(() => setLoading(false));
     } else {
-      Alert.alert("Please set a token");
+      NativeAlert.alert("Please set a token");
     }
+  };
+
+  const openBrowser = () => {
+    setup
+      .getServerAddress()
+      .then((url) => openBrowserAsync(`${url}/security/api-tokens`));
   };
 
   useEffect(() => {
@@ -36,7 +61,50 @@ export default function ApiTokenStep() {
 
   return (
     <SetupScreenContainer>
-      <Text>Enter your Coolify API Token</Text>
+      <View className="flex-row items-center mb-1">
+        <Text>Enter your Coolify API Token</Text>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Info
+              className="text-foreground ml-2"
+              size={18}
+              accessibilityLabel="API Token Info"
+            />
+          </DialogTrigger>
+          <DialogContent>
+            <DialogTitle>How to generate an API Token</DialogTitle>
+            <DialogDescription>
+              <Text>
+                To connect {APP_NAME} to your Coolify instance, you need to
+                generate an API token:
+              </Text>
+            </DialogDescription>
+            <View className="pl-2">
+              <Text>
+                1. Open your{" "}
+                <Text className="underline font-semibold" onPress={openBrowser}>
+                  Coolify dashboard
+                </Text>
+                .
+              </Text>
+              <Text>
+                2. Go to{" "}
+                <Text className="font-semibold">
+                  Keys & Tokens {">"} API tokens
+                </Text>
+                .
+              </Text>
+              <Text>3. Create a new token with the following permissions:</Text>
+              <View className="pl-4">
+                <Text>• read</Text>
+                <Text>• read:sensitive</Text>
+                <Text>• write</Text>
+                <Text>• deploy</Text>
+              </View>
+            </View>
+          </DialogContent>
+        </Dialog>
+      </View>
       <Input
         autoCapitalize="none"
         autoComplete="off"
@@ -51,7 +119,7 @@ export default function ApiTokenStep() {
       <Button onPress={saveKey} disabled={!valid} loading={loading}>
         <Text>Save</Text>
       </Button>
-      <Text className="color-red-500">{error}</Text>
+      {!!error && <Text className="color-red-500">{error}</Text>}
     </SetupScreenContainer>
   );
 }

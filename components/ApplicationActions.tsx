@@ -62,7 +62,7 @@ function RestartAction({ onRestart, disabled }: RestartActionProps) {
           <RotateCw className="text-yellow-500" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="m-4">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Restart Application</DialogTitle>
           <DialogDescription>
@@ -92,7 +92,7 @@ function RedeployAction({ onRedeploy }: RedeployActionProps) {
           <RotateCwSquare className="text-orange-500" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="m-4">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Redeploy Application</DialogTitle>
           <DialogDescription>
@@ -127,7 +127,7 @@ function StopAction({ onStop, disabled }: StopActionProps) {
           <Pause className="text-red-500" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="m-4">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Confirm Application Stopping?</DialogTitle>
           <DialogDescription asChild>
@@ -185,7 +185,7 @@ function StartAction({ onStart, disabled }: StartActionProps) {
           <Play className="text-green-500" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="m-4">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Start Application</DialogTitle>
           <DialogDescription>
