@@ -8,15 +8,16 @@ import { Terminal, X } from "lucide-react-native";
 import { View } from "react-native";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 import { Text } from "./ui/text";
 
 interface RestartActionProps {
@@ -51,8 +52,8 @@ type ApplicationActionsProps = {
 
 function RestartAction({ onRestart, disabled }: RestartActionProps) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button
           size="icon"
           variant="ghost"
@@ -61,63 +62,59 @@ function RestartAction({ onRestart, disabled }: RestartActionProps) {
         >
           <RotateCw className="text-yellow-500" />
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Restart Application</DialogTitle>
-          <DialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Restart Application</AlertDialogTitle>
+          <AlertDialogDescription>
             Do you want to restart this application?
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex flex-row gap-2 self-end">
-          <DialogClose asChild>
-            <Button variant="secondary">
-              <Text>Cancel</Text>
-            </Button>
-          </DialogClose>
-          <Button onPress={onRestart} disabled={disabled}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex flex-row gap-2 self-end">
+          <AlertDialogCancel disabled={disabled}>
+            <Text>Cancel</Text>
+          </AlertDialogCancel>
+          <AlertDialogAction onPress={onRestart} disabled={disabled}>
             <Text>Restart</Text>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
 function RedeployAction({ onRedeploy }: RedeployActionProps) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button size="icon" variant="ghost" aria-label="Redeploy">
           <RotateCwSquare className="text-orange-500" />
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Redeploy Application</DialogTitle>
-          <DialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Redeploy Application</AlertDialogTitle>
+          <AlertDialogDescription>
             Do you want to redeploy this application?
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex flex-row gap-2 self-end">
-          <DialogClose asChild>
-            <Button variant="secondary">
-              <Text>Cancel</Text>
-            </Button>
-          </DialogClose>
-          <Button onPress={onRedeploy}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex flex-row gap-2 self-end">
+          <AlertDialogCancel>
+            <Text>Cancel</Text>
+          </AlertDialogCancel>
+          <AlertDialogAction onPress={onRedeploy}>
             <Text>Redeploy</Text>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
 function StopAction({ onStop, disabled }: StopActionProps) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button
           size="icon"
           variant="ghost"
@@ -126,11 +123,11 @@ function StopAction({ onStop, disabled }: StopActionProps) {
         >
           <Pause className="text-red-500" />
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Confirm Application Stopping?</DialogTitle>
-          <DialogDescription asChild>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirm Application Stopping?</AlertDialogTitle>
+          <AlertDialogDescription asChild>
             <Alert icon={Terminal} variant="destructive">
               <AlertTitle>Warning</AlertTitle>
               <AlertDescription>
@@ -138,9 +135,8 @@ function StopAction({ onStop, disabled }: StopActionProps) {
                 again before proceeding!
               </AlertDescription>
             </Alert>
-          </DialogDescription>
-        </DialogHeader>
-
+          </AlertDialogDescription>
+        </AlertDialogHeader>
         <Text className="text-muted-foreground">
           The following actions will be performed:
         </Text>
@@ -156,26 +152,23 @@ function StopAction({ onStop, disabled }: StopActionProps) {
             All non-persistent data of this application will be deleted.
           </Text>
         </View>
-
-        <DialogFooter className="flex flex-row gap-2 self-end">
-          <DialogClose asChild>
-            <Button variant="secondary">
-              <Text>Cancel</Text>
-            </Button>
-          </DialogClose>
-          <Button onPress={onStop} disabled={disabled} variant="destructive">
+        <AlertDialogFooter className="flex flex-row gap-2 self-end">
+          <AlertDialogCancel disabled={disabled}>
+            <Text>Cancel</Text>
+          </AlertDialogCancel>
+          <AlertDialogAction onPress={onStop} disabled={disabled}>
             <Text>Confirm</Text>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
 function StartAction({ onStart, disabled }: StartActionProps) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
         <Button
           size="icon"
           variant="ghost"
@@ -184,26 +177,24 @@ function StartAction({ onStart, disabled }: StartActionProps) {
         >
           <Play className="text-green-500" />
         </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Start Application</DialogTitle>
-          <DialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Start Application</AlertDialogTitle>
+          <AlertDialogDescription>
             Do you want to start this application?
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex flex-row gap-2 self-end">
-          <DialogClose asChild>
-            <Button variant="secondary">
-              <Text>Cancel</Text>
-            </Button>
-          </DialogClose>
-          <Button onPress={onStart} disabled={disabled}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex flex-row gap-2 self-end">
+          <AlertDialogCancel disabled={disabled}>
+            <Text>Cancel</Text>
+          </AlertDialogCancel>
+          <AlertDialogAction onPress={onStart} disabled={disabled}>
             <Text>Start</Text>
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
