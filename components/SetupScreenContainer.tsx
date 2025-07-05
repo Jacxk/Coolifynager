@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform } from "react-native";
+import { Keyboard, KeyboardAvoidingView, ScrollView } from "react-native";
 
 export default function SetupScreenContainer({
   children,
@@ -8,9 +8,15 @@ export default function SetupScreenContainer({
   return (
     <KeyboardAvoidingView
       className="flex-1 justify-center p-8 gap-4"
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior="padding"
     >
-      {children}
+      <ScrollView
+        onScrollBeginDrag={Keyboard.dismiss}
+        keyboardShouldPersistTaps="handled"
+        contentContainerClassName="flex-1 justify-center gap-2"
+      >
+        {children}
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
