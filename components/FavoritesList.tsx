@@ -19,9 +19,12 @@ export function FavoritesList() {
 
   if (!favorites.length) {
     return (
-      <Text className="text-muted-foreground">
-        There is nothing in favorites.
-      </Text>
+      <View>
+        <H2>Favorites</H2>
+        <Text className="text-muted-foreground">
+          There is nothing in favorites.
+        </Text>
+      </View>
     );
   }
 
@@ -51,7 +54,7 @@ export function FavoritesList() {
             <AccordionTrigger>
               <Text>{label}</Text>
             </AccordionTrigger>
-            <AccordionContent>
+            <AccordionContent className="gap-2">
               {grouped[type].map((favorite) => {
                 switch (type) {
                   case "application":

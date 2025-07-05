@@ -4,28 +4,22 @@ import LogsViewer from "@/components/LogsViewer";
 import { SafeView } from "@/components/SafeView";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { useFocusEffect, useGlobalSearchParams } from "expo-router";
-import { useCallback, useState } from "react";
+import { useGlobalSearchParams } from "expo-router";
+import { useState } from "react";
 import { Keyboard, ScrollView, View } from "react-native";
 
 export default function ApplicationLogs() {
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
+  const isFocused = useIsFocused();
 
   const [lines, setLines] = useState("100");
-  const [isFocused, setIsFocused] = useState(false);
-
-  useFocusEffect(
-    useCallback(() => {
-      setIsFocused(true);
-      return () => setIsFocused(false);
-    }, [])
-  );
 
   const { data: logData, isPending: isPendingLogs } = useQuery({
     ...getApplicationLogs(uuid, Number(lines)),
     refetchInterval: 2000,
-    enabled: isFocused,
+    subscribed: isFocused,
   });
 
   return (

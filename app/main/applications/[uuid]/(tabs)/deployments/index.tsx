@@ -3,6 +3,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
+import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -13,6 +14,8 @@ export default function DeploymentsStack() {
   const { data, isPending, refetch } = useQuery(
     getApplicationDeployments(uuid)
   );
+
+  useRefreshOnFocus(refetch);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const onRefresh = () => {

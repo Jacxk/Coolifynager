@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
+import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
@@ -65,6 +66,7 @@ export default function Application() {
     refetch,
   } = useQuery(getApplication(uuid));
 
+  useRefreshOnFocus(refetch);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const startMutation = useMutation(startApplication(uuid));
