@@ -4,7 +4,7 @@ import {
   startApplication,
   stopApplication,
 } from "@/api/application";
-import { getApplicationDeployments } from "@/api/deployments";
+import { getLatestApplicationDeployment } from "@/api/deployments";
 import { ApplicationActions } from "@/components/ApplicationActions";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
@@ -189,7 +189,7 @@ export default function Application() {
   const isNotRunning = data?.status?.startsWith("exited");
 
   const { data: deploymentData } = useQuery(
-    getApplicationDeployments(uuid, 0, 1, {
+    getLatestApplicationDeployment(uuid, {
       refetchInterval: isDeploying ? 5000 : 15000,
       enabled: isNotRunning,
     })

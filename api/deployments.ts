@@ -1,4 +1,8 @@
-import { UseQueryOptions } from "@tanstack/react-query";
+import {
+  InfiniteData,
+  UseInfiniteQueryOptions,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import { ApplicationDeployment, Deployment } from "./types/deployments.types";
 
@@ -27,10 +31,8 @@ export const getDeployment = (
   queryFn: (): Promise<Deployment> => coolifyFetch(`/deployments/${uuid}`),
 });
 
-export const getApplicationDeployments = (
+export const getLatestApplicationDeployment = (
   uuid: string,
-  skip = 0,
-  take = 10,
   options?: Omit<
     UseQueryOptions<
       ApplicationDeployment,
@@ -42,7 +44,40 @@ export const getApplicationDeployments = (
   >
 ) => ({
   ...options,
-  queryKey: ["application.deployments", uuid, skip, take],
+  queryKey: ["application.deployments.latest", uuid],
   queryFn: (): Promise<ApplicationDeployment> =>
-    coolifyFetch(`/deployments/applications/${uuid}?skip=${skip}&take=${take}`),
+    coolifyFetch(`/deployments/applications/${uuid}?skip=0&take=1`),
+});
+
+export const getApplicationDeployments = (
+  uuid: string,
+  pageSize = 5,
+  options?: Omit<
+    UseInfiniteQueryOptions<
+      ApplicationDeployment,
+      Error,
+      InfiniteData<ApplicationDeployment>,
+      QueryKey[],
+      number
+    >,
+    "queryKey" | "queryFn" | "getNextPageParam" | "initialPageParam"
+  >
+) => ({
+  ...options,
+  queryKey: ["application.deployments", uuid, pageSize],
+  queryFn: async ({ pageParam = 0 }) =>
+    coolifyFetch<ApplicationDeployment>(
+      `/deployments/applications/${uuid}?skip=${pageParam}&take=${pageSize}`
+    ),
+  getNextPageParam: (
+    lastPage: ApplicationDeployment,
+    _: unknown,
+    lastPageParam: number
+  ) => {
+    if (lastPage.deployments.length === 0) {
+      return undefined;
+    }
+    return lastPageParam + pageSize;
+  },
+  initialPageParam: 0,
 });

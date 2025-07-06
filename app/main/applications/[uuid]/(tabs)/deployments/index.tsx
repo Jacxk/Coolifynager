@@ -5,16 +5,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { StatusText } from "@/utils/status";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link, useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
-import { FlatList } from "react-native";
+import { ActivityIndicator, FlatList } from "react-native";
 
 export default function DeploymentsStack() {
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
-  const { data, isPending, refetch } = useQuery(
-    getApplicationDeployments(uuid)
-  );
+  const {
+    data,
+    isPending,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(getApplicationDeployments(uuid));
 
   useRefreshOnFocus(refetch);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -28,7 +33,7 @@ export default function DeploymentsStack() {
     return <LoadingScreen />;
   }
 
-  if (!data || data.count === 0) {
+  if (!data || !data.pages[0]?.count) {
     return (
       <SafeView className="justify-center items-center">
         <Text>No deployments found.</Text>
@@ -36,13 +41,24 @@ export default function DeploymentsStack() {
     );
   }
 
+  const deployments = data.pages.flatMap((page) => page.deployments);
+
   return (
     <FlatList
       className="flex-1 p-4"
-      data={data.deployments}
+      data={deployments ?? Array.from({ length: 10 })}
       keyExtractor={(item) => item.deployment_uuid}
       refreshing={isRefreshing}
       onRefresh={onRefresh}
+      onEndReached={() => {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={() =>
+        isFetchingNextPage && <ActivityIndicator className="py-4" />
+      }
       renderItem={({ item: deployment }) => (
         <Link
           className="mb-2"
