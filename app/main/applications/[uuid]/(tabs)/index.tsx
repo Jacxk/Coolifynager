@@ -4,6 +4,7 @@ import {
   startApplication,
   stopApplication,
 } from "@/api/application";
+import { getApplicationDeployments } from "@/api/deployments";
 import { ApplicationActions } from "@/components/ApplicationActions";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
@@ -26,9 +27,9 @@ import { H1 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   RefreshControl,
   ScrollView,
@@ -169,53 +170,88 @@ function HealthDialog({
 
 export default function Application() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
+
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
+
   const {
     data,
     isPending: isPendingApplication,
     refetch,
-  } = useQuery(getApplication(uuid));
+  } = useQuery({
+    ...getApplication(uuid),
+    refetchInterval: 20000,
+    enabled: !isDeploying,
+  });
 
-  useRefreshOnFocus(refetch);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
+  const isNotRunning = data?.status?.startsWith("exited");
+
+  const { data: deploymentData } = useQuery({
+    ...getApplicationDeployments(uuid, 0, 1),
+    refetchInterval: isDeploying ? 5000 : 15000,
+    enabled: isNotRunning,
+  });
 
   const startMutation = useMutation(startApplication(uuid));
   const stopMutation = useMutation(stopApplication(uuid));
   const restartMutation = useMutation(restartApplication(uuid));
 
-  const handleStart = () => {
-    startMutation.mutate(
-      { force: false, instant_deploy: false },
-      {
-        onSuccess: () => refetch(),
+  useRefreshOnFocus(refetch);
+
+  useEffect(() => {
+    if (!isNotRunning) {
+      setIsDeploying(false);
+      return;
+    }
+
+    const latestDeployment = deploymentData?.deployments[0];
+    if (latestDeployment) {
+      if (
+        latestDeployment.status === "in_progress" &&
+        !latestDeployment.restart_only &&
+        data?.status?.startsWith("exited")
+      ) {
+        setIsDeploying(true);
+      } else {
+        setIsDeploying(false);
       }
-    );
-  };
-
-  const handleStop = () => {
-    stopMutation.mutate(undefined, {
-      onSuccess: () => refetch(),
-    });
-  };
-
-  const handleRestart = () => {
-    restartMutation.mutate(undefined, {
-      onSuccess: () => refetch(),
-    });
-  };
+    }
+  }, [data?.status, deploymentData?.deployments, isNotRunning]);
 
   const healthy_running = data?.status === "running:healthy";
   const unhealthy_running = data?.status === "running:unhealthy";
   const unhealthy_exited = data?.status === "exited:unhealthy";
 
-  if (isPendingApplication) {
-    return <LoadingScreen />;
-  }
+  const handleDeploy = () => {
+    startMutation.mutate(
+      { force: false, instant_deploy: false },
+      {
+        onSuccess: ({ deployment_uuid }) =>
+          router.push({
+            pathname: "./deployments/logs",
+            params: { deployment_uuid },
+          }),
+      }
+    );
+  };
+
+  const handleStop = () => {
+    stopMutation.mutate();
+  };
+
+  const handleRestart = () => {
+    restartMutation.mutate();
+  };
 
   const onRefresh = () => {
     setIsRefreshing(true);
     refetch().finally(() => setIsRefreshing(false));
   };
+
+  if (isPendingApplication) {
+    return <LoadingScreen />;
+  }
 
   return (
     <ScrollView
@@ -228,10 +264,10 @@ export default function Application() {
           <DomainsSelect domains={data?.fqdn.split(",") as string[]} />
           <ApplicationActions
             isRunning={healthy_running || unhealthy_running}
-            onStart={handleStart}
+            onDeploy={handleDeploy}
             onStop={handleStop}
             onRestart={handleRestart}
-            startDisabled={startMutation.isPending}
+            isDeploying={isDeploying}
             stopDisabled={stopMutation.isPending}
             restartDisabled={restartMutation.isPending}
           />

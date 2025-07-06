@@ -5,7 +5,16 @@ import { RotateCwSquare } from "@/components/icons/RotateCwSquare";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Terminal, X } from "lucide-react-native";
+import { useEffect } from "react";
 import { View } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
+import { Loader2 } from "./icons/Loader2";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import {
   AlertDialog,
@@ -34,21 +43,21 @@ interface StopActionProps {
   disabled?: boolean;
 }
 
-interface StartActionProps {
-  onStart?: () => void;
+interface DeployActionProps {
+  onDeploy?: () => void;
   disabled?: boolean;
 }
 
 type ApplicationActionsProps = {
   className?: string;
   isRunning?: boolean;
-  onStart?: () => void;
-  startDisabled?: boolean;
   stopDisabled?: boolean;
   restartDisabled?: boolean;
+  isDeploying?: boolean;
 } & RestartActionProps &
   RedeployActionProps &
-  StopActionProps;
+  StopActionProps &
+  DeployActionProps;
 
 function RestartAction({ onRestart, disabled }: RestartActionProps) {
   return (
@@ -165,14 +174,14 @@ function StopAction({ onStop, disabled }: StopActionProps) {
   );
 }
 
-function StartAction({ onStart, disabled }: StartActionProps) {
+function DeployAction({ onDeploy, disabled }: DeployActionProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
           size="icon"
           variant="ghost"
-          aria-label="Start"
+          aria-label="Deploy"
           disabled={disabled}
         >
           <Play className="text-green-500" />
@@ -180,17 +189,17 @@ function StartAction({ onStart, disabled }: StartActionProps) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Start Application</AlertDialogTitle>
+          <AlertDialogTitle>Deploy Application</AlertDialogTitle>
           <AlertDialogDescription>
-            Do you want to start this application?
+            Do you want to deploy this application?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex flex-row gap-2 self-end">
           <AlertDialogCancel disabled={disabled}>
             <Text>Cancel</Text>
           </AlertDialogCancel>
-          <AlertDialogAction onPress={onStart} disabled={disabled}>
-            <Text>Start</Text>
+          <AlertDialogAction onPress={onDeploy} disabled={disabled}>
+            <Text>Deploy</Text>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -201,24 +210,43 @@ function StartAction({ onStart, disabled }: StartActionProps) {
 export function ApplicationActions({
   className,
   isRunning,
-  startDisabled,
   stopDisabled,
   restartDisabled,
+  isDeploying,
   onRedeploy,
   onRestart,
   onStop,
-  onStart,
+  onDeploy,
 }: ApplicationActionsProps) {
+  const sv = useSharedValue<number>(0);
+
+  useEffect(() => {
+    sv.value = withRepeat(
+      withTiming(1, { duration: 1000, easing: Easing.linear }),
+      -1
+    );
+  }, []);
+
+  const rotationAnimation = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${sv.value * 360}deg` }],
+  }));
+
   return (
     <View className={cn("flex flex-row gap-2", className)}>
-      {isRunning ? (
+      {isDeploying ? (
+        <Button size="icon" variant="ghost" aria-label="Deploy">
+          <Animated.View style={rotationAnimation}>
+            <Loader2 />
+          </Animated.View>
+        </Button>
+      ) : isRunning ? (
         <>
           <RedeployAction onRedeploy={onRedeploy} />
           <RestartAction onRestart={onRestart} disabled={restartDisabled} />
           <StopAction onStop={onStop} disabled={stopDisabled} />
         </>
       ) : (
-        <StartAction onStart={onStart} disabled={startDisabled} />
+        <DeployAction onDeploy={onDeploy} disabled={isDeploying} />
       )}
     </View>
   );
