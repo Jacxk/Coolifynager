@@ -8,6 +8,13 @@ import { ApplicationActions } from "@/components/ApplicationActions";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -22,7 +29,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
 import { useState } from "react";
-import { RefreshControl, ScrollView, View } from "react-native";
+import {
+  RefreshControl,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function DomainsSelect({ domains }: { domains: string[] }) {
@@ -58,6 +70,103 @@ function DomainsSelect({ domains }: { domains: string[] }) {
   );
 }
 
+function HealthDialog({
+  isOpen,
+  onOpenChange: onClose,
+  status,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  status: string | undefined;
+}) {
+  const getHealthContent = () => {
+    switch (status) {
+      case "running:unhealthy":
+        return {
+          title: (
+            <View>
+              <Text className="text-yellow-500">
+                <Text className="text-muted-foreground">Unhealthy state. </Text>
+                This doesn't mean that the resource is malfunctioning.
+              </Text>
+            </View>
+          ),
+          description: (
+            <View>
+              <Text className="text-muted-foreground">
+                - If the resource is accessible, it indicates that no health
+                check is configured - it is not mandatory.
+              </Text>
+              <Text className="text-muted-foreground">
+                - If the resource is not accessible (returning 404 or 503), it
+                may indicate that a health check is needed and has not passed.{" "}
+                <Text className="text-yellow-500">
+                  Your action is required.
+                </Text>
+              </Text>
+              <Text className="text-muted-foreground mt-4">
+                More details in the{" "}
+                <Text
+                  className="text-yellow-500 underline"
+                  onPress={() =>
+                    openBrowserAsync(
+                      "https://coolify.io/docs/knowledge-base/proxy/traefik/healthchecks"
+                    )
+                  }
+                >
+                  documentation
+                </Text>
+                .
+              </Text>
+            </View>
+          ),
+        };
+      case "exited:unhealthy":
+        return {
+          title: "Application is stopped",
+          description: (
+            <View>
+              <Text className="text-muted-foreground">
+                The application is not currently running.
+              </Text>
+            </View>
+          ),
+        };
+      case "running:healthy":
+        return {
+          title: "Application is running",
+          description: (
+            <Text className="text-muted-foreground">
+              The application is currently running and healthy.
+            </Text>
+          ),
+        };
+      default:
+        return {
+          title: "Health Status Information",
+          description: (
+            <Text className="text-muted-foreground">
+              Current status: {status}
+            </Text>
+          ),
+        };
+    }
+  };
+
+  const { title, description } = getHealthContent();
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="mb-2">{title}</DialogTitle>
+          <DialogDescription asChild>{description}</DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Application() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
   const {
@@ -68,6 +177,7 @@ export default function Application() {
 
   useRefreshOnFocus(refetch);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
 
   const startMutation = useMutation(startApplication(uuid));
   const stopMutation = useMutation(stopApplication(uuid));
@@ -126,18 +236,21 @@ export default function Application() {
             restartDisabled={restartMutation.isPending}
           />
         </View>
+
         <View>
           <View className="flex flex-row justify-between items-center">
             <H1 numberOfLines={1} ellipsizeMode="tail">
               {data?.name}
             </H1>
-            <View
-              className={cn("size-4 rounded-full animate-pulse", {
-                "bg-red-500 animate-ping": unhealthy_exited,
-                "bg-green-500": healthy_running,
-                "bg-yellow-500": unhealthy_running,
-              })}
-            />
+            <TouchableOpacity onPress={() => setIsHealthDialogOpen(true)}>
+              <View
+                className={cn("size-4 rounded-full animate-pulse", {
+                  "bg-red-500 animate-ping": unhealthy_exited,
+                  "bg-green-500": healthy_running,
+                  "bg-yellow-500": unhealthy_running,
+                })}
+              />
+            </TouchableOpacity>
           </View>
           <Text className="text-muted-foreground">{data?.description}</Text>
         </View>
@@ -145,6 +258,12 @@ export default function Application() {
         <Text>{data?.git_branch}</Text>
         <Text>{data?.git_commit_sha}</Text>
         <Text>{data?.git_repository}</Text>
+
+        <HealthDialog
+          isOpen={isHealthDialogOpen}
+          onOpenChange={setIsHealthDialogOpen}
+          status={data?.status}
+        />
       </SafeView>
     </ScrollView>
   );
