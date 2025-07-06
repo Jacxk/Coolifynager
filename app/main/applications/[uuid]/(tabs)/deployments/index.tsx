@@ -4,6 +4,7 @@ import { SafeView } from "@/components/SafeView";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
+import { StatusText } from "@/utils/status";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -70,7 +71,7 @@ export default function DeploymentsStack() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Text>Status: {deployment.status}</Text>
+              <Text>Status: {StatusText.deployment(deployment.status)}</Text>
               <Text>Commit: {deployment.commit.substring(0, 7)}</Text>
               <Text>Created: {deployment.created_at}</Text>
             </CardContent>
