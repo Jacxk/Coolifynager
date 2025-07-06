@@ -9,7 +9,7 @@ import { useState } from "react";
 import { FlatList, View } from "react-native";
 
 export default function ApplicationsIndex() {
-  const { data, isPending, refetch } = useQuery(getApplications);
+  const { data, isPending, refetch } = useQuery(getApplications());
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (isPending) {

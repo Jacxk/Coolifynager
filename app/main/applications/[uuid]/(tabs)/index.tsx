@@ -179,19 +179,21 @@ export default function Application() {
     data,
     isPending: isPendingApplication,
     refetch,
-  } = useQuery({
-    ...getApplication(uuid),
-    refetchInterval: 20000,
-    enabled: !isDeploying,
-  });
+  } = useQuery(
+    getApplication(uuid, {
+      refetchInterval: 20000,
+      enabled: !isDeploying,
+    })
+  );
 
   const isNotRunning = data?.status?.startsWith("exited");
 
-  const { data: deploymentData } = useQuery({
-    ...getApplicationDeployments(uuid, 0, 1),
-    refetchInterval: isDeploying ? 5000 : 15000,
-    enabled: isNotRunning,
-  });
+  const { data: deploymentData } = useQuery(
+    getApplicationDeployments(uuid, 0, 1, {
+      refetchInterval: isDeploying ? 5000 : 15000,
+      enabled: isNotRunning,
+    })
+  );
 
   const startMutation = useMutation(startApplication(uuid));
   const stopMutation = useMutation(stopApplication(uuid));

@@ -10,7 +10,7 @@ import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProjectsIndex() {
-  const { data, isPending, refetch } = useQuery(getProjects);
+  const { data, isPending, refetch } = useQuery(getProjects());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const inset = useSafeAreaInsets();
 

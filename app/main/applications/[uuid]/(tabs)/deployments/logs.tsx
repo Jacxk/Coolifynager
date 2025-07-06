@@ -18,11 +18,12 @@ export default function DeploymentLogs() {
   const [isFocused, setIsFocused] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
 
-  const { data } = useQuery({
-    ...getDeployment(deployment_uuid),
-    refetchInterval: 5000,
-    enabled: isFocused && !isFinished,
-  });
+  const { data } = useQuery(
+    getDeployment(deployment_uuid, {
+      refetchInterval: 5000,
+      enabled: isFocused && !isFinished,
+    })
+  );
 
   useFocusEffect(
     useCallback(() => {

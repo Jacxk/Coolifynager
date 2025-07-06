@@ -10,7 +10,7 @@ import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ServersIndex() {
-  const { data, isPending, refetch } = useQuery(getServers);
+  const { data, isPending, refetch } = useQuery(getServers());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const inset = useSafeAreaInsets();
 

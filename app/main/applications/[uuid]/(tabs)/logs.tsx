@@ -16,11 +16,12 @@ export default function ApplicationLogs() {
 
   const [lines, setLines] = useState("100");
 
-  const { data: logData, isPending: isPendingLogs } = useQuery({
-    ...getApplicationLogs(uuid, Number(lines)),
-    refetchInterval: 2000,
-    subscribed: isFocused,
-  });
+  const { data: logData, isPending: isPendingLogs } = useQuery(
+    getApplicationLogs(uuid, Number(lines), {
+      refetchInterval: 2000,
+      enabled: isFocused,
+    })
+  );
 
   return (
     <SafeView className="gap-2" bottomInset={false}>

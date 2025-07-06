@@ -1,3 +1,4 @@
+import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import {
   Application,
@@ -10,29 +11,70 @@ import {
   CreateApplicationEnvResponse,
 } from "./types/application.types";
 
-export const getApplications = {
+type QueryKey = string | number;
+
+export const getApplications = (
+  options?: Omit<
+    UseQueryOptions<Application[], Error, Application[], QueryKey[]>,
+    "queryKey" | "queryFn"
+  >
+) => ({
+  ...options,
   queryKey: ["applications"],
   queryFn: (): Promise<Application[]> => coolifyFetch("/applications"),
-};
+});
 
-export const getApplication = (uuid: string) => ({
+export const getApplication = (
+  uuid: string,
+  options?: Omit<
+    UseQueryOptions<Application, Error, Application, QueryKey[]>,
+    "queryKey" | "queryFn"
+  >
+) => ({
+  ...options,
   queryKey: ["applications", uuid],
   queryFn: (): Promise<Application> => coolifyFetch(`/applications/${uuid}`),
 });
 
-export const getApplicationLogs = (uuid: string, lines = 100) => ({
+export const getApplicationLogs = (
+  uuid: string,
+  lines = 100,
+  options?: Omit<
+    UseQueryOptions<ApplicationLogs, Error, ApplicationLogs, QueryKey[]>,
+    "queryKey" | "queryFn"
+  >
+) => ({
+  ...options,
   queryKey: ["applications.logs", uuid, lines],
   queryFn: (): Promise<ApplicationLogs> =>
     coolifyFetch(`/applications/${uuid}/logs?lines=${lines}`),
 });
 
-export const getApplicationEnvs = (uuid: string) => ({
+export const getApplicationEnvs = (
+  uuid: string,
+  options?: Omit<
+    UseQueryOptions<ApplicationEnv[], Error, ApplicationEnv[], QueryKey[]>,
+    "queryKey" | "queryFn"
+  >
+) => ({
+  ...options,
   queryKey: ["applications.envs", uuid],
   queryFn: (): Promise<ApplicationEnv[]> =>
     coolifyFetch(`/applications/${uuid}/envs`),
 });
 
-export const createApplicationEnv = (uuid: string) => ({
+export const createApplicationEnv = (
+  uuid: string,
+  options?: Omit<
+    UseMutationOptions<
+      CreateApplicationEnvResponse,
+      Error,
+      CreateApplicationEnvBody
+    >,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
   mutationKey: ["applications.envs.create", uuid],
   mutationFn: async (
     body: CreateApplicationEnvBody
@@ -45,7 +87,18 @@ export const createApplicationEnv = (uuid: string) => ({
   },
 });
 
-export const startApplication = (uuid: string) => ({
+export const startApplication = (
+  uuid: string,
+  options?: Omit<
+    UseMutationOptions<
+      ApplicationStartResponse,
+      Error,
+      { force?: boolean; instant_deploy?: boolean }
+    >,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
   mutationKey: ["applications.start", uuid],
   mutationFn: async ({
     force = false,
@@ -64,7 +117,14 @@ export const startApplication = (uuid: string) => ({
   },
 });
 
-export const stopApplication = (uuid: string) => ({
+export const stopApplication = (
+  uuid: string,
+  options?: Omit<
+    UseMutationOptions<ApplicationStopResponse, Error, void>,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
   mutationKey: ["applications.stop", uuid],
   mutationFn: async (): Promise<ApplicationStopResponse> => {
     return coolifyFetch(`/applications/${uuid}/stop`, {
@@ -73,7 +133,14 @@ export const stopApplication = (uuid: string) => ({
   },
 });
 
-export const restartApplication = (uuid: string) => ({
+export const restartApplication = (
+  uuid: string,
+  options?: Omit<
+    UseMutationOptions<ApplicationRestartResponse, Error, void>,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
   mutationKey: ["applications.restart", uuid],
   mutationFn: async (): Promise<ApplicationRestartResponse> => {
     return coolifyFetch(`/applications/${uuid}/restart`, {
