@@ -2,7 +2,13 @@ import { X } from "@/lib/icons/X";
 import { cn } from "@/lib/utils";
 import * as DialogPrimitive from "@rn-primitives/dialog";
 import * as React from "react";
-import { Platform, StyleSheet, View, type ViewProps } from "react-native";
+import {
+  Keyboard,
+  Platform,
+  StyleSheet,
+  View,
+  type ViewProps,
+} from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const Dialog = DialogPrimitive.Root;
@@ -77,6 +83,7 @@ function DialogContent({
   portalHost?: string;
 }) {
   const { open } = DialogPrimitive.useRootContext();
+  if (open) Keyboard.dismiss();
   return (
     <DialogPortal hostName={portalHost}>
       <DialogOverlay>
