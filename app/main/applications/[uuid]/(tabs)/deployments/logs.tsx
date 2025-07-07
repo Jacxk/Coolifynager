@@ -10,7 +10,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 
 export default function DeploymentLogs() {
   const { deployment_uuid } = useLocalSearchParams<{
@@ -19,24 +19,21 @@ export default function DeploymentLogs() {
   const isFocused = useIsFocused();
   const [isFinished, setIsFinished] = useState(false);
 
-  const { data } = useQuery(
+  const { data, isPending } = useQuery(
     getDeployment(deployment_uuid, {
-      refetchInterval: 5000,
+      refetchInterval: 2000,
       enabled: isFocused && !isFinished,
     })
   );
 
   useEffect(() => {
-    if (data?.status === "finished") {
+    if (data?.status !== "in_progress" && data?.status !== "queued") {
       setIsFinished(true);
     }
   }, [data?.status]);
 
   const logs = useMemo<DeploymentLogData[]>(
-    () =>
-      (JSON.parse(data?.logs ?? "[]") as DeploymentLogData[]).sort(
-        (a, b) => (b.order ?? 0) - (a.order ?? 0)
-      ),
+    () => JSON.parse(data?.logs ?? "[]") as DeploymentLogData[],
     [data?.logs]
   );
   const [showHidden, setShowHidden] = useState(false);
@@ -57,11 +54,10 @@ export default function DeploymentLogs() {
         </Text>
         .
       </Text>
-      <ScrollView className="flex-1 p-4 rounded-md border border-input">
-        <LogsViewer
-          logs={showHidden ? logs : logs?.filter((log) => !log.hidden)}
-        />
-      </ScrollView>
+      <LogsViewer
+        logs={showHidden ? logs : logs?.filter((log) => !log.hidden)}
+        isLoading={isPending}
+      />
     </SafeView>
   );
 }

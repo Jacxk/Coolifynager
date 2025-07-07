@@ -1,5 +1,4 @@
 import { getApplicationLogs } from "@/api/application";
-import LoadingScreen from "@/components/LoadingScreen";
 import LogsViewer from "@/components/LogsViewer";
 import { SafeView } from "@/components/SafeView";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Keyboard, ScrollView, View } from "react-native";
+import { View } from "react-native";
 
 export default function ApplicationLogs() {
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
@@ -39,23 +38,7 @@ export default function ApplicationLogs() {
           />
         </View>
       </View>
-
-      <ScrollView
-        className="flex-1 p-4 rounded-md border border-input"
-        onScrollBeginDrag={Keyboard.dismiss}
-      >
-        {isPendingLogs ? (
-          <LoadingScreen className="pt-4" />
-        ) : !logData ? (
-          <View className="flex-1 pt-4 items-center">
-            <Text className="border-0 text-muted-foreground font-mono">
-              No logs found
-            </Text>
-          </View>
-        ) : (
-          <LogsViewer logs={logData.logs} />
-        )}
-      </ScrollView>
+      <LogsViewer logs={logData?.logs} isLoading={isPendingLogs} />
     </SafeView>
   );
 }
