@@ -18,12 +18,6 @@ export default function Team() {
       <Text>{data?.name}</Text>
       <Text>{data?.description}</Text>
       <Text>{data?.id}</Text>
-      <Text>Members:</Text>
-      {data?.members?.map((member) => (
-        <Text key={member.id}>
-          {member.name} ({member.email})
-        </Text>
-      ))}
     </SafeView>
   );
 }

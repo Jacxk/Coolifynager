@@ -9,6 +9,7 @@ import {
   ApplicationStopResponse,
   CreateApplicationEnvBody,
   CreateApplicationEnvResponse,
+  SingleApplication,
 } from "./types/application.types";
 
 type QueryKey = string | number;
@@ -27,13 +28,14 @@ export const getApplications = (
 export const getApplication = (
   uuid: string,
   options?: Omit<
-    UseQueryOptions<Application, Error, Application, QueryKey[]>,
+    UseQueryOptions<SingleApplication, Error, SingleApplication, QueryKey[]>,
     "queryKey" | "queryFn"
   >
 ) => ({
   ...options,
   queryKey: ["applications", uuid],
-  queryFn: (): Promise<Application> => coolifyFetch(`/applications/${uuid}`),
+  queryFn: (): Promise<SingleApplication> =>
+    coolifyFetch(`/applications/${uuid}`),
 });
 
 export const getApplicationLogs = (

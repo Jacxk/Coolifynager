@@ -1,6 +1,6 @@
 import { UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
-import { Service } from "./types/services.types";
+import { Service, SingleService } from "./types/services.types";
 
 type QueryKey = string | number;
 
@@ -18,11 +18,11 @@ export const getServices = (
 export const getService = (
   uuid: string,
   options?: Omit<
-    UseQueryOptions<Service, Error, Service, QueryKey[]>,
+    UseQueryOptions<SingleService, Error, SingleService, QueryKey[]>,
     "queryKey" | "queryFn"
   >
 ) => ({
   ...options,
   queryKey: ["services", uuid],
-  queryFn: (): Promise<Service> => coolifyFetch(`/services/${uuid}`),
+  queryFn: (): Promise<SingleService> => coolifyFetch(`/services/${uuid}`),
 });

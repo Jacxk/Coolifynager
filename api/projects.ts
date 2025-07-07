@@ -1,6 +1,6 @@
 import { UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
-import { Project } from "./types/project.types";
+import { Project, SingleProject } from "./types/project.types";
 
 type QueryKey = string | number;
 
@@ -12,17 +12,17 @@ export const getProjects = (
 ) => ({
   ...options,
   queryKey: ["projects"],
-  queryFn: (): Promise<Project[]> => coolifyFetch("/projects"),
+  queryFn: () => coolifyFetch<Project[]>("/projects"),
 });
 
 export const getProject = (
   uuid: string,
   options?: Omit<
-    UseQueryOptions<Project, Error, Project, QueryKey[]>,
+    UseQueryOptions<SingleProject, Error, SingleProject, QueryKey[]>,
     "queryKey" | "queryFn"
   >
 ) => ({
   ...options,
   queryKey: ["projects", uuid],
-  queryFn: (): Promise<Project> => coolifyFetch(`/projects/${uuid}`),
+  queryFn: () => coolifyFetch<SingleProject>(`/projects/${uuid}`),
 });

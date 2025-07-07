@@ -1,31 +1,31 @@
 export type Deployment = {
-  id: number;
   application_id: string;
-  deployment_uuid: string;
-  pull_request_id: number;
-  force_rebuild: boolean;
-  commit: string;
-  status: string;
-  is_webhook: boolean;
-  is_api: boolean;
-  created_at: string;
-  updated_at: string;
-  finished_at: string;
-  logs: string;
-  current_process_id: string;
-  restart_only: boolean;
-  git_type: string;
-  server_id: number;
   application_name: string;
-  server_name: string;
-  deployment_url: string;
-  destination_id: string;
-  only_this_server: boolean;
-  rollback: boolean;
+  build_server_id: string | null;
+  commit: string;
   commit_message: string;
-  build_server_id: number;
+  created_at: string;
+  current_process_id: string;
+  deployment_url: string;
+  deployment_uuid: string;
+  destination_id: string;
+  finished_at: string | null;
+  force_rebuild: boolean;
+  git_type: string | null;
   horizon_job_id: string;
   horizon_job_worker: string;
+  id: number;
+  is_api: boolean;
+  is_webhook: boolean;
+  logs: string;
+  only_this_server: boolean;
+  pull_request_id: number;
+  restart_only: boolean;
+  rollback: boolean;
+  server_id: number;
+  server_name: string;
+  status: "queued" | "in_progress" | "failed" | "success" | "finished" | string;
+  updated_at: string;
 };
 
 export type ApplicationDeployment = {
@@ -42,7 +42,7 @@ export type DeploymentResponse = {
 };
 
 export type DeploymentLogData = {
-  command?: string;
+  command: string | null;
   output: string;
   type: string;
   timestamp: string;

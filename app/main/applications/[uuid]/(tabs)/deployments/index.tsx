@@ -41,7 +41,7 @@ export default function DeploymentsStack() {
   }
 
   const deployments = data.pages.flatMap((page) => page.deployments);
-  // console.log(deployments[0]);
+
   return (
     <FlatList
       className="flex-1 p-4"
