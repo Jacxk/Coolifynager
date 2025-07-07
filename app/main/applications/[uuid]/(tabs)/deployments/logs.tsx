@@ -6,16 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { StatusText } from "@/utils/status";
+import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
 
 export default function DeploymentLogs() {
   const { deployment_uuid } = useLocalSearchParams<{
     deployment_uuid: string;
   }>();
-  const [isFocused, setIsFocused] = useState(false);
+  const isFocused = useIsFocused();
   const [isFinished, setIsFinished] = useState(false);
 
   const { data } = useQuery(
@@ -23,13 +24,6 @@ export default function DeploymentLogs() {
       refetchInterval: 5000,
       enabled: isFocused && !isFinished,
     })
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      setIsFocused(true);
-      return () => setIsFocused(false);
-    }, [])
   );
 
   useEffect(() => {

@@ -26,6 +26,7 @@ import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { cn } from "@/lib/utils";
+import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
@@ -170,6 +171,7 @@ function HealthDialog({
 
 export default function Application() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
+  const isFocused = useIsFocused();
 
   const [isDeploying, setIsDeploying] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -182,7 +184,7 @@ export default function Application() {
   } = useQuery(
     getApplication(uuid, {
       refetchInterval: 20000,
-      enabled: !isDeploying,
+      enabled: isFocused && !isDeploying,
     })
   );
 
@@ -191,7 +193,7 @@ export default function Application() {
   const { data: deploymentData } = useQuery(
     getLatestApplicationDeployment(uuid, {
       refetchInterval: isDeploying ? 5000 : 15000,
-      enabled: isNotRunning,
+      enabled: isFocused && isNotRunning,
     })
   );
 
