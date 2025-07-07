@@ -10,6 +10,7 @@ export type Deployment = {
   is_api: boolean;
   created_at: string;
   updated_at: string;
+  finished_at: string;
   logs: string;
   current_process_id: string;
   restart_only: boolean;
@@ -22,6 +23,9 @@ export type Deployment = {
   only_this_server: boolean;
   rollback: boolean;
   commit_message: string;
+  build_server_id: number;
+  horizon_job_id: string;
+  horizon_job_worker: string;
 };
 
 export type ApplicationDeployment = {

@@ -1,14 +1,13 @@
 import { getApplicationDeployments } from "@/api/deployments";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
-import { StatusText } from "@/utils/status";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Link, useGlobalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, FlatList } from "react-native";
+import { DeploymentCard } from "../../../../../../components/cards/DeploymentCard";
 
 export default function DeploymentsStack() {
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
@@ -42,7 +41,7 @@ export default function DeploymentsStack() {
   }
 
   const deployments = data.pages.flatMap((page) => page.deployments);
-
+  // console.log(deployments[0]);
   return (
     <FlatList
       className="flex-1 p-4"
@@ -60,39 +59,10 @@ export default function DeploymentsStack() {
         isFetchingNextPage && <ActivityIndicator className="py-4" />
       }
       renderItem={({ item: deployment }) => (
-        <Link
-          className="mb-2"
-          href={{
-            pathname: "./deployments/logs",
-            params: { deployment_uuid: deployment.deployment_uuid },
-          }}
-        >
-          <Card
-            className="w-full"
-            variant={
-              deployment.status === "finished"
-                ? "success"
-                : deployment.status === "failed"
-                ? "destructive"
-                : deployment.status === "in_progress"
-                ? "info"
-                : deployment.status === "cancelled-by-user"
-                ? "ghost"
-                : "default"
-            }
-          >
-            <CardHeader>
-              <CardTitle>
-                {deployment.commit_message ?? "Manual Deployment"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Text>Status: {StatusText.deployment(deployment.status)}</Text>
-              <Text>Commit: {deployment.commit.substring(0, 7)}</Text>
-              <Text>Created: {deployment.created_at}</Text>
-            </CardContent>
-          </Card>
-        </Link>
+        <DeploymentCard
+          key={deployment.deployment_uuid}
+          deployment={deployment}
+        />
       )}
     />
   );
