@@ -22,7 +22,7 @@ export const getApplications = (
 ) => ({
   ...options,
   queryKey: ["applications"],
-  queryFn: (): Promise<Application[]> => coolifyFetch("/applications"),
+  queryFn: () => coolifyFetch<Application[]>("/applications"),
 });
 
 export const getApplication = (
@@ -34,8 +34,7 @@ export const getApplication = (
 ) => ({
   ...options,
   queryKey: ["applications", uuid],
-  queryFn: (): Promise<SingleApplication> =>
-    coolifyFetch(`/applications/${uuid}`),
+  queryFn: () => coolifyFetch<SingleApplication>(`/applications/${uuid}`),
 });
 
 export const getApplicationLogs = (
@@ -48,8 +47,8 @@ export const getApplicationLogs = (
 ) => ({
   ...options,
   queryKey: ["applications.logs", uuid, lines],
-  queryFn: (): Promise<ApplicationLogs> =>
-    coolifyFetch(`/applications/${uuid}/logs?lines=${lines}`),
+  queryFn: () =>
+    coolifyFetch<ApplicationLogs>(`/applications/${uuid}/logs?lines=${lines}`),
 });
 
 export const getApplicationEnvs = (
@@ -61,8 +60,7 @@ export const getApplicationEnvs = (
 ) => ({
   ...options,
   queryKey: ["applications.envs", uuid],
-  queryFn: (): Promise<ApplicationEnv[]> =>
-    coolifyFetch(`/applications/${uuid}/envs`),
+  queryFn: () => coolifyFetch<ApplicationEnv[]>(`/applications/${uuid}/envs`),
 });
 
 export const createApplicationEnv = (
@@ -78,14 +76,15 @@ export const createApplicationEnv = (
 ) => ({
   ...options,
   mutationKey: ["applications.envs.create", uuid],
-  mutationFn: async (
-    body: CreateApplicationEnvBody
-  ): Promise<CreateApplicationEnvResponse> => {
-    return coolifyFetch(`/applications/${uuid}/envs`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  mutationFn: async (body: CreateApplicationEnvBody) => {
+    return coolifyFetch<CreateApplicationEnvResponse>(
+      `/applications/${uuid}/envs`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }
+    );
   },
 });
 
@@ -108,14 +107,17 @@ export const startApplication = (
   }: {
     force?: boolean;
     instant_deploy?: boolean;
-  }): Promise<ApplicationStartResponse> => {
+  }) => {
     const params = new URLSearchParams({
       force: String(force),
       instant_deploy: String(instant_deploy),
     });
-    return coolifyFetch(`/applications/${uuid}/start?${params.toString()}`, {
-      method: "POST",
-    });
+    return coolifyFetch<ApplicationStartResponse>(
+      `/applications/${uuid}/start?${params.toString()}`,
+      {
+        method: "POST",
+      }
+    );
   },
 });
 
@@ -128,8 +130,8 @@ export const stopApplication = (
 ) => ({
   ...options,
   mutationKey: ["applications.stop", uuid],
-  mutationFn: async (): Promise<ApplicationStopResponse> => {
-    return coolifyFetch(`/applications/${uuid}/stop`, {
+  mutationFn: async () => {
+    return coolifyFetch<ApplicationStopResponse>(`/applications/${uuid}/stop`, {
       method: "POST",
     });
   },
@@ -144,9 +146,12 @@ export const restartApplication = (
 ) => ({
   ...options,
   mutationKey: ["applications.restart", uuid],
-  mutationFn: async (): Promise<ApplicationRestartResponse> => {
-    return coolifyFetch(`/applications/${uuid}/restart`, {
-      method: "POST",
-    });
+  mutationFn: async () => {
+    return coolifyFetch<ApplicationRestartResponse>(
+      `/applications/${uuid}/restart`,
+      {
+        method: "POST",
+      }
+    );
   },
 });

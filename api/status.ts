@@ -1,13 +1,16 @@
 import { coolifyFetch } from "./client";
 
+type VersionResponse = {
+  message: string;
+  success: boolean;
+};
+
 export async function getHealth(address: string): Promise<string> {
   return fetch(`${address}/api/v1/health`).then((res) => res.text());
 }
 
-export async function validateToken(
-  token: string
-): Promise<{ message: string; success: boolean }> {
-  return coolifyFetch("/version", {
+export async function validateToken(token: string) {
+  return coolifyFetch<VersionResponse>("/version", {
     isText: true,
     headers: {
       Authorization: `Bearer ${token}`,

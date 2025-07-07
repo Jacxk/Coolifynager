@@ -16,7 +16,7 @@ export const getDeployments = (
 ) => ({
   ...options,
   queryKey: ["deployments"],
-  queryFn: (): Promise<Deployment[]> => coolifyFetch("/deployments"),
+  queryFn: () => coolifyFetch<Deployment[]>("/deployments"),
 });
 
 export const getDeployment = (
@@ -28,7 +28,7 @@ export const getDeployment = (
 ) => ({
   ...options,
   queryKey: ["deployments", uuid],
-  queryFn: (): Promise<Deployment> => coolifyFetch(`/deployments/${uuid}`),
+  queryFn: () => coolifyFetch<Deployment>(`/deployments/${uuid}`),
 });
 
 export const getLatestApplicationDeployment = (
@@ -45,8 +45,10 @@ export const getLatestApplicationDeployment = (
 ) => ({
   ...options,
   queryKey: ["application.deployments.latest", uuid],
-  queryFn: (): Promise<ApplicationDeployment> =>
-    coolifyFetch(`/deployments/applications/${uuid}?skip=0&take=1`),
+  queryFn: () =>
+    coolifyFetch<ApplicationDeployment>(
+      `/deployments/applications/${uuid}?skip=0&take=1`
+    ),
 });
 
 export const getApplicationDeployments = (

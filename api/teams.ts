@@ -12,7 +12,7 @@ export const getTeams = (
 ) => ({
   ...options,
   queryKey: ["teams"],
-  queryFn: (): Promise<Team[]> => coolifyFetch("/teams"),
+  queryFn: () => coolifyFetch<Team[]>("/teams"),
 });
 
 export const getTeam = (
@@ -24,5 +24,5 @@ export const getTeam = (
 ) => ({
   ...options,
   queryKey: ["teams", id],
-  queryFn: (): Promise<Team> => coolifyFetch(`/teams/${id}`),
+  queryFn: () => coolifyFetch<Team>(`/teams/${id}`),
 });

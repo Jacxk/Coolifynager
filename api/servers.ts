@@ -12,7 +12,7 @@ export const getServers = (
 ) => ({
   ...options,
   queryKey: ["servers"],
-  queryFn: (): Promise<Server[]> => coolifyFetch("/servers"),
+  queryFn: () => coolifyFetch<Server[]>("/servers"),
 });
 
 export const getServer = (
@@ -24,5 +24,5 @@ export const getServer = (
 ) => ({
   ...options,
   queryKey: ["servers", uuid],
-  queryFn: (): Promise<SingleServer> => coolifyFetch(`/servers/${uuid}`),
+  queryFn: () => coolifyFetch<SingleServer>(`/servers/${uuid}`),
 });

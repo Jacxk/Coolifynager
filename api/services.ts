@@ -12,7 +12,7 @@ export const getServices = (
 ) => ({
   ...options,
   queryKey: ["services"],
-  queryFn: (): Promise<Service[]> => coolifyFetch("/services"),
+  queryFn: () => coolifyFetch<Service[]>("/services"),
 });
 
 export const getService = (
@@ -24,5 +24,5 @@ export const getService = (
 ) => ({
   ...options,
   queryKey: ["services", uuid],
-  queryFn: (): Promise<SingleService> => coolifyFetch(`/services/${uuid}`),
+  queryFn: () => coolifyFetch<SingleService>(`/services/${uuid}`),
 });
