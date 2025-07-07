@@ -2,9 +2,10 @@ import { Pause } from "@/components/icons/Pause";
 import { Play } from "@/components/icons/Play";
 import { RotateCw } from "@/components/icons/RotateCw";
 import { RotateCwSquare } from "@/components/icons/RotateCwSquare";
+import { X } from "@/components/icons/X";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Terminal, X } from "lucide-react-native";
+import { Terminal } from "lucide-react-native";
 import { useEffect } from "react";
 import { View } from "react-native";
 import Animated, {
@@ -150,13 +151,13 @@ function StopAction({ onStop, disabled }: StopActionProps) {
           The following actions will be performed:
         </Text>
         <View className="flex flex-row">
-          <X color="red" />
+          <X className="text-red-500" />
           <Text className="text-red-500">
             This application will be stopped.
           </Text>
         </View>
         <View className="flex flex-row">
-          <X color="red" />
+          <X className="text-red-500" />
           <Text className="text-red-500">
             All non-persistent data of this application will be deleted.
           </Text>

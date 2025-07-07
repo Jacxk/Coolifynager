@@ -66,7 +66,7 @@ export default function ApiTokenStep() {
         <Dialog>
           <DialogTrigger asChild>
             <Info
-              className="text-foreground ml-2"
+              className="text-yellow-500 ml-2"
               size={18}
               accessibilityLabel="API Token Info"
             />
@@ -74,32 +74,37 @@ export default function ApiTokenStep() {
           <DialogContent>
             <DialogTitle>How to generate an API Token</DialogTitle>
             <DialogDescription>
-              <Text>
+              <Text className="text-muted-foreground">
                 To connect {APP_NAME} to your Coolify instance, you need to
                 generate an API token:
               </Text>
             </DialogDescription>
             <View className="pl-2">
-              <Text>
+              <Text className="text-muted-foreground">
                 1. Open your{" "}
-                <Text className="underline font-semibold" onPress={openBrowser}>
+                <Text
+                  className="underline font-semibold text-yellow-500"
+                  onPress={openBrowser}
+                >
                   Coolify dashboard
                 </Text>
                 .
               </Text>
-              <Text>
+              <Text className="text-muted-foreground">
                 2. Go to{" "}
-                <Text className="font-semibold">
+                <Text className="font-semibold text-yellow-500">
                   Keys & Tokens {">"} API tokens
                 </Text>
                 .
               </Text>
-              <Text>3. Create a new token with the following permissions:</Text>
+              <Text className="text-muted-foreground">
+                3. Create a new token with the following permissions:
+              </Text>
               <View className="pl-4">
-                <Text>• read</Text>
-                <Text>• read:sensitive</Text>
-                <Text>• write</Text>
-                <Text>• deploy</Text>
+                <Text className="text-muted-foreground">• read</Text>
+                <Text className="text-muted-foreground">• read:sensitive</Text>
+                <Text className="text-muted-foreground">• write</Text>
+                <Text className="text-muted-foreground">• deploy</Text>
               </View>
             </View>
           </DialogContent>
