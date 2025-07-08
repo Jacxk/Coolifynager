@@ -27,7 +27,6 @@ export default function ServersIndex() {
 
   return (
     <SafeView>
-      <H1>Servers</H1>
       <FlatList
         className="flex-1 mt-4"
         data={data}

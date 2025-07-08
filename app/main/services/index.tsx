@@ -27,12 +27,13 @@ export default function ServicesIndex() {
 
   return (
     <SafeView>
-      <H1>Services</H1>
       <FlatList
         className="flex-1 mt-4"
         data={data}
         keyExtractor={(item) => item.uuid}
-        renderItem={({ item }) => <ServiceCard service={item} />}
+        renderItem={({ item }) => (
+          <ServiceCard uuid={item.uuid} name={item.name} />
+        )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         refreshing={isRefreshing}
         onRefresh={() => {

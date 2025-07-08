@@ -27,7 +27,6 @@ export default function ProjectsIndex() {
 
   return (
     <SafeView>
-      <H1>Projects</H1>
       <FlatList
         className="flex-1 mt-4"
         data={data}

@@ -27,7 +27,6 @@ export default function ApplicationsIndex() {
 
   return (
     <SafeView>
-      <H1>Applications</H1>
       <FlatList
         className="flex-1 mt-4"
         data={data}
@@ -36,7 +35,7 @@ export default function ApplicationsIndex() {
           <ApplicationCard
             uuid={item.uuid}
             name={item.name}
-            description={item.description}
+            description={item.description ?? ""}
             status={item.status}
           />
         )}
