@@ -14,7 +14,9 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
 import { Platform } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Toaster } from "sonner-native";
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -59,8 +61,11 @@ export default function RootLayout() {
       <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
         <QueryClientProvider client={queryClient}>
-          <Stack screenOptions={{ headerShown: false }} />
-          <PortalHost />
+          <GestureHandlerRootView>
+            <Stack screenOptions={{ headerShown: false }} />
+            <PortalHost />
+            <Toaster position="bottom-center" />
+          </GestureHandlerRootView>
         </QueryClientProvider>
       </ThemeProvider>
     </SafeAreaProvider>
