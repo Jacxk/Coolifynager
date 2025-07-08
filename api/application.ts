@@ -2,15 +2,14 @@ import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import {
   Application,
+  ApplicationActionResponse,
   ApplicationEnv,
   ApplicationLogs,
-  ApplicationRestartResponse,
-  ApplicationStartResponse,
-  ApplicationStopResponse,
   CreateApplicationEnvBody,
   CreateApplicationEnvResponse,
   SingleApplication,
 } from "./types/application.types";
+import { ResourceActionResponse } from "./types/resources.types";
 
 type QueryKey = string | number;
 
@@ -92,7 +91,7 @@ export const startApplication = (
   uuid: string,
   options?: Omit<
     UseMutationOptions<
-      ApplicationStartResponse,
+      ApplicationActionResponse,
       Error,
       { force?: boolean; instant_deploy?: boolean }
     >,
@@ -112,7 +111,7 @@ export const startApplication = (
       force: String(force),
       instant_deploy: String(instant_deploy),
     });
-    return coolifyFetch<ApplicationStartResponse>(
+    return coolifyFetch<ApplicationActionResponse>(
       `/applications/${uuid}/start?${params.toString()}`,
       {
         method: "POST",
@@ -124,14 +123,14 @@ export const startApplication = (
 export const stopApplication = (
   uuid: string,
   options?: Omit<
-    UseMutationOptions<ApplicationStopResponse, Error, void>,
+    UseMutationOptions<ResourceActionResponse, Error, void>,
     "mutationKey" | "mutationFn"
   >
 ) => ({
   ...options,
   mutationKey: ["applications.stop", uuid],
   mutationFn: async () => {
-    return coolifyFetch<ApplicationStopResponse>(`/applications/${uuid}/stop`, {
+    return coolifyFetch<ResourceActionResponse>(`/applications/${uuid}/stop`, {
       method: "POST",
     });
   },
@@ -140,14 +139,14 @@ export const stopApplication = (
 export const restartApplication = (
   uuid: string,
   options?: Omit<
-    UseMutationOptions<ApplicationRestartResponse, Error, void>,
+    UseMutationOptions<ApplicationActionResponse, Error, void>,
     "mutationKey" | "mutationFn"
   >
 ) => ({
   ...options,
   mutationKey: ["applications.restart", uuid],
   mutationFn: async () => {
-    return coolifyFetch<ApplicationRestartResponse>(
+    return coolifyFetch<ApplicationActionResponse>(
       `/applications/${uuid}/restart`,
       {
         method: "POST",

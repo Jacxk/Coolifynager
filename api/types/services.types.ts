@@ -1,4 +1,5 @@
-import type { ApplicationBase } from "./application.types";
+import { ApplicationBase } from "./application.types";
+import { ResourceBase } from "./resources.types";
 import type { SingleServer } from "./server.types";
 
 export type ServiceApplication = ApplicationBase & {
@@ -15,27 +16,15 @@ export type ServiceApplication = ApplicationBase & {
   required_fqdn: boolean;
 };
 
-export type ServiceBase = {
-  uuid: string;
-  name: string;
-  description: string | null;
-  environment_id: number;
-  server_id: number;
+export type ServiceBase = ResourceBase & {
   docker_compose_raw: string;
   docker_compose: string;
-  destination_type: string;
-  destination_id: number;
   connect_to_docker_network: boolean;
-  config_hash: string;
   service_type: string;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-  status: string;
-  server_status: boolean;
   compose_parsing_version: string;
   applications: ServiceApplication[];
   databases: Array<unknown>;
+  server_id: number;
 };
 
 export type Service = ServiceBase;

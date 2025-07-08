@@ -1,34 +1,34 @@
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
+import { Database } from "./types/database.types";
 import { ResourceActionResponse } from "./types/resources.types";
-import { Service, SingleService } from "./types/services.types";
 
 type QueryKey = string | number;
 
-export const getServices = (
+export const getDatabases = (
   options?: Omit<
-    UseQueryOptions<Service[], Error, Service[], QueryKey[]>,
+    UseQueryOptions<Database[], Error, Database[], QueryKey[]>,
     "queryKey" | "queryFn"
   >
 ) => ({
   ...options,
-  queryKey: ["services"],
-  queryFn: () => coolifyFetch<Service[]>("/services"),
+  queryKey: ["databases"],
+  queryFn: () => coolifyFetch<Database[]>("/databases"),
 });
 
-export const getService = (
+export const getDatabase = (
   uuid: string,
   options?: Omit<
-    UseQueryOptions<SingleService, Error, SingleService, QueryKey[]>,
+    UseQueryOptions<Database, Error, Database, QueryKey[]>,
     "queryKey" | "queryFn"
   >
 ) => ({
   ...options,
-  queryKey: ["services", uuid],
-  queryFn: () => coolifyFetch<SingleService>(`/services/${uuid}`),
+  queryKey: ["databases", uuid],
+  queryFn: () => coolifyFetch<Database>(`/databases/${uuid}`),
 });
 
-export const startService = (
+export const startDatabase = (
   uuid: string,
   options?: Omit<
     UseMutationOptions<ResourceActionResponse, Error, void>,
@@ -36,15 +36,15 @@ export const startService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.start", uuid],
+  mutationKey: ["databases.start", uuid],
   mutationFn: async () => {
-    return coolifyFetch<ResourceActionResponse>(`/services/${uuid}/start`, {
+    return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/start`, {
       method: "POST",
     });
   },
 });
 
-export const stopService = (
+export const stopDatabase = (
   uuid: string,
   options?: Omit<
     UseMutationOptions<ResourceActionResponse, Error, void>,
@@ -52,15 +52,15 @@ export const stopService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.stop", uuid],
+  mutationKey: ["databases.stop", uuid],
   mutationFn: async () => {
-    return coolifyFetch<ResourceActionResponse>(`/services/${uuid}/stop`, {
+    return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/stop`, {
       method: "POST",
     });
   },
 });
 
-export const restartService = (
+export const restartDatabase = (
   uuid: string,
   options?: Omit<
     UseMutationOptions<ResourceActionResponse, Error, void>,
@@ -68,9 +68,9 @@ export const restartService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.restart", uuid],
+  mutationKey: ["databases.restart", uuid],
   mutationFn: async () => {
-    return coolifyFetch<ResourceActionResponse>(`/services/${uuid}/restart`, {
+    return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/restart`, {
       method: "POST",
     });
   },

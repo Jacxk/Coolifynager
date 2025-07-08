@@ -1,20 +1,8 @@
-import { Server, SingleServer } from "./server.types";
+import { ResourceActionResponse, ResourceBase } from "./resources.types";
+import { Server } from "./server.types";
 
-export type ApplicationDestination = {
+export type ApplicationBase = ResourceBase & {
   id: number;
-  uuid: string;
-  name: string;
-  network: string;
-  server_id: number;
-  created_at: string;
-  updated_at: string;
-  server: SingleServer;
-};
-
-export type ApplicationBase = {
-  id: number;
-  name: string;
-  description: string | null;
   base_directory: string;
   build_pack: string;
   build_command: string;
@@ -23,9 +11,6 @@ export type ApplicationBase = {
   git_repository: string;
   git_branch: string;
   git_commit_sha: string;
-  status: string;
-  updated_at: string;
-  uuid: string;
 };
 
 export type Application = ApplicationBase & {
@@ -37,17 +22,10 @@ export type SingleApplication = ApplicationBase & {
   additional_servers: Server[];
   additional_servers_count: number;
   compose_parsing_version: string;
-  config_hash: string;
-  created_at: string;
-  custom_docker_run_options: string | null;
   custom_healthcheck_found: boolean;
   custom_labels: string;
   custom_network_aliases: string | null;
   custom_nginx_configuration: string | null;
-  deleted_at: string | null;
-  destination: ApplicationDestination;
-  destination_id: number;
-  destination_type: string;
   docker_compose: string | null;
   docker_compose_custom_build_command: string | null;
   docker_compose_custom_start_command: string | null;
@@ -59,7 +37,6 @@ export type SingleApplication = ApplicationBase & {
   dockerfile: string | null;
   dockerfile_location: string;
   dockerfile_target_build: string | null;
-  environment_id: number;
   git_full_url: string | null;
   health_check_enabled: boolean;
   health_check_host: string;
@@ -78,20 +55,11 @@ export type SingleApplication = ApplicationBase & {
   install_command: string;
   is_http_basic_auth_enabled: boolean;
   laravel_through_key: number;
-  last_online_at: string | null;
-  limits_cpu_shares: number;
-  limits_cpus: string;
-  limits_cpuset: string | null;
-  limits_memory: string;
-  limits_memory_reservation: string;
-  limits_memory_swap: string;
-  limits_memory_swappiness: number;
   manual_webhook_secret_bitbucket: string | null;
   manual_webhook_secret_gitea: string | null;
   manual_webhook_secret_github: string | null;
   manual_webhook_secret_gitlab: string | null;
   ports_exposes: string;
-  ports_mappings: string | null;
   post_deployment_command: string | null;
   post_deployment_command_container: string | null;
   pre_deployment_command: string | null;
@@ -101,7 +69,6 @@ export type SingleApplication = ApplicationBase & {
   publish_directory: string;
   redirect: string;
   repository_project_id: number;
-  server_status: boolean;
   source_id: number;
   source_type: string;
   static_image: string;
@@ -147,16 +114,6 @@ export type CreateApplicationEnvResponse = {
   uuid: string;
 };
 
-export type ApplicationStartResponse = {
-  message: string;
-  deployment_uuid: string;
-};
-
-export type ApplicationStopResponse = {
-  message: string;
-};
-
-export type ApplicationRestartResponse = {
-  message: string;
+export type ApplicationActionResponse = ResourceActionResponse & {
   deployment_uuid: string;
 };
