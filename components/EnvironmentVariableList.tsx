@@ -32,7 +32,7 @@ export default function EnvironmentVariableList({ uuid }: { uuid: string }) {
           className="text-xs text-muted-foreground"
           value={env.value}
           textContentType="password"
-          editable={false}
+          secureTextEntry
         />
         <View className="flex flex-row gap-4 flex-wrap">
           <View className="flex flex-row gap-2">
