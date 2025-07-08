@@ -4,33 +4,36 @@ import { Star } from "../icons/Star";
 import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
-export type ApplicationCardProps = {
+export type DatabaseCardProps = {
   uuid: string;
   name: string;
   status?: string;
   description?: string;
+  database_type?: string;
 };
 
-export function ApplicationCard({
+export function DatabaseCard({
   uuid,
   name,
   description,
   status,
-}: ApplicationCardProps) {
+  database_type,
+}: DatabaseCardProps) {
   const { isFavorite, toggleFavorite } =
-    useFavorites<ApplicationCardProps>("uuid");
+    useFavorites<DatabaseCardProps>("uuid");
   const favorite = {
     uuid,
     name,
     description,
     status,
-    type: "application",
+    database_type,
+    type: "database",
   };
 
   return (
     <Link
       href={{
-        pathname: "/main/applications/[uuid]",
+        pathname: "/main/databases/[uuid]/(tabs)",
         params: { uuid: uuid, name: name },
       }}
     >

@@ -52,7 +52,10 @@ export function DeploymentCard({ deployment }: DeploymentCardProps) {
             Duration: {minutes}m {seconds}s
           </Text>
           <Text>
-            Finished: {moment(new Date(deployment.finished_at)).fromNow()}
+            Finished:{" "}
+            {deployment.finished_at
+              ? moment(new Date(deployment.finished_at)).fromNow()
+              : "In Progress"}
           </Text>
         </CardContent>
       </Card>

@@ -1,11 +1,9 @@
 import {
-  getApplication,
-  restartApplication,
-  startApplication,
-  stopApplication,
-} from "@/api/application";
-import { getLatestApplicationDeployment } from "@/api/deployments";
-import { DomainsSelect } from "@/components/DomainsSelect";
+  getDatabase,
+  restartDatabase,
+  startDatabase,
+  stopDatabase,
+} from "@/api/databases";
 import { HealthDialog } from "@/components/HealthDialog";
 import LoadingScreen from "@/components/LoadingScreen";
 import { ResourceActions } from "@/components/ResourceActions";
@@ -16,8 +14,8 @@ import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { cn } from "@/lib/utils";
 import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import {
   RefreshControl,
   ScrollView,
@@ -25,75 +23,36 @@ import {
   View,
 } from "react-native";
 
-export default function Application() {
+export default function Database() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
   const isFocused = useIsFocused();
 
-  const [isDeploying, setIsDeploying] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
 
   const {
     data,
-    isPending: isPendingApplication,
+    isPending: isPendingDatabase,
     refetch,
   } = useQuery(
-    getApplication(uuid, {
+    getDatabase(uuid, {
       refetchInterval: 20000,
-      enabled: isFocused && !isDeploying,
+      enabled: isFocused,
     })
   );
 
-  const isNotRunning = data?.status?.startsWith("exited");
-
-  const { data: deploymentData } = useQuery(
-    getLatestApplicationDeployment(uuid, {
-      refetchInterval: isDeploying ? 5000 : 15000,
-      enabled: isFocused && isNotRunning,
-    })
-  );
-
-  const startMutation = useMutation(startApplication(uuid));
-  const stopMutation = useMutation(stopApplication(uuid));
-  const restartMutation = useMutation(restartApplication(uuid));
+  const startMutation = useMutation(startDatabase(uuid));
+  const stopMutation = useMutation(stopDatabase(uuid));
+  const restartMutation = useMutation(restartDatabase(uuid));
 
   useRefreshOnFocus(refetch);
-
-  useEffect(() => {
-    if (!isNotRunning) {
-      setIsDeploying(false);
-      return;
-    }
-
-    const latestDeployment = deploymentData?.deployments[0];
-    if (latestDeployment) {
-      if (
-        latestDeployment.status === "in_progress" &&
-        !latestDeployment.restart_only &&
-        data?.status?.startsWith("exited")
-      ) {
-        setIsDeploying(true);
-      } else {
-        setIsDeploying(false);
-      }
-    }
-  }, [data?.status, deploymentData?.deployments, isNotRunning]);
 
   const healthy_running = data?.status === "running:healthy";
   const unhealthy_running = data?.status === "running:unhealthy";
   const unhealthy_exited = data?.status === "exited:unhealthy";
 
-  const handleDeploy = () => {
-    startMutation.mutate(
-      { force: false, instant_deploy: false },
-      {
-        onSuccess: ({ deployment_uuid }) =>
-          router.push({
-            pathname: "./deployments/logs",
-            params: { deployment_uuid },
-          }),
-      }
-    );
+  const handleStart = () => {
+    startMutation.mutate();
   };
 
   const handleStop = () => {
@@ -109,7 +68,7 @@ export default function Application() {
     refetch().finally(() => setIsRefreshing(false));
   };
 
-  if (isPendingApplication) {
+  if (isPendingDatabase) {
     return <LoadingScreen />;
   }
 
@@ -120,19 +79,15 @@ export default function Application() {
       }
     >
       <SafeView className="p-4 gap-4 pt-0">
-        <View className="flex flex-row gap-2 items-center justify-between">
-          <DomainsSelect domains={data?.fqdn.split(",") as string[]} />
+        <View className="flex flex-row gap-2 items-center justify-end">
           <ResourceActions
-            resourceType="application"
+            resourceType="database"
             isRunning={healthy_running || unhealthy_running}
-            onStart={handleDeploy}
-            onRedeploy={handleDeploy}
+            onStart={handleStart}
             onStop={handleStop}
             onRestart={handleRestart}
-            isDeploying={isDeploying}
             stopDisabled={stopMutation.isPending}
             restartDisabled={restartMutation.isPending}
-            showDeploy={true}
           />
         </View>
 
@@ -153,16 +108,50 @@ export default function Application() {
           </View>
           <Text className="text-muted-foreground">{data?.description}</Text>
         </View>
-        <Text>{data?.status}</Text>
-        <Text>{data?.git_branch}</Text>
-        <Text>{data?.git_commit_sha}</Text>
-        <Text>{data?.git_repository}</Text>
+
+        <Text>Status: {data?.status}</Text>
+        <Text>Database Type: {data?.database_type}</Text>
+        <Text>Image: {data?.image}</Text>
+
+        {data?.internal_db_url && (
+          <View>
+            <Text className="font-semibold">Internal URL:</Text>
+            <Text className="text-muted-foreground">
+              {data.internal_db_url}
+            </Text>
+          </View>
+        )}
+
+        {data?.external_db_url && (
+          <View>
+            <Text className="font-semibold">External URL:</Text>
+            <Text className="text-muted-foreground">
+              {data.external_db_url}
+            </Text>
+          </View>
+        )}
+
+        {data?.public_port && <Text>Public Port: {data.public_port}</Text>}
+
+        <Text>SSL Enabled: {data?.enable_ssl ? "Yes" : "No"}</Text>
+
+        {data?.postgres_user && (
+          <View>
+            <Text className="font-semibold">Database Credentials:</Text>
+            <Text className="text-muted-foreground">
+              User: {data.postgres_user}
+            </Text>
+            <Text className="text-muted-foreground">
+              Database: {data.postgres_db}
+            </Text>
+          </View>
+        )}
 
         <HealthDialog
           isOpen={isHealthDialogOpen}
           onOpenChange={setIsHealthDialogOpen}
           status={data?.status}
-          resourceType="application"
+          resourceType="database"
         />
       </SafeView>
     </ScrollView>

@@ -75,3 +75,21 @@ export const restartDatabase = (
     });
   },
 });
+
+type DatabaseLogs = {
+  logs: string;
+};
+
+export const getDatabaseLogs = (
+  uuid: string,
+  lines = 100,
+  options?: Omit<
+    UseQueryOptions<DatabaseLogs, Error, DatabaseLogs, QueryKey[]>,
+    "queryKey" | "queryFn"
+  >
+) => ({
+  ...options,
+  queryKey: ["databases.logs", uuid, lines],
+  queryFn: () =>
+    coolifyFetch<DatabaseLogs>(`/databases/${uuid}/logs?lines=${lines}`),
+});

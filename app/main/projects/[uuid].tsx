@@ -1,6 +1,8 @@
 import { getProject } from "@/api/projects";
 import { getResources } from "@/api/resources";
 import { ApplicationCard } from "@/components/cards/ApplicationCard";
+import { DatabaseCard } from "@/components/cards/DatabaseCard";
+import { ServiceCard } from "@/components/cards/ServiceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
@@ -50,14 +52,40 @@ export default function Project() {
       contentContainerClassName="gap-2"
       sections={sections}
       keyExtractor={(item) => item.uuid}
-      renderItem={({ item }) => (
-        <ApplicationCard
-          uuid={item.uuid}
-          name={item.name}
-          description={item.description || undefined}
-          status={item.status}
-        />
-      )}
+      renderItem={({ item, section: { title } }) => {
+        if (title === "Applications") {
+          return (
+            <ApplicationCard
+              uuid={item.uuid}
+              name={item.name}
+              description={item.description || undefined}
+              status={item.status}
+            />
+          );
+        } else if (title === "Databases") {
+          return (
+            <DatabaseCard
+              uuid={item.uuid}
+              name={item.name}
+              description={item.description || undefined}
+              status={item.status}
+              database_type={item.static_image || "Database"}
+            />
+          );
+        } else if (title === "Services") {
+          return (
+            <ServiceCard
+              uuid={item.uuid}
+              name={item.name}
+              description={item.description || undefined}
+              status={item.status}
+              service_type={item.static_image || "Service"}
+            />
+          );
+        }
+
+        return null;
+      }}
       renderSectionHeader={({ section: { title } }) => <H3>{title}</H3>}
       showsVerticalScrollIndicator={false}
       stickySectionHeadersEnabled={false}

@@ -75,3 +75,21 @@ export const restartService = (
     });
   },
 });
+
+type ServiceLogs = {
+  logs: string;
+};
+
+export const getServiceLogs = (
+  uuid: string,
+  lines = 100,
+  options?: Omit<
+    UseQueryOptions<ServiceLogs, Error, ServiceLogs, QueryKey[]>,
+    "queryKey" | "queryFn"
+  >
+) => ({
+  ...options,
+  queryKey: ["services.logs", uuid, lines],
+  queryFn: () =>
+    coolifyFetch<ServiceLogs>(`/services/${uuid}/logs?lines=${lines}`),
+});

@@ -1,4 +1,3 @@
-import { Service } from "@/api/types/services.types";
 import { useFavorites } from "@/hooks/useFavorites";
 import { Link } from "expo-router";
 import { Star } from "../icons/Star";
@@ -6,23 +5,41 @@ import { Button } from "../ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 export type ServiceCardProps = {
-  service: Service;
+  uuid: string;
+  name: string;
+  status?: string;
+  description?: string;
+  service_type?: string;
 };
 
-export function ServiceCard({ service }: ServiceCardProps) {
-  const { isFavorite, toggleFavorite } = useFavorites<typeof service>("uuid");
-  const favorite = { ...service, type: "service" };
+export function ServiceCard({
+  uuid,
+  name,
+  description,
+  status,
+  service_type,
+}: ServiceCardProps) {
+  const { isFavorite, toggleFavorite } = useFavorites<ServiceCardProps>("uuid");
+  const favorite = {
+    uuid,
+    name,
+    description,
+    status,
+    service_type,
+    type: "service",
+  };
+
   return (
     <Link
       href={{
-        pathname: "/main/services/[uuid]",
-        params: { uuid: service.uuid, name: service.name },
+        pathname: "/main/services/[uuid]/(tabs)",
+        params: { uuid: uuid, name: name },
       }}
     >
       <Card className="w-full max-w-sm relative">
         <CardHeader>
-          <CardTitle>{service.name}</CardTitle>
-          <CardDescription>{service.description}</CardDescription>
+          <CardTitle>{name}</CardTitle>
+          <CardDescription>{status || description}</CardDescription>
         </CardHeader>
         <Button
           size="icon"
@@ -32,7 +49,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
         >
           <Star
             className={
-              isFavorite(service) ? "text-yellow-500" : "text-foreground"
+              isFavorite(favorite) ? "text-yellow-500" : "text-foreground"
             }
           />
         </Button>
