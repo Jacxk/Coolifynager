@@ -2,6 +2,7 @@ import { FAVORITES_STORAGE_KEY } from "@/constants/AppDetails";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
+import { toast } from "sonner-native";
 
 export function useFavorites<T extends Record<string, any>>(
   uniqueKey: keyof T = "uuid" as keyof T
@@ -31,8 +32,10 @@ export function useFavorites<T extends Record<string, any>>(
       const prev: T[] = JSON.parse(favoriteString ?? "[]");
       let data;
       if (prev.some((fav) => fav[uniqueKey] === item[uniqueKey])) {
+        toast.success(`${item.name} removed from favorites`);
         data = prev.filter((fav) => fav[uniqueKey] !== item[uniqueKey]);
       } else {
+        toast.success(`${item.name} added to favorites`);
         data = [...prev, item];
       }
       await AsyncStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(data));
