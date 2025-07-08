@@ -40,7 +40,7 @@ const cards = [
 
 export default function MainIndex() {
   return (
-    <ScrollView>
+    <ScrollView contentContainerClassName="pt-4">
       <SafeView>
         <H1>Main Dashboard</H1>
         <View className="flex flex-row flex-wrap">

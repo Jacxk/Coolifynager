@@ -104,12 +104,13 @@ export default function Service() {
       .filter(Boolean) || [];
 
   return (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-      }
-    >
-      <SafeView className="p-4 gap-4 pt-0">
+    <SafeView topInset bottomInset={false}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
+        contentContainerClassName="gap-4"
+      >
         <View className="flex flex-row gap-2 items-center justify-between">
           <DomainsSelect domains={domains} />
           <ResourceActions
@@ -160,7 +161,7 @@ export default function Service() {
           status={data?.status}
           resourceType="service"
         />
-      </SafeView>
-    </ScrollView>
+      </ScrollView>
+    </SafeView>
   );
 }

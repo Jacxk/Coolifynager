@@ -26,9 +26,9 @@ export default function ServersIndex() {
   }
 
   return (
-    <SafeView>
+    <SafeView className="p-0">
       <FlatList
-        className="flex-1 mt-4"
+        contentContainerClassName="p-4"
         data={data}
         keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => <ServerCard server={item} />}

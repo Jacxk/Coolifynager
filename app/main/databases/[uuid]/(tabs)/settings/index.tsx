@@ -2,7 +2,6 @@ import { ChevronRight } from "@/components/icons/ChevronRight";
 import { TriangleAlert } from "@/components/icons/TriangleAlert";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
-import { H1 } from "@/components/ui/typography";
 import { Link } from "expo-router";
 import { ScrollView, View } from "react-native";
 
@@ -30,8 +29,7 @@ function SettingsLink({
 
 export default function DatabaseSettingsIndex() {
   return (
-    <SafeView>
-      <H1>Settings</H1>
+    <SafeView bottomInset={false}>
       <ScrollView>
         <SettingsLink
           icon={<TriangleAlert />}

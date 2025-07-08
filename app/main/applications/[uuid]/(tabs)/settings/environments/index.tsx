@@ -1,9 +1,7 @@
 import EnvironmentVariableList from "@/components/EnvironmentVariableList";
-import { Plus } from "@/components/icons/Plus";
-import { Button } from "@/components/ui/button";
-import { H1 } from "@/components/ui/typography";
+import { SafeView } from "@/components/SafeView";
 import { useQueryClient } from "@tanstack/react-query";
-import { router, useGlobalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 
@@ -25,17 +23,10 @@ export default function ApplicationEnvironmentsIndex() {
       refreshControl={
         <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
       }
-      className="p-4"
     >
-      <H1 className="font-bold mb-4 text-center">Environment Variables</H1>
-      <Button
-        size="icon"
-        variant="ghost"
-        onPress={() => router.push("./environments/create")}
-      >
-        <Plus />
-      </Button>
-      <EnvironmentVariableList uuid={uuid} />
+      <SafeView bottomInset={false}>
+        <EnvironmentVariableList uuid={uuid} />
+      </SafeView>
     </ScrollView>
   );
 }

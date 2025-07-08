@@ -23,7 +23,7 @@ export function SafeView(
   return (
     <View
       ref={ref}
-      className={cn("flex-1 px-4", className)}
+      className={cn("flex-1 p-4", className)}
       style={[
         style,
         {

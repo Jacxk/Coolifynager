@@ -1,5 +1,4 @@
 import LogsViewer from "@/components/LogsViewer";
-import { SafeView } from "@/components/SafeView";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useIsFocused } from "@react-navigation/native";
@@ -30,7 +29,7 @@ export function ResourceLogs({ logsFetcher }: ResourceLogsProps) {
   );
 
   return (
-    <SafeView className="gap-2" bottomInset={false}>
+    <View className="flex-1 gap-2">
       <View className="flex">
         <Text className="text-muted-foreground text-sm">
           Only Show Number of Lines
@@ -49,6 +48,6 @@ export function ResourceLogs({ logsFetcher }: ResourceLogsProps) {
         logs={(logData as LogsData)?.logs}
         isLoading={isPendingLogs}
       />
-    </SafeView>
+    </View>
   );
 }

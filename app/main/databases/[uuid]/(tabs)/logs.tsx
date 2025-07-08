@@ -1,16 +1,20 @@
+import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
-import { View } from "react-native";
 
 // TODO: Add logs for databases
 export default function DatabaseLogs() {
   return (
-    <View className="flex-1 items-center justify-center">
+    <SafeView
+      topInset
+      bottomInset={false}
+      className="flex-1 items-center justify-center"
+    >
       <Text className="text-muted-foreground">
         Logs are not available for databases
       </Text>
       <Text className="text-muted-foreground">
         This is a limitation of the API.
       </Text>
-    </View>
+    </SafeView>
   );
 }

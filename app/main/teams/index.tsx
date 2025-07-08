@@ -28,9 +28,9 @@ export default function TeamsIndex() {
   }
 
   return (
-    <SafeView>
+    <SafeView className="p-0">
       <FlatList
-        className="flex-1 mt-4"
+        contentContainerClassName="p-4"
         data={data}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <TeamCard team={item} />}

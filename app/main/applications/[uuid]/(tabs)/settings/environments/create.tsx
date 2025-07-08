@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { H3 } from "@/components/ui/typography";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router, useGlobalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
@@ -55,8 +54,7 @@ export default function ApplicationEnvironmentsCreate() {
       onScrollBeginDrag={Keyboard.dismiss}
       keyboardShouldPersistTaps="always"
     >
-      <SafeView className="gap-4">
-        <H3>New Environment Variable</H3>
+      <SafeView bottomInset={false} className="gap-4">
         <View>
           <Text>Name</Text>
           <Input

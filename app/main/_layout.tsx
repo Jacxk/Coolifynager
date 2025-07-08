@@ -3,60 +3,34 @@ import { Stack } from "expo-router";
 
 export default function MainLayout() {
   return (
-    <Stack
-      screenOptions={({ route }) => {
-        if (route.name === "index") {
-          return {
-            headerShown: true,
-            title: APP_NAME,
-          };
-        }
-
-        const header = {
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen
+        name="index"
+        options={{ title: APP_NAME, headerShown: true }}
+      />
+      <Stack.Screen
+        name="projects/index"
+        options={{ title: "Projects", headerShown: true }}
+      />
+      <Stack.Screen
+        name="projects/[uuid]"
+        options={({ route }) => ({
+          title: route.params?.name,
           headerShown: true,
-          headerBackButtonDisplayMode: "minimal",
-        };
-
-        if (route.name === "applications") {
-          return {
-            ...header,
-            title: "Applications",
-          };
-        }
-
-        if (route.name === "projects/index") {
-          return {
-            ...header,
-            title: "Projects",
-          };
-        }
-
-        if (route.name === "projects/[uuid]" && route.params?.name) {
-          return {
-            headerShown: true,
-            headerBackButtonDisplayMode: "default",
-            title: route.params.name,
-          };
-        }
-
-        if (route.name === "servers/index") {
-          return {
-            ...header,
-            title: "Servers",
-          };
-        }
-
-        if (route.name === "teams/index") {
-          return {
-            ...header,
-            title: "Teams",
-          };
-        }
-
-        return {
-          headerShown: false,
-        };
-      }}
-    />
+        })}
+      />
+      <Stack.Screen
+        name="servers/index"
+        options={{ title: "Servers", headerShown: true }}
+      />
+      <Stack.Screen
+        name="services/index"
+        options={{ title: "Services", headerShown: true }}
+      />
+      <Stack.Screen
+        name="teams/index"
+        options={{ title: "Teams", headerShown: true }}
+      />
+    </Stack>
   );
 }

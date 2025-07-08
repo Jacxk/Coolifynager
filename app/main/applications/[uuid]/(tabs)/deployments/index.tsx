@@ -43,27 +43,29 @@ export default function DeploymentsStack() {
   const deployments = data.pages.flatMap((page) => page.deployments);
 
   return (
-    <FlatList
-      className="flex-1 p-4"
-      data={deployments ?? Array.from({ length: 10 })}
-      keyExtractor={(item) => item.deployment_uuid}
-      refreshing={isRefreshing}
-      onRefresh={onRefresh}
-      onEndReached={() => {
-        if (hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+    <SafeView className="p-0" bottomInset={false}>
+      <FlatList
+        contentContainerClassName="p-4"
+        data={deployments ?? Array.from({ length: 10 })}
+        keyExtractor={(item) => item.deployment_uuid}
+        refreshing={isRefreshing}
+        onRefresh={onRefresh}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={() =>
+          isFetchingNextPage && <ActivityIndicator className="py-4" />
         }
-      }}
-      onEndReachedThreshold={0.5}
-      ListFooterComponent={() =>
-        isFetchingNextPage && <ActivityIndicator className="py-4" />
-      }
-      renderItem={({ item: deployment }) => (
-        <DeploymentCard
-          key={deployment.deployment_uuid}
-          deployment={deployment}
-        />
-      )}
-    />
+        renderItem={({ item: deployment }) => (
+          <DeploymentCard
+            key={deployment.deployment_uuid}
+            deployment={deployment}
+          />
+        )}
+      />
+    </SafeView>
   );
 }

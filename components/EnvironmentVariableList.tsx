@@ -65,8 +65,8 @@ export default function EnvironmentVariableList({ uuid }: { uuid: string }) {
   );
 
   return (
-    <View className="py-4">
-      <View className="my-4">
+    <View className="gap-4">
+      <View>
         <H2 className="font-semibold border-0 pb-1">
           Production Deployments Environment Variables
         </H2>
@@ -79,7 +79,7 @@ export default function EnvironmentVariableList({ uuid }: { uuid: string }) {
       ) : (
         <View className="gap-2">{productionEnvs.map(renderEnv)}</View>
       )}
-      <View className="my-4">
+      <View>
         <H2 className="font-semibold border-0 pb-1">
           Preview Deployments Environment Variables
         </H2>
