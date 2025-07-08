@@ -1,9 +1,21 @@
 import { Text } from "@/components/ui/text";
 import { View } from "react-native";
 import { SafeView } from "./SafeView";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { H1, H3 } from "./ui/typography";
 
+// TODO: Add delete action
 export default function DangerScreen() {
   return (
     <SafeView className="gap-4">
@@ -20,9 +32,29 @@ export default function DangerScreen() {
           There is no coming back!
         </Text>
       </View>
-      <Button variant="destructive">
-        <Text>Delete</Text>
-      </Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive">
+            <Text>Delete</Text>
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Resource</AlertDialogTitle>
+            <AlertDialogDescription>
+              Do you want to delete this resource? This action is irreversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex flex-row gap-2 self-end">
+            <AlertDialogCancel>
+              <Text>Cancel</Text>
+            </AlertDialogCancel>
+            <AlertDialogAction>
+              <Text>Delete</Text>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SafeView>
   );
 }
