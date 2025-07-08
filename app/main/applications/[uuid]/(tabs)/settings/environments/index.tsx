@@ -1,9 +1,9 @@
 import EnvironmentVariableList from "@/components/EnvironmentVariableList";
+import { Plus } from "@/components/icons/Plus";
 import { Button } from "@/components/ui/button";
 import { H1 } from "@/components/ui/typography";
 import { useQueryClient } from "@tanstack/react-query";
 import { router, useGlobalSearchParams } from "expo-router";
-import { Plus } from "lucide-react-native";
 import { useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 

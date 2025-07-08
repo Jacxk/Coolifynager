@@ -9,28 +9,29 @@ interface SafeViewProps extends ViewProps {
   className?: string;
 }
 
-export const SafeView = React.forwardRef<View, SafeViewProps>(
-  (
-    { topInset = false, bottomInset = true, className, style, ...props },
-    ref
-  ) => {
-    const inset = useSafeAreaInsets();
-    return (
-      <View
-        ref={ref}
-        className={cn("flex-1 m-6", className)}
-        style={[
-          style,
-          {
-            paddingLeft: inset.left,
-            paddingRight: inset.right,
-            ...(topInset ? { paddingTop: inset.top } : {}),
-            ...(bottomInset ? { paddingBottom: inset.bottom } : {}),
-          },
-        ]}
-        {...props}
-      />
-    );
-  }
-);
-SafeView.displayName = "SafeView";
+export function SafeView(
+  {
+    topInset = false,
+    bottomInset = true,
+    className,
+    style,
+    ...props
+  }: SafeViewProps & { ref?: React.Ref<View> },
+  ref?: React.Ref<View>
+) {
+  const inset = useSafeAreaInsets();
+  return (
+    <View
+      ref={ref}
+      className={cn("flex-1 px-4", className)}
+      style={[
+        style,
+        {
+          ...(topInset ? { paddingTop: inset.top } : {}),
+          ...(bottomInset ? { paddingBottom: inset.bottom } : {}),
+        },
+      ]}
+      {...props}
+    />
+  );
+}
