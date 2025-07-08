@@ -1,5 +1,7 @@
 import { Text } from "@/components/ui/text";
+import { router } from "expo-router";
 import { View } from "react-native";
+import { toast } from "sonner-native";
 import { SafeView } from "./SafeView";
 import {
   AlertDialog,
@@ -17,6 +19,11 @@ import { H1, H3 } from "./ui/typography";
 
 // TODO: Add delete action
 export default function DangerScreen() {
+  const onDelete = () => {
+    toast.success("Resource deleted");
+    router.dismissTo("/main");
+  };
+
   return (
     <SafeView className="gap-4">
       <View>
@@ -49,7 +56,7 @@ export default function DangerScreen() {
             <AlertDialogCancel>
               <Text>Cancel</Text>
             </AlertDialogCancel>
-            <AlertDialogAction>
+            <AlertDialogAction onPress={onDelete}>
               <Text>Delete</Text>
             </AlertDialogAction>
           </AlertDialogFooter>

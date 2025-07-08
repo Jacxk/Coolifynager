@@ -22,6 +22,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { toast } from "sonner-native";
 
 export default function Database() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
@@ -52,15 +53,36 @@ export default function Database() {
   const unhealthy_exited = data?.status === "exited:unhealthy";
 
   const handleStart = () => {
-    startMutation.mutate();
+    startMutation.mutate(undefined, {
+      onSuccess: ({ message }) => {
+        toast.success(message);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to start database");
+      },
+    });
   };
 
   const handleStop = () => {
-    stopMutation.mutate();
+    stopMutation.mutate(undefined, {
+      onSuccess: ({ message }) => {
+        toast.success(message);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to stop database");
+      },
+    });
   };
 
   const handleRestart = () => {
-    restartMutation.mutate();
+    restartMutation.mutate(undefined, {
+      onSuccess: ({ message }) => {
+        toast.success(message);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to restart database");
+      },
+    });
   };
 
   const onRefresh = () => {

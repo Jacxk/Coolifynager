@@ -24,6 +24,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { toast } from "sonner-native";
 
 export default function Application() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
@@ -87,21 +88,45 @@ export default function Application() {
     startMutation.mutate(
       { force: false, instant_deploy: false },
       {
-        onSuccess: ({ deployment_uuid }) =>
+        onSuccess: ({ deployment_uuid, message }) => {
+          toast.success(message);
           router.push({
             pathname: "./deployments/logs",
             params: { deployment_uuid },
-          }),
+          });
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to deploy application");
+        },
       }
     );
   };
 
   const handleStop = () => {
-    stopMutation.mutate();
+    stopMutation.mutate(undefined, {
+      onSuccess: ({ message }) => {
+        toast.success(message);
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to stop application");
+      },
+    });
   };
 
   const handleRestart = () => {
-    restartMutation.mutate();
+    restartMutation.mutate(undefined, {
+      onSuccess: ({ message, deployment_uuid }) => {
+        toast.success(message);
+
+        router.push({
+          pathname: "./deployments/logs",
+          params: { deployment_uuid },
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to restart application");
+      },
+    });
   };
 
   const onRefresh = () => {

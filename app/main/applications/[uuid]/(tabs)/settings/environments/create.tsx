@@ -9,6 +9,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router, useGlobalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
 import { Keyboard, ScrollView, View } from "react-native";
+import { toast } from "sonner-native";
 
 export default function ApplicationEnvironmentsCreate() {
   const queryClient = useQueryClient();
@@ -22,13 +23,20 @@ export default function ApplicationEnvironmentsCreate() {
   const [isShownOnce] = useState(true);
   const valueInputRef = useRef<any>(null);
 
-  const mutation = useMutation({
-    ...createApplicationEnv(uuid as string),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["applications.envs", uuid] });
-      router.back();
-    },
-  });
+  const mutation = useMutation(
+    createApplicationEnv(uuid as string, {
+      onSuccess: () => {
+        toast.success("Environment variable created successfully");
+        queryClient.invalidateQueries({
+          queryKey: ["applications.envs", uuid],
+        });
+        router.back();
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to create environment variable");
+      },
+    })
+  );
 
   const handleSubmit = () => {
     mutation.mutate({
