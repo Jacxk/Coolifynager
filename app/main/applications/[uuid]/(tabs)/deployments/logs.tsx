@@ -27,7 +27,11 @@ export default function DeploymentLogs() {
   );
 
   useEffect(() => {
-    if (data?.status !== "in_progress" && data?.status !== "queued") {
+    if (
+      data?.status === "finished" ||
+      data?.status === "failed" ||
+      data?.status === "cancelled-by-user"
+    ) {
       setIsFinished(true);
     }
   }, [data?.status]);

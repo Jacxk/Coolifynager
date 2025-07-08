@@ -9,6 +9,8 @@ export const StatusText = {
         return "Cancelled by User";
       case "failed":
         return "Failed";
+      case "queued":
+        return "Queued";
       default:
         return status;
     }

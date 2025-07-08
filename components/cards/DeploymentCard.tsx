@@ -48,15 +48,16 @@ export function DeploymentCard({ deployment }: DeploymentCardProps) {
         <CardContent>
           <Text>Status: {StatusText.deployment(deployment.status)}</Text>
           <Text>Commit: {deployment.commit.substring(0, 7)}</Text>
-          <Text>
-            Duration: {minutes}m {seconds}s
-          </Text>
-          <Text>
-            Finished:{" "}
-            {deployment.finished_at
-              ? moment(new Date(deployment.finished_at)).fromNow()
-              : "In Progress"}
-          </Text>
+          {deployment.status === "finished" && (
+            <Text>
+              Duration: {minutes}m {seconds}s
+            </Text>
+          )}
+          {deployment.finished_at && (
+            <Text>
+              Finished: {moment(new Date(deployment.finished_at)).fromNow()}
+            </Text>
+          )}
         </CardContent>
       </Card>
     </Link>
