@@ -1,3 +1,5 @@
+import { getDeployments } from "@/api/deployments";
+import { DeploymentCard } from "@/components/cards/DeploymentCard";
 import { FavoritesList } from "@/components/FavoritesList";
 import { Layers } from "@/components/icons/Layers";
 import { PackageOpen } from "@/components/icons/PackageOpen";
@@ -11,9 +13,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { H1 } from "@/components/ui/typography";
+import { H1, H2 } from "@/components/ui/typography";
+import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
+import { useIsFocused } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
-import { ScrollView, View } from "react-native";
+import { useState } from "react";
+import { RefreshControl, ScrollView, View } from "react-native";
 
 const cards = [
   {
@@ -39,8 +45,29 @@ const cards = [
 ];
 
 export default function MainIndex() {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const isFocused = useIsFocused();
+
+  const { data: deployments, refetch } = useQuery(
+    getDeployments({
+      refetchInterval: 20000,
+      enabled: isFocused,
+    })
+  );
+
+  useRefreshOnFocus(refetch);
+
+  const onRefresh = async () => {
+    setIsRefreshing(true);
+    refetch().finally(() => setIsRefreshing(false));
+  };
+
   return (
-    <ScrollView contentContainerClassName="pt-4">
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+      }
+    >
       <SafeView>
         <H1>Main Dashboard</H1>
         <View className="flex flex-row flex-wrap">
@@ -57,6 +84,20 @@ export default function MainIndex() {
             </Link>
           ))}
         </View>
+
+        {/* TODO: fix deployment links, api is not returning the application uuid */}
+        {deployments && deployments.length > 0 && (
+          <View className="flex gap-4">
+            <H2>Deployments</H2>
+            {deployments.map((deployment) => (
+              <DeploymentCard
+                key={deployment.deployment_uuid}
+                deployment={deployment}
+              />
+            ))}
+          </View>
+        )}
+
         <FavoritesList />
         <Link href="/setup/api_token">
           <Text>Change api token</Text>
