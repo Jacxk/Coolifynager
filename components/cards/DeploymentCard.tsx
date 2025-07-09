@@ -55,7 +55,7 @@ export function DeploymentCard({ deployment }: DeploymentCardProps) {
           )}
           {deployment.finished_at && (
             <Text>
-              Finished: {moment(new Date(deployment.finished_at)).fromNow()}
+              Finished: {moment.utc(deployment.finished_at).local().fromNow()}
             </Text>
           )}
         </CardContent>

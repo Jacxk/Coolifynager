@@ -18,7 +18,11 @@ export default function DeploymentsStack() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery(getApplicationDeployments(uuid));
+  } = useInfiniteQuery(
+    getApplicationDeployments(uuid, 5, {
+      refetchInterval: 20000,
+    })
+  );
 
   useRefreshOnFocus(refetch);
   const [isRefreshing, setIsRefreshing] = useState(false);
