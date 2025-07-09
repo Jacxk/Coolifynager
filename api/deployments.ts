@@ -76,6 +76,8 @@ export const getApplicationDeployments = (
     _: unknown,
     lastPageParam: number
   ) => {
+    if (lastPage.count < pageSize) return undefined;
+
     if (lastPage.deployments.length === 0) {
       return undefined;
     }
