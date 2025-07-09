@@ -15,7 +15,7 @@ export default function MainLayout() {
       <Stack.Screen
         name="projects/[uuid]"
         options={({ route }) => ({
-          title: route.params?.name,
+          title: (route.params as { name: string }).name,
           headerShown: true,
         })}
       />
