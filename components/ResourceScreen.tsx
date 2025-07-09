@@ -144,6 +144,10 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
         }: ApplicationActionResponse) => {
           toast.success(message);
           router.push({
+            pathname: "./deployments",
+            params: { uuid },
+          });
+          router.push({
             pathname: "./deployments/logs",
             params: { deployment_uuid },
           });

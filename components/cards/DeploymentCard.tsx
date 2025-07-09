@@ -48,7 +48,7 @@ export function DeploymentCard({ deployment }: DeploymentCardProps) {
         <CardContent>
           <Text>Status: {StatusText.deployment(deployment.status)}</Text>
           <Text>Commit: {deployment.commit.substring(0, 7)}</Text>
-          {deployment.status === "finished" && (
+          {!isNaN(Number(minutes)) && (
             <Text>
               Duration: {minutes}m {seconds}s
             </Text>
