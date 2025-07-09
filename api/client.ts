@@ -19,7 +19,7 @@ export async function coolifyFetch<T>(
   console.log(`[${method}] ${endpoint}`);
 
   const token = await SecureStore.getItemAsync(Secrets.API_TOKEN);
-  if (!token) throw new Error("API token not found");
+  if (!headers.Authorization && !token) throw new Error("API token not found");
 
   const fetchOptions: RequestInit = {
     method,
