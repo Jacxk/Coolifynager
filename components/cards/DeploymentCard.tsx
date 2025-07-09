@@ -14,9 +14,12 @@ export function DeploymentCard({ deployment }: DeploymentCardProps) {
   const end = moment(deployment.finished_at);
 
   const duration = moment.duration(end.diff(start));
-
   const minutes = String(duration.minutes()).padStart(2, "0");
   const seconds = String(duration.seconds()).padStart(2, "0");
+
+  const runningFor = moment.duration(moment().diff(start));
+  const runningForMinutes = String(runningFor.minutes()).padStart(2, "0");
+  const runningForSeconds = String(runningFor.seconds()).padStart(2, "0");
 
   return (
     <Link
@@ -56,6 +59,11 @@ export function DeploymentCard({ deployment }: DeploymentCardProps) {
           {deployment.finished_at && (
             <Text>
               Finished: {moment.utc(deployment.finished_at).local().fromNow()}
+            </Text>
+          )}
+          {deployment.status === "in_progress" && (
+            <Text>
+              Running for: {runningForMinutes}m {runningForSeconds}s
             </Text>
           )}
         </CardContent>
