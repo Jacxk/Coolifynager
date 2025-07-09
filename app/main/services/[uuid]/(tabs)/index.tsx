@@ -13,10 +13,10 @@ import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { cn } from "@/lib/utils";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import {
   RefreshControl,
   ScrollView,
@@ -28,6 +28,7 @@ import { toast } from "sonner-native";
 export default function Service() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
   const isFocused = useIsFocused();
+  const navigation = useNavigation();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
@@ -91,10 +92,6 @@ export default function Service() {
     refetch().finally(() => setIsRefreshing(false));
   };
 
-  if (isPendingService) {
-    return <LoadingScreen />;
-  }
-
   // Extract domains from service if available (services might have different domain structure)
   const domains =
     data?.applications
@@ -103,17 +100,14 @@ export default function Service() {
       .flatMap((fqdn) => fqdn.split(","))
       .filter(Boolean) || [];
 
-  return (
-    <SafeView topInset bottomInset={false}>
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-        }
-        contentContainerClassName="gap-4"
-      >
-        <View className="flex flex-row gap-2 items-center justify-between">
-          <DomainsSelect domains={domains} />
+  useLayoutEffect(() => {
+    if (data) {
+      navigation.setOptions({
+        headerTitle: "",
+        headerShown: true,
+        headerRight: () => (
           <ResourceActions
+            className="mr-4"
             resourceType="service"
             isRunning={healthy_running || unhealthy_running}
             onStart={handleStart}
@@ -122,8 +116,32 @@ export default function Service() {
             stopDisabled={stopMutation.isPending}
             restartDisabled={restartMutation.isPending}
           />
-        </View>
+        ),
+        headerLeft: () => <DomainsSelect className="ml-4" domains={domains} />,
+      });
+    }
+  }, [
+    data,
+    healthy_running,
+    unhealthy_running,
+    stopMutation.isPending,
+    restartMutation.isPending,
+    navigation,
+    domains,
+  ]);
 
+  if (isPendingService) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <SafeView bottomInset={false}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
+        contentContainerClassName="gap-4"
+      >
         <View>
           <View className="flex flex-row justify-between items-center">
             <H1 numberOfLines={1} ellipsizeMode="tail">

@@ -17,7 +17,8 @@ type DomainsSelectProps = {
 export function DomainsSelect({
   domains,
   label = "Links",
-}: DomainsSelectProps) {
+  className,
+}: DomainsSelectProps & { className?: string }) {
   const insets = useSafeAreaInsets();
   const contentInsets = {
     top: insets.top,
@@ -26,14 +27,13 @@ export function DomainsSelect({
     right: 12,
   };
 
-  // Don't render if no domains
   if (!domains || domains.length === 0) {
     return null;
   }
 
   return (
-    <Select>
-      <SelectTrigger>
+    <Select className={className}>
+      <SelectTrigger className="border-0">
         <Text>{label}</Text>
       </SelectTrigger>
       <SelectContent insets={contentInsets}>

@@ -14,10 +14,10 @@ import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { cn } from "@/lib/utils";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import {
   RefreshControl,
   ScrollView,
@@ -29,6 +29,7 @@ import { toast } from "sonner-native";
 export default function Application() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
   const isFocused = useIsFocused();
+  const navigation = useNavigation();
 
   const [isDeploying, setIsDeploying] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -80,9 +81,10 @@ export default function Application() {
     }
   }, [data?.status, deploymentData?.deployments, isNotRunning]);
 
-  const healthy_running = data?.status === "running:healthy";
-  const unhealthy_running = data?.status === "running:unhealthy";
-  const unhealthy_exited = data?.status === "exited:unhealthy";
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    refetch().finally(() => setIsRefreshing(false));
+  };
 
   const handleDeploy = () => {
     startMutation.mutate(
@@ -129,26 +131,18 @@ export default function Application() {
     });
   };
 
-  const onRefresh = () => {
-    setIsRefreshing(true);
-    refetch().finally(() => setIsRefreshing(false));
-  };
+  const healthy_running = data?.status === "running:healthy";
+  const unhealthy_running = data?.status === "running:unhealthy";
+  const unhealthy_exited = data?.status === "exited:unhealthy";
 
-  if (isPendingApplication) {
-    return <LoadingScreen />;
-  }
-
-  return (
-    <SafeView topInset bottomInset={false}>
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-        }
-        contentContainerClassName="gap-4"
-      >
-        <View className="flex flex-row gap-2 items-center justify-between">
-          <DomainsSelect domains={data?.fqdn.split(",") as string[]} />
+  useLayoutEffect(() => {
+    if (data) {
+      navigation.setOptions({
+        headerTitle: "",
+        headerShown: true,
+        headerRight: () => (
           <ResourceActions
+            className="mr-4"
             resourceType="application"
             isRunning={healthy_running || unhealthy_running}
             onStart={handleDeploy}
@@ -160,8 +154,37 @@ export default function Application() {
             restartDisabled={restartMutation.isPending}
             showDeploy={true}
           />
-        </View>
+        ),
+        headerLeft: () => (
+          <DomainsSelect
+            className="ml-4"
+            domains={data?.fqdn.split(",") as string[]}
+          />
+        ),
+      });
+    }
+  }, [
+    data,
+    healthy_running,
+    unhealthy_running,
+    isDeploying,
+    stopMutation.isPending,
+    restartMutation.isPending,
+    navigation,
+  ]);
 
+  if (isPendingApplication) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <SafeView bottomInset={false}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
+        contentContainerClassName="gap-4"
+      >
         <View>
           <View className="flex flex-row justify-between items-center">
             <H1 numberOfLines={1} ellipsizeMode="tail">
