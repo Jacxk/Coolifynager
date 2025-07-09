@@ -16,10 +16,8 @@ export default function ApplicationEnvironmentsCreate() {
   const [key, setKey] = useState("");
   const [value, setValue] = useState("");
   const [isBuildTime, setIsBuildTime] = useState(false);
-  const [isMultiline, setIsMultiline] = useState(false);
-  const [isLiteral, setIsLiteral] = useState(false);
-  const [isPreview] = useState(true);
-  const [isShownOnce] = useState(true);
+  const [isLiteral, setIsLiteral] = useState(true);
+  const [isPreview, setIsPreview] = useState(true);
   const valueInputRef = useRef<any>(null);
 
   const mutation = useMutation(
@@ -42,10 +40,8 @@ export default function ApplicationEnvironmentsCreate() {
       key,
       value,
       is_build_time: isBuildTime,
-      is_multiline: isMultiline,
       is_literal: isLiteral,
       is_preview: isPreview,
-      is_shown_once: isShownOnce,
     });
   };
 
@@ -84,12 +80,12 @@ export default function ApplicationEnvironmentsCreate() {
           <Checkbox checked={isBuildTime} onCheckedChange={setIsBuildTime} />
         </View>
         <View className="flex flex-row gap-2">
-          <Text>Is Multiline?</Text>
-          <Checkbox checked={isMultiline} onCheckedChange={setIsMultiline} />
-        </View>
-        <View className="flex flex-row gap-2">
           <Text>Is Literal?</Text>
           <Checkbox checked={isLiteral} onCheckedChange={setIsLiteral} />
+        </View>
+        <View className="flex flex-row gap-2">
+          <Text>Is Preview?</Text>
+          <Checkbox checked={isPreview} onCheckedChange={setIsPreview} />
         </View>
         {mutation.isError && (
           <Text className="text-red-500">

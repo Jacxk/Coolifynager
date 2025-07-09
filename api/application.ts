@@ -76,14 +76,20 @@ export const createApplicationEnv = (
   ...options,
   mutationKey: ["applications.envs.create", uuid],
   mutationFn: async (body: CreateApplicationEnvBody) => {
-    return coolifyFetch<CreateApplicationEnvResponse>(
+    const res = await coolifyFetch<CreateApplicationEnvResponse>(
       `/applications/${uuid}/envs`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body,
       }
     );
+
+    if (res.errors) {
+      throw new Error(res.message);
+    }
+
+    return res;
   },
 });
 

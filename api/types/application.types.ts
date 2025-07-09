@@ -106,12 +106,17 @@ export type CreateApplicationEnvBody = {
   is_preview: boolean;
   is_build_time: boolean;
   is_literal: boolean;
-  is_multiline: boolean;
-  is_shown_once: boolean;
+  is_multiline?: boolean;
+  is_shown_once?: boolean;
 };
 
 export type CreateApplicationEnvResponse = {
   uuid: string;
+  message?: string;
+  errors?: {
+    [key: number]: string[];
+    key: string[];
+  };
 };
 
 export type ApplicationActionResponse = ResourceActionResponse & {

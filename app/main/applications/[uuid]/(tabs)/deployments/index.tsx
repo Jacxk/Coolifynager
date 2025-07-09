@@ -4,12 +4,14 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
+import { useIsFocused } from "@react-navigation/native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, FlatList } from "react-native";
 
 export default function DeploymentsStack() {
+  const isFocused = useIsFocused();
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
   const {
     data,
@@ -21,16 +23,18 @@ export default function DeploymentsStack() {
   } = useInfiniteQuery(
     getApplicationDeployments(uuid, 5, {
       refetchInterval: 20000,
+      enabled: isFocused,
     })
   );
 
-  useRefreshOnFocus(refetch);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const onRefresh = () => {
     setIsRefreshing(true);
     refetch().finally(() => setIsRefreshing(false));
   };
+
+  useRefreshOnFocus(refetch);
 
   if (isPending) {
     return <LoadingScreen />;
