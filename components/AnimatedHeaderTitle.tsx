@@ -1,4 +1,5 @@
 import { Text } from "@/components/ui/text";
+import { useTheme } from "@react-navigation/native";
 import { useEffect } from "react";
 import { View } from "react-native";
 import Animated, {
@@ -6,6 +7,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -25,13 +27,17 @@ export const AnimatedHeader = ({
   rightComponent,
 }: AnimatedHeaderTitleProps) => {
   const titleProgress = useSharedValue(0);
+  const borderProgress = useSharedValue(0);
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   useEffect(() => {
     titleProgress.value = withSpring(showTitle ? 1 : 0, {
       damping: 20,
       stiffness: 90,
     });
+
+    borderProgress.value = withTiming(showTitle ? 1 : 0);
   }, [showTitle]);
 
   const titleAnimatedStyle = useAnimatedStyle(() => {
@@ -45,10 +51,22 @@ export const AnimatedHeader = ({
     };
   });
 
+  const containerShadowStyle = useAnimatedStyle(() => {
+    const shadowOpacity = interpolate(borderProgress.value, [0, 1], [0, 0.15]);
+    return {
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity,
+      shadowRadius: 6,
+      elevation: interpolate(borderProgress.value, [0, 1], [0, 6]),
+      backgroundColor: colors.background,
+    };
+  });
+
   return (
-    <View
-      className="flex flex-row justify-between px-4 h-26 border-b border-border"
-      style={{ paddingTop: insets.top }}
+    <Animated.View
+      className="flex flex-row justify-between items-center p-4 h-26 mt-4"
+      style={[{ paddingTop: insets.top }, containerShadowStyle]}
     >
       <View className="">{leftComponent}</View>
 
@@ -72,6 +90,6 @@ export const AnimatedHeader = ({
       </Animated.View>
 
       <View className="">{rightComponent}</View>
-    </View>
+    </Animated.View>
   );
 };

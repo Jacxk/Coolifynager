@@ -85,7 +85,6 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
 
   const startMutation = useMutation({
     ...startResource(uuid),
-
     onError: (error: Error) => {
       toast.error(error.message || "Failed to deploy resource");
     },

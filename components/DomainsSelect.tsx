@@ -33,7 +33,7 @@ export function DomainsSelect({
 
   return (
     <Select className={className}>
-      <SelectTrigger className="border-0">
+      <SelectTrigger>
         <Text>{label}</Text>
       </SelectTrigger>
       <SelectContent insets={contentInsets}>
