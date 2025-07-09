@@ -4,6 +4,7 @@ import {
   startService,
   stopService,
 } from "@/api/services";
+import { AnimatedHeader } from "@/components/AnimatedHeaderTitle";
 import { DomainsSelect } from "@/components/DomainsSelect";
 import { HealthDialog } from "@/components/HealthDialog";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -32,6 +33,7 @@ export default function Service() {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
+  const [showHeaderTitle, setShowHeaderTitle] = useState(false);
 
   const {
     data,
@@ -92,7 +94,12 @@ export default function Service() {
     refetch().finally(() => setIsRefreshing(false));
   };
 
-  // Extract domains from service if available (services might have different domain structure)
+  const handleScroll = (event: any) => {
+    const scrollY = event.nativeEvent.contentOffset.y;
+    const shouldShowHeader = scrollY > 20;
+    setShowHeaderTitle(shouldShowHeader);
+  };
+
   const domains =
     data?.applications
       ?.map((app) => app.fqdn)
@@ -103,21 +110,26 @@ export default function Service() {
   useLayoutEffect(() => {
     if (data) {
       navigation.setOptions({
-        headerTitle: "",
-        headerShown: true,
-        headerRight: () => (
-          <ResourceActions
-            className="mr-4"
-            resourceType="service"
-            isRunning={healthy_running || unhealthy_running}
-            onStart={handleStart}
-            onStop={handleStop}
-            onRestart={handleRestart}
-            stopDisabled={stopMutation.isPending}
-            restartDisabled={restartMutation.isPending}
+        header: () => (
+          <AnimatedHeader
+            name={data.name}
+            status={data.status || ""}
+            showTitle={showHeaderTitle}
+            leftComponent={<DomainsSelect domains={domains} />}
+            rightComponent={
+              <ResourceActions
+                resourceType="service"
+                isRunning={healthy_running || unhealthy_running}
+                onStart={handleStart}
+                onStop={handleStop}
+                onRestart={handleRestart}
+                stopDisabled={stopMutation.isPending}
+                restartDisabled={restartMutation.isPending}
+              />
+            }
           />
         ),
-        headerLeft: () => <DomainsSelect className="ml-4" domains={domains} />,
+        headerShown: true,
       });
     }
   }, [
@@ -128,6 +140,7 @@ export default function Service() {
     restartMutation.isPending,
     navigation,
     domains,
+    showHeaderTitle,
   ]);
 
   if (isPendingService) {
@@ -135,19 +148,24 @@ export default function Service() {
   }
 
   return (
-    <SafeView bottomInset={false}>
+    <SafeView className="p-0" bottomInset={false}>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
-        contentContainerClassName="gap-4"
+        contentContainerClassName="gap-4 p-4"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         <View>
           <View className="flex flex-row justify-between items-center">
-            <H1 numberOfLines={1} ellipsizeMode="tail">
+            <H1 className="w-5/6" numberOfLines={1}>
               {data?.name}
             </H1>
-            <TouchableOpacity onPress={() => setIsHealthDialogOpen(true)}>
+            <TouchableOpacity
+              className="w-1/6 items-end"
+              onPress={() => setIsHealthDialogOpen(true)}
+            >
               <View
                 className={cn("size-4 rounded-full animate-pulse", {
                   "bg-red-500 animate-ping": unhealthy_exited,

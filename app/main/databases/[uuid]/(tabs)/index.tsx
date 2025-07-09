@@ -4,6 +4,7 @@ import {
   startDatabase,
   stopDatabase,
 } from "@/api/databases";
+import { AnimatedHeader } from "@/components/AnimatedHeaderTitle";
 import { HealthDialog } from "@/components/HealthDialog";
 import LoadingScreen from "@/components/LoadingScreen";
 import { ResourceActions } from "@/components/ResourceActions";
@@ -31,6 +32,7 @@ export default function Database() {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
+  const [showHeaderTitle, setShowHeaderTitle] = useState(false);
 
   const {
     data,
@@ -91,23 +93,34 @@ export default function Database() {
     refetch().finally(() => setIsRefreshing(false));
   };
 
+  const handleScroll = (event: any) => {
+    const scrollY = event.nativeEvent.contentOffset.y;
+    const shouldShowHeader = scrollY > 20;
+    setShowHeaderTitle(shouldShowHeader);
+  };
+
   useLayoutEffect(() => {
     if (data) {
       navigation.setOptions({
-        headerTitle: "",
-        headerShown: true,
-        headerRight: () => (
-          <ResourceActions
-            className="mr-4"
-            resourceType="database"
-            isRunning={healthy_running || unhealthy_running}
-            onStart={handleStart}
-            onStop={handleStop}
-            onRestart={handleRestart}
-            stopDisabled={stopMutation.isPending}
-            restartDisabled={restartMutation.isPending}
+        header: () => (
+          <AnimatedHeader
+            name={data.name}
+            status={data.status || ""}
+            showTitle={showHeaderTitle}
+            rightComponent={
+              <ResourceActions
+                resourceType="database"
+                isRunning={healthy_running || unhealthy_running}
+                onStart={handleStart}
+                onStop={handleStop}
+                onRestart={handleRestart}
+                stopDisabled={stopMutation.isPending}
+                restartDisabled={restartMutation.isPending}
+              />
+            }
           />
         ),
+        headerShown: true,
       });
     }
   }, [
@@ -117,6 +130,7 @@ export default function Database() {
     stopMutation.isPending,
     restartMutation.isPending,
     navigation,
+    showHeaderTitle,
   ]);
 
   if (isPendingDatabase) {
@@ -124,19 +138,24 @@ export default function Database() {
   }
 
   return (
-    <SafeView bottomInset={false}>
+    <SafeView className="p-0" bottomInset={false}>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
-        contentContainerClassName="gap-4"
+        contentContainerClassName="gap-4 p-4"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         <View>
           <View className="flex flex-row justify-between items-center">
-            <H1 numberOfLines={1} ellipsizeMode="tail">
+            <H1 className="w-5/6" numberOfLines={1}>
               {data?.name}
             </H1>
-            <TouchableOpacity onPress={() => setIsHealthDialogOpen(true)}>
+            <TouchableOpacity
+              className="w-1/6 items-end"
+              onPress={() => setIsHealthDialogOpen(true)}
+            >
               <View
                 className={cn("size-4 rounded-full animate-pulse", {
                   "bg-red-500 animate-ping": unhealthy_exited,

@@ -1,7 +1,7 @@
+import type { Deployment } from "@/api/types/deployments.types";
+import { StatusText } from "@/utils/status";
 import { Link } from "expo-router";
 import moment from "moment";
-import type { Deployment } from "../../api/types/deployments.types";
-import { StatusText } from "../../utils/status";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Text } from "../ui/text";
 

@@ -5,6 +5,7 @@ import {
   stopApplication,
 } from "@/api/application";
 import { getLatestApplicationDeployment } from "@/api/deployments";
+import { AnimatedHeader } from "@/components/AnimatedHeaderTitle";
 import { DomainsSelect } from "@/components/DomainsSelect";
 import { HealthDialog } from "@/components/HealthDialog";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -34,6 +35,7 @@ export default function Application() {
   const [isDeploying, setIsDeploying] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
+  const [showHeaderTitle, setShowHeaderTitle] = useState(false);
 
   const {
     data,
@@ -135,32 +137,40 @@ export default function Application() {
   const unhealthy_running = data?.status === "running:unhealthy";
   const unhealthy_exited = data?.status === "exited:unhealthy";
 
+  const handleScroll = (event: any) => {
+    const scrollY = event.nativeEvent.contentOffset.y;
+    const shouldShowHeader = scrollY > 20;
+    setShowHeaderTitle(shouldShowHeader);
+  };
+
   useLayoutEffect(() => {
     if (data) {
       navigation.setOptions({
-        headerTitle: "",
+        header: () => (
+          <AnimatedHeader
+            name={data.name}
+            status={data.status || ""}
+            showTitle={showHeaderTitle}
+            leftComponent={
+              <DomainsSelect domains={data?.fqdn.split(",") as string[]} />
+            }
+            rightComponent={
+              <ResourceActions
+                resourceType="application"
+                isRunning={healthy_running || unhealthy_running}
+                onStart={handleDeploy}
+                onRedeploy={handleDeploy}
+                onStop={handleStop}
+                onRestart={handleRestart}
+                isDeploying={isDeploying}
+                stopDisabled={stopMutation.isPending}
+                restartDisabled={restartMutation.isPending}
+                showDeploy={true}
+              />
+            }
+          />
+        ),
         headerShown: true,
-        headerRight: () => (
-          <ResourceActions
-            className="mr-4"
-            resourceType="application"
-            isRunning={healthy_running || unhealthy_running}
-            onStart={handleDeploy}
-            onRedeploy={handleDeploy}
-            onStop={handleStop}
-            onRestart={handleRestart}
-            isDeploying={isDeploying}
-            stopDisabled={stopMutation.isPending}
-            restartDisabled={restartMutation.isPending}
-            showDeploy={true}
-          />
-        ),
-        headerLeft: () => (
-          <DomainsSelect
-            className="ml-4"
-            domains={data?.fqdn.split(",") as string[]}
-          />
-        ),
       });
     }
   }, [
@@ -171,6 +181,7 @@ export default function Application() {
     stopMutation.isPending,
     restartMutation.isPending,
     navigation,
+    showHeaderTitle,
   ]);
 
   if (isPendingApplication) {
@@ -178,19 +189,24 @@ export default function Application() {
   }
 
   return (
-    <SafeView bottomInset={false}>
+    <SafeView className="p-0" bottomInset={false}>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
         }
-        contentContainerClassName="gap-4"
+        contentContainerClassName="gap-4 p-4"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       >
         <View>
           <View className="flex flex-row justify-between items-center">
-            <H1 numberOfLines={1} ellipsizeMode="tail">
+            <H1 className="w-5/6" numberOfLines={1}>
               {data?.name}
             </H1>
-            <TouchableOpacity onPress={() => setIsHealthDialogOpen(true)}>
+            <TouchableOpacity
+              className="w-1/6 items-end"
+              onPress={() => setIsHealthDialogOpen(true)}
+            >
               <View
                 className={cn("size-4 rounded-full animate-pulse", {
                   "bg-red-500 animate-ping": unhealthy_exited,

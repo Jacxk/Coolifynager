@@ -1,4 +1,5 @@
 import { getApplicationDeployments } from "@/api/deployments";
+import { DeploymentCard } from "@/components/cards/DeploymentCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
@@ -7,7 +8,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, FlatList } from "react-native";
-import { DeploymentCard } from "../../../../../../components/cards/DeploymentCard";
 
 export default function DeploymentsStack() {
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
