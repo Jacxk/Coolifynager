@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { router, useNavigation } from "expo-router";
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import {
   RefreshControl,
   ScrollView,
@@ -43,6 +43,7 @@ export type ResourceScreenProps<T extends ResourceBase = ResourceBase> = {
   isDeploying: boolean;
   children: (data: T | undefined) => React.ReactNode;
   isApplication: boolean;
+  isEnabled?: boolean;
   getResource: (
     uuid: string,
     options?: Omit<
@@ -64,6 +65,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   children,
   isDeploying,
   isApplication,
+  isEnabled = true,
 }: ResourceScreenProps<T>) {
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -72,12 +74,18 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
   const [showHeaderTitle, setShowHeaderTitle] = useState(false);
 
-  const { data, isPending, refetch } = useQuery<T>(
+  const {
+    data: resourceData,
+    isPending,
+    refetch,
+  } = useQuery<T>(
     getResource(uuid, {
       refetchInterval: 20000,
-      enabled: isFocused,
+      enabled: isFocused && isEnabled,
     })
   );
+
+  const data = useMemo(() => resourceData, [resourceData]);
 
   const healthy_running = data?.status === "running:healthy";
   const unhealthy_running = data?.status === "running:unhealthy";
@@ -244,6 +252,8 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
         contentContainerClassName="gap-4 p-4"
         onScroll={handleScroll}
         scrollEventThrottle={16}
+        keyboardShouldPersistTaps="always"
+        keyboardDismissMode="interactive"
       >
         <View>
           <View className="flex flex-row justify-between items-center">

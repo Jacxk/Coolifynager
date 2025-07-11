@@ -5,8 +5,8 @@ import {
   stopApplication,
 } from "@/api/application";
 import { getLatestApplicationDeployment } from "@/api/deployments";
+import UpdateApplication from "@/components/resource_update_screen/UpdateApplication";
 import ResourceScreen from "@/components/ResourceScreen";
-import { Text } from "@/components/ui/text";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
@@ -17,8 +17,9 @@ export default function Application() {
   const isFocused = useIsFocused();
 
   const [isDeploying, setIsDeploying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  console.log("isEditing", isEditing);
 
-  // Get application data for deployment tracking
   const { data } = useQuery(
     getApplication(uuid, {
       refetchInterval: 20000,
@@ -28,7 +29,6 @@ export default function Application() {
 
   const isNotRunning = data?.status?.startsWith("exited");
 
-  // Track deployment status
   const { data: deploymentData } = useQuery(
     getLatestApplicationDeployment(uuid, {
       refetchInterval: isDeploying ? 5000 : 15000,
@@ -46,15 +46,14 @@ export default function Application() {
     if (latestDeployment) {
       if (
         latestDeployment.status === "in_progress" &&
-        !latestDeployment.restart_only &&
-        data?.status?.startsWith("exited")
+        !latestDeployment.restart_only
       ) {
         setIsDeploying(true);
       } else {
         setIsDeploying(false);
       }
     }
-  }, [data?.status, deploymentData?.deployments, isNotRunning]);
+  }, [deploymentData?.deployments, isNotRunning]);
 
   return (
     <ResourceScreen
@@ -65,15 +64,9 @@ export default function Application() {
       startResource={startApplication}
       stopResource={stopApplication}
       restartResource={restartApplication}
+      isEnabled={!isEditing}
     >
-      {(data) => (
-        <>
-          <Text>Status: {data?.status}</Text>
-          <Text>Branch: {data?.git_branch}</Text>
-          <Text>Commits: {data?.git_commit_sha}</Text>
-          <Text>Repository: {data?.git_repository}</Text>
-        </>
-      )}
+      {(data) => <UpdateApplication data={data} setIsEditing={setIsEditing} />}
     </ResourceScreen>
   );
 }

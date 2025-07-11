@@ -8,8 +8,12 @@ import {
   CreateApplicationEnvBody,
   CreateApplicationEnvResponse,
   SingleApplication,
+  UpdateApplicationBody,
 } from "./types/application.types";
-import { ResourceActionResponse } from "./types/resources.types";
+import {
+  ResourceActionResponse,
+  ResourceUpdateResponse,
+} from "./types/resources.types";
 
 type QueryKey = string | number;
 
@@ -76,7 +80,7 @@ export const createApplicationEnv = (
   ...options,
   mutationKey: ["applications.envs.create", uuid],
   mutationFn: async (body: CreateApplicationEnvBody) => {
-    const res = await coolifyFetch<CreateApplicationEnvResponse>(
+    return coolifyFetch<CreateApplicationEnvResponse>(
       `/applications/${uuid}/envs`,
       {
         method: "POST",
@@ -84,12 +88,6 @@ export const createApplicationEnv = (
         body,
       }
     );
-
-    if (res.errors) {
-      throw new Error(res.message);
-    }
-
-    return res;
   },
 });
 
@@ -158,5 +156,27 @@ export const restartApplication = (
         method: "POST",
       }
     );
+  },
+});
+
+export const updateApplication = (
+  uuid: string,
+  options?: Omit<
+    UseMutationOptions<
+      ResourceUpdateResponse,
+      Error,
+      Partial<UpdateApplicationBody>
+    >,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
+  mutationKey: ["applications.update", uuid],
+  mutationFn: async (body: Partial<UpdateApplicationBody>) => {
+    return coolifyFetch<ResourceActionResponse>(`/applications/${uuid}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body,
+    });
   },
 });

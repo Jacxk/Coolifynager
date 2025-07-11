@@ -1,4 +1,4 @@
-import { Keyboard, KeyboardAvoidingView, ScrollView } from "react-native";
+import { KeyboardAvoidingView, ScrollView } from "react-native";
 
 export default function SetupScreenContainer({
   children,
@@ -11,7 +11,7 @@ export default function SetupScreenContainer({
       behavior="padding"
     >
       <ScrollView
-        onScrollBeginDrag={Keyboard.dismiss}
+        keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"
         contentContainerClassName="flex-1 justify-center gap-2"
         bounces={false}

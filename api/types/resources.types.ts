@@ -110,3 +110,16 @@ export type Resource = ResourceBase & {
 export type ResourceActionResponse = {
   message: string;
 };
+
+export type ResourceHttpError = {
+  message: string;
+  errors?: {
+    [key: string]: string[];
+  };
+};
+
+export type ResourceUpdateResponse =
+  | ResourceHttpError
+  | {
+      uuid: string;
+    };

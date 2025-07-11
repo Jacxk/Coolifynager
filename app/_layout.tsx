@@ -59,7 +59,7 @@ export default function RootLayout() {
           <GestureHandlerRootView>
             <Stack screenOptions={{ headerShown: false }} />
             <PortalHost />
-            <Toaster position="bottom-center" />
+            <Toaster />
           </GestureHandlerRootView>
         </QueryClientProvider>
       </ThemeProvider>
