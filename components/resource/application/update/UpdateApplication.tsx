@@ -28,7 +28,7 @@ const getInitialValues = (
   ports_mappings: data.ports_mappings,
   build_pack: data.build_pack,
   redirect: data.redirect,
-  domains: data.fqdn,
+  domains: data.fqdn.split(",").join("\n"),
   docker_registry_image_name: data.docker_registry_image_name,
   docker_registry_image_tag: data.docker_registry_image_tag,
   install_command: data.install_command,
@@ -54,7 +54,7 @@ export default function UpdateApplication({
   const {
     control,
     reset,
-    getValues,
+    handleSubmit,
     formState: { errors, isDirty },
   } = useForm<Partial<UpdateApplicationBody>>({
     values: getInitialValues(data),
@@ -65,20 +65,26 @@ export default function UpdateApplication({
 
   const toastId = useRef<string | number | undefined>(undefined);
 
-  const handleSave = async () => {
-    toast.promise(saveChanges(getValues()), {
-      loading: "Saving changes...",
-      success: () => {
-        reset((data) => data, {
-          keepDirtyValues: true,
-        });
-        setIsEditing(false);
-        return "Changes saved successfully!";
-      },
-      error: (err: unknown) => {
-        return (err as ResourceHttpError).message ?? "Failed to save changes.";
-      },
-    });
+  const handleSave = (data: Partial<UpdateApplicationBody>) => {
+    toast.promise(
+      saveChanges({ ...data, domains: data.domains?.split("\n").join(",") }),
+      {
+        loading: "Saving changes...",
+        success: () => {
+          reset((data) => data, {
+            keepDirtyValues: true,
+          });
+          setIsEditing(false);
+          return "Changes saved successfully!";
+        },
+        error: (err: unknown) => {
+          console.log(err);
+          return (
+            (err as ResourceHttpError).message ?? "Failed to save changes."
+          );
+        },
+      }
+    );
   };
 
   const handleCancel = () => {
@@ -94,9 +100,7 @@ export default function UpdateApplication({
         duration: Infinity,
         action: {
           label: "Save",
-          onClick: () => {
-            handleSave();
-          },
+          onClick: handleSubmit(handleSave),
         },
         cancel: {
           label: "Cancel",

@@ -3,10 +3,11 @@ import {
   RedirectType,
   UpdateApplicationBody,
 } from "@/api/types/application.types";
+import { Textarea } from "@/components/ui/textarea";
+import { isValidUrl } from "@/lib/utils";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
 import InfoDialog from "../../../InfoDialog";
-import { Input } from "../../../ui/input";
 import {
   Select,
   SelectContent,
@@ -79,7 +80,7 @@ export default function GeneralSection({
         <View className="flex-row items-center">
           <Text className="text-muted-foreground">Domains</Text>
           <InfoDialog
-            description="You can specify one domain with path or more with comma. You can specify a port to bind the domain to."
+            description="You can specify one domain with path or more with comma or new lines. You can specify a port to bind the domain to."
             title="Domains"
           >
             <View>
@@ -103,19 +104,28 @@ export default function GeneralSection({
           rules={{
             required: "Domains are required",
             validate: (domains) => {
-              return domains
-                ?.split(",")
-                .some((domain) =>
-                  !URL.canParse(domain)
-                    ? `Invalid domain: ${domain}`
-                    : undefined
-                );
+              const invalidDomains = domains
+                ?.split(/[\n,]+/)
+                .filter((domain) => !isValidUrl(domain));
+
+              if (invalidDomains && invalidDomains.length > 0) {
+                return `Invalid domain: ${invalidDomains.join(", ")}`;
+              }
+              return undefined;
             },
           }}
           render={({ field: { onChange, value, onBlur } }) => (
-            <Input value={value} onChangeText={onChange} onBlur={onBlur} />
+            <Textarea
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              className="max-h-24 min-h-10"
+            />
           )}
         />
+        {errors.domains && (
+          <Text className="text-red-500">{errors.domains.message}</Text>
+        )}
       </View>
       <View className="gap-1">
         <View className="flex-row items-center">
