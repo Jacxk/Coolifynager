@@ -120,10 +120,11 @@ export default function UpdateApplication({
 
   useFocusEffect(
     useCallback(() => {
-      setIsEditing(false);
+      reset();
       return () => {
         if (toastId.current) toast.dismiss(toastId.current);
         toastId.current = undefined;
+        setIsEditing(false);
       };
     }, [])
   );

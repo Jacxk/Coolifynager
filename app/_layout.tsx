@@ -52,17 +52,17 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-        <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-        <QueryClientProvider client={queryClient}>
+    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+      <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaProvider>
           <GestureHandlerRootView>
             <Stack screenOptions={{ headerShown: false }} />
             <PortalHost />
             <Toaster />
           </GestureHandlerRootView>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+        </SafeAreaProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
