@@ -7,9 +7,11 @@ import {
 } from "@/api/types/application.types";
 import { ResourceHttpError } from "@/api/types/resources.types";
 import { useMutation } from "@tanstack/react-query";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { toast } from "sonner-native";
-import { ConfigurationProvider } from "../providers/ConfigurationProvider";
 import BuildSection from "./BuildSection";
 import DockerRegistrySection from "./DockerRegistrySection";
 import GeneralSection from "./GeneralSection";
@@ -53,31 +55,32 @@ export default function UpdateApplication({
   data: SingleApplication | undefined;
   setIsEditing: (isEditing: boolean) => void;
 }) {
+  const {
+    control,
+    reset,
+    getValues,
+    formState: { errors, isDirty },
+  } = useForm<Partial<UpdateApplicationBody>>({
+    values: getInitialValues(data),
+  });
   const { mutateAsync: saveChanges } = useMutation(
     updateApplication(data?.uuid!)
   );
 
-  const handleSave = (
-    configuration: Partial<UpdateApplicationBody>,
-    openSaveToast: () => void,
-    closeSaveToast: (reset?: boolean) => void,
-    updateInitialValues: (
-      newInitialValues: Partial<UpdateApplicationBody>
-    ) => void
-  ) => {
-    console.log("configuration.domains", configuration.domains);
-    closeSaveToast(false);
-    toast.promise(saveChanges(configuration), {
+  const toastId = useRef<string | number | undefined>(undefined);
+
+  const handleSave = async () => {
+    toast.promise(saveChanges(getValues()), {
       loading: "Saving changes...",
       success: () => {
-        // Update initial values with the saved configuration to prevent "dirty" state
-        updateInitialValues(configuration);
+        reset((data) => data, {
+          keepDirtyValues: true,
+        });
         setIsEditing(false);
         return "Changes saved successfully!";
       },
       error: (err: unknown) => {
         console.log(err);
-        openSaveToast();
         return (err as ResourceHttpError).message ?? "Failed to save changes.";
       },
     });
@@ -85,25 +88,52 @@ export default function UpdateApplication({
 
   const handleCancel = () => {
     setIsEditing(false);
+    reset();
   };
 
+  useEffect(() => {
+    if (isDirty && !toastId.current) {
+      const newToastId = toast("You have unsaved changes", {
+        dismissible: false,
+        description: "Save your changes or cancel to discard them.",
+        duration: Infinity,
+        action: {
+          label: "Save",
+          onClick: () => {
+            handleSave();
+          },
+        },
+        cancel: {
+          label: "Cancel",
+          onClick: () => {
+            handleCancel();
+          },
+        },
+      });
+      toastId.current = newToastId;
+      setIsEditing(true);
+    } else if (!isDirty && toastId.current) {
+      toast.dismiss(toastId.current);
+      toastId.current = undefined;
+      setIsEditing(false);
+    }
+  }, [isDirty]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsEditing(false);
+      return () => {
+        if (toastId.current) toast.dismiss(toastId.current);
+        toastId.current = undefined;
+      };
+    }, [])
+  );
+
   return (
-    <ConfigurationProvider
-      initialValues={getInitialValues(data)}
-      handleSave={handleSave}
-      handleCancel={handleCancel}
-      onToastOpen={() => {
-        setIsEditing(true);
-      }}
-      onToastClose={() => {
-        setIsEditing(false);
-      }}
-    >
-      <View className="gap-10">
-        <GeneralSection />
-        <DockerRegistrySection />
-        <BuildSection />
-      </View>
-    </ConfigurationProvider>
+    <View className="gap-10">
+      <GeneralSection control={control} errors={errors} />
+      <DockerRegistrySection control={control} errors={errors} />
+      <BuildSection control={control} errors={errors} />
+    </View>
   );
 }

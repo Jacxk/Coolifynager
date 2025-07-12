@@ -3,9 +3,9 @@ import {
   RedirectType,
   UpdateApplicationBody,
 } from "@/api/types/application.types";
+import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
 import InfoDialog from "../InfoDialog";
-import { useConfiguration } from "../providers/ConfigurationProvider";
 import { Input } from "../ui/input";
 import {
   Select,
@@ -33,56 +33,47 @@ const buildPackLabel = (type?: string) =>
     ? "Dockerfile"
     : "Docker Compose";
 
-export default function GeneralSection() {
-  const { configuration, updateConfiguration } =
-    useConfiguration<UpdateApplicationBody>();
-
-  const setBuildPack = (value: BuildPack) => {
-    updateConfiguration({
-      build_pack: value,
-    });
-  };
-
-  const setRedirect = (value: RedirectType) => {
-    updateConfiguration({
-      redirect: value,
-    });
-  };
-
-  const setDomains = (value: string) => {
-    updateConfiguration({
-      domains: value,
-    });
-  };
-
+export default function GeneralSection({
+  control,
+  errors,
+}: {
+  control: Control<Partial<UpdateApplicationBody>>;
+  errors: FieldErrors<Partial<UpdateApplicationBody>>;
+}) {
   return (
     <View className="gap-2">
       <H3>General</H3>
       <View className="flex-1 gap-1">
         <Text className="text-muted-foreground">Build Pack</Text>
-        <Select
-          value={{
-            value: configuration.build_pack as BuildPack,
-            label: buildPackLabel(configuration.build_pack as BuildPack),
-          }}
-          onValueChange={(value) => setBuildPack(value?.value as BuildPack)}
-        >
-          <SelectTrigger>
-            <SelectValue
-              placeholder="Select a build pack"
-              className="text-foreground"
-            />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.values(BuildPack).map((value) => (
-              <SelectItem
-                key={value}
-                value={value}
-                label={buildPackLabel(value)}
-              />
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          control={control}
+          name="build_pack"
+          render={({ field: { onChange, value } }) => (
+            <Select
+              value={{
+                value: value ?? "",
+                label: buildPackLabel(value),
+              }}
+              onValueChange={(option) => onChange(option?.value)}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder="Select a build pack"
+                  className="text-foreground"
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(BuildPack).map((value) => (
+                  <SelectItem
+                    key={value}
+                    value={value}
+                    label={buildPackLabel(value)}
+                  />
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
       </View>
       <View className="gap-1">
         <View className="flex-row items-center">
@@ -106,7 +97,13 @@ export default function GeneralSection() {
             </View>
           </InfoDialog>
         </View>
-        <Input value={configuration.domains ?? ""} onChangeText={setDomains} />
+        <Controller
+          control={control}
+          name="domains"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input value={value} onChangeText={onChange} onBlur={onBlur} />
+          )}
+        />
       </View>
       <View className="gap-1">
         <View className="flex-row items-center">
@@ -116,29 +113,35 @@ export default function GeneralSection() {
             title="Direction"
           />
         </View>
-        <Select
-          value={{
-            value: configuration.redirect as RedirectType,
-            label: redirectLabel(configuration.redirect as RedirectType),
-          }}
-          onValueChange={(value) => setRedirect(value?.value as RedirectType)}
-        >
-          <SelectTrigger>
-            <SelectValue
-              placeholder="Select a redirect type"
-              className="text-foreground"
-            />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.values(RedirectType).map((value) => (
-              <SelectItem
-                key={value}
-                value={value}
-                label={redirectLabel(value)}
-              />
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          control={control}
+          name="redirect"
+          render={({ field: { onChange, value } }) => (
+            <Select
+              value={{
+                value: value ?? "",
+                label: redirectLabel(value),
+              }}
+              onValueChange={(option) => onChange(option?.value)}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder="Select a redirect type"
+                  className="text-foreground"
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(RedirectType).map((value) => (
+                  <SelectItem
+                    key={value}
+                    value={value}
+                    label={redirectLabel(value)}
+                  />
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
       </View>
     </View>
   );

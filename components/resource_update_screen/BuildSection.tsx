@@ -3,36 +3,25 @@ import {
   UpdateApplicationBody,
 } from "@/api/types/application.types";
 import { openBrowserAsync } from "expo-web-browser";
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  useController,
+} from "react-hook-form";
 import { View } from "react-native";
 import InfoDialog from "../InfoDialog";
-import { useConfiguration } from "../providers/ConfigurationProvider";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Text } from "../ui/text";
 import { Textarea } from "../ui/textarea";
 import { H3 } from "../ui/typography";
 
-function NixpacksSection() {
-  const { configuration, updateConfiguration } =
-    useConfiguration<UpdateApplicationBody>();
-  const setInstallCommand = (value: string) => {
-    updateConfiguration({
-      install_command: value,
-    });
-  };
-
-  const setBuildCommand = (value: string) => {
-    updateConfiguration({
-      build_command: value,
-    });
-  };
-
-  const setStartCommand = (value: string) => {
-    updateConfiguration({
-      start_command: value,
-    });
-  };
-
+function NixpacksSection({
+  control,
+}: {
+  control: Control<Partial<UpdateApplicationBody>>;
+}) {
   return (
     <>
       <View className="gap-1">
@@ -43,10 +32,17 @@ function NixpacksSection() {
             description="If you modify this, you probably need to have a nixpacks.toml"
           />
         </View>
-        <Input
-          placeholder="Enter Install Command"
-          value={configuration.install_command ?? ""}
-          onChangeText={setInstallCommand}
+        <Controller
+          control={control}
+          name="install_command"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Enter Install Command"
+            />
+          )}
         />
       </View>
       <View className="gap-1">
@@ -57,10 +53,17 @@ function NixpacksSection() {
             description="If you modify this, you probably need to have a nixpacks.toml"
           />
         </View>
-        <Input
-          placeholder="Enter Build Command"
-          value={configuration.build_command ?? ""}
-          onChangeText={setBuildCommand}
+        <Controller
+          control={control}
+          name="build_command"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Enter Build Command"
+            />
+          )}
         />
       </View>
       <View className="gap-1">
@@ -71,10 +74,17 @@ function NixpacksSection() {
             description="If you modify this, you probably need to have a nixpacks.toml"
           />
         </View>
-        <Input
-          placeholder="Enter Start Command"
-          value={configuration.start_command ?? ""}
-          onChangeText={setStartCommand}
+        <Controller
+          control={control}
+          name="start_command"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Enter Start Command"
+            />
+          )}
         />
       </View>
       <Text className="text-muted-foreground text-sm">
@@ -92,48 +102,35 @@ function NixpacksSection() {
   );
 }
 
-function NixpacksPublishDirectorySection() {
-  const { configuration, updateConfiguration } =
-    useConfiguration<UpdateApplicationBody>();
-  const setBaseDirectory = (value: string) => {
-    updateConfiguration({
-      base_directory: value,
-    });
-  };
-
+function NixpacksPublishDirectorySection({
+  control,
+}: {
+  control: Control<Partial<UpdateApplicationBody>>;
+}) {
   return (
     <View className="gap-1">
       <Text className="text-muted-foreground">Publish Directory</Text>
-      <Input
-        placeholder="Enter Publish Directory"
-        value={configuration.base_directory ?? ""}
-        onChangeText={setBaseDirectory}
+      <Controller
+        control={control}
+        name="base_directory"
+        render={({ field: { onChange, value, onBlur } }) => (
+          <Input
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            placeholder="Enter Publish Directory"
+          />
+        )}
       />
     </View>
   );
 }
 
-function DockerComposeSection() {
-  const { configuration, updateConfiguration } =
-    useConfiguration<UpdateApplicationBody>();
-  const setDockerComposeLocation = (value: string) => {
-    updateConfiguration({
-      docker_compose_location: value,
-    });
-  };
-
-  const setDockerComposeCustomBuildCommand = (value: string) => {
-    updateConfiguration({
-      docker_compose_custom_build_command: value,
-    });
-  };
-
-  const setDockerComposeCustomStartCommand = (value: string) => {
-    updateConfiguration({
-      docker_compose_custom_start_command: value,
-    });
-  };
-
+function DockerComposeSection({
+  control,
+}: {
+  control: Control<Partial<UpdateApplicationBody>>;
+}) {
   return (
     <>
       <View className="gap-1">
@@ -149,10 +146,17 @@ function DockerComposeSection() {
             }
           />
         </View>
-        <Input
-          placeholder="/docker-compose.yaml"
-          value={configuration.docker_compose_location ?? ""}
-          onChangeText={setDockerComposeLocation}
+        <Controller
+          control={control}
+          name="docker_compose_location"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="/docker-compose.yaml"
+            />
+          )}
         />
       </View>
       <Text className="text-muted-foreground mt-6">
@@ -182,10 +186,17 @@ function DockerComposeSection() {
             }
           />
         </View>
-        <Input
-          placeholder="docker compose build"
-          value={configuration.docker_compose_custom_build_command ?? ""}
-          onChangeText={setDockerComposeCustomBuildCommand}
+        <Controller
+          control={control}
+          name="docker_compose_custom_build_command"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input
+              value={value ?? ""}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="docker compose build"
+            />
+          )}
         />
       </View>
       <View className="gap-1">
@@ -211,37 +222,28 @@ function DockerComposeSection() {
             }
           />
         </View>
-        <Input
-          placeholder="docker compose up -d"
-          value={configuration.docker_compose_custom_start_command ?? ""}
-          onChangeText={setDockerComposeCustomStartCommand}
+        <Controller
+          control={control}
+          name="docker_compose_custom_start_command"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input
+              value={value ?? ""}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="docker compose up -d"
+            />
+          )}
         />
       </View>
     </>
   );
 }
 
-function BaseSection() {
-  const { configuration, updateConfiguration } =
-    useConfiguration<UpdateApplicationBody>();
-  const setWatchPaths = (value: string) => {
-    updateConfiguration({
-      watch_paths: value,
-    });
-  };
-
-  const setCustomDockerRunOptions = (value: string) => {
-    updateConfiguration({
-      custom_docker_run_options: value,
-    });
-  };
-
-  const setUseBuildServer = (value: boolean) => {
-    updateConfiguration({
-      use_build_server: value,
-    });
-  };
-
+function BaseSection({
+  control,
+}: {
+  control: Control<Partial<UpdateApplicationBody>>;
+}) {
   return (
     <>
       <View className="gap-1">
@@ -252,10 +254,17 @@ function BaseSection() {
             description="Gitignore-style rules to filter Git based webhook deployments."
           />
         </View>
-        <Textarea
-          placeholder="src/page/**"
-          value={configuration.watch_paths ?? ""}
-          onChangeText={setWatchPaths}
+        <Controller
+          control={control}
+          name="watch_paths"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Textarea
+              value={value ?? ""}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="src/page/**"
+            />
+          )}
         />
       </View>
       <View className="gap-1">
@@ -291,10 +300,17 @@ function BaseSection() {
             }
           />
         </View>
-        <Input
-          placeholder="--cap-add SYS_ADMIN --device=/dev/fuse --security-opt apparmor:unconfined --ulimit nofile=1024:1024 --tmpfs /run:rw,noexec,nosuid,size=65536k --hostname=myapp"
-          value={configuration.custom_docker_run_options ?? ""}
-          onChangeText={setCustomDockerRunOptions}
+        <Controller
+          control={control}
+          name="custom_docker_run_options"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input
+              value={value ?? ""}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="--cap-add SYS_ADMIN --device=/dev/fuse --security-opt apparmor:unconfined --ulimit nofile=1024:1024 --tmpfs /run:rw,noexec,nosuid,size=65536k --hostname=myapp"
+            />
+          )}
         />
       </View>
       <View className="gap-4 flex-row items-center">
@@ -322,37 +338,40 @@ function BaseSection() {
             }
           />
         </View>
-        <Checkbox
-          checked={configuration.use_build_server ?? false}
-          onCheckedChange={setUseBuildServer}
+        <Controller
+          control={control}
+          name="use_build_server"
+          render={({ field: { onChange, value } }) => (
+            <Checkbox checked={value ?? false} onCheckedChange={onChange} />
+          )}
         />
       </View>
     </>
   );
 }
 
-export default function BuildSection() {
-  const { configuration, updateConfiguration } =
-    useConfiguration<UpdateApplicationBody>();
-  const setBuildPack = (value: BuildPack) => {
-    updateConfiguration({
-      build_pack: value,
-    });
-  };
-  const setPublishDirectory = (value: string) => {
-    updateConfiguration({
-      base_directory: value,
-    });
-  };
+export default function BuildSection({
+  control,
+  errors,
+}: {
+  control: Control<Partial<UpdateApplicationBody>>;
+  errors: FieldErrors<Partial<UpdateApplicationBody>>;
+}) {
+  const {
+    field: { value: buildPack },
+  } = useController({
+    control,
+    name: "build_pack",
+  });
 
-  if (configuration.build_pack === BuildPack.dockerfile) return null;
+  if (buildPack === BuildPack.dockerfile) return null;
   return (
     <>
       {
         <View className="gap-2">
           <H3>Build</H3>
-          {configuration.build_pack === BuildPack.nixpacks && (
-            <NixpacksSection />
+          {buildPack === BuildPack.nixpacks && (
+            <NixpacksSection control={control} />
           )}
           <View className="gap-1">
             <View className="flex-row items-center">
@@ -362,20 +381,22 @@ export default function BuildSection() {
                 description="Directory to use as root. Useful for monorepos."
               />
             </View>
-            <Input
-              placeholder="Enter Base Directory"
-              value={configuration.base_directory ?? ""}
-              onChangeText={setPublishDirectory}
+            <Controller
+              control={control}
+              name="base_directory"
+              render={({ field: { onChange, value, onBlur } }) => (
+                <Input value={value} onChangeText={onChange} onBlur={onBlur} />
+              )}
             />
           </View>
-          {configuration.build_pack === BuildPack.nixpacks && (
-            <NixpacksPublishDirectorySection />
+          {buildPack === BuildPack.nixpacks && (
+            <NixpacksPublishDirectorySection control={control} />
           )}
-          {configuration.build_pack === BuildPack.dockercompose && (
-            <DockerComposeSection />
+          {buildPack === BuildPack.dockercompose && (
+            <DockerComposeSection control={control} />
           )}
-          {configuration.build_pack !== BuildPack.dockercompose && (
-            <BaseSection />
+          {buildPack !== BuildPack.dockercompose && (
+            <BaseSection control={control} />
           )}
         </View>
       }

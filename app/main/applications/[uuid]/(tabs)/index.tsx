@@ -18,12 +18,11 @@ export default function Application() {
 
   const [isDeploying, setIsDeploying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  console.log("isEditing", isEditing);
 
   const { data } = useQuery(
     getApplication(uuid, {
       refetchInterval: 20000,
-      enabled: isFocused && !isDeploying,
+      enabled: isFocused && !isDeploying && !isEditing,
     })
   );
 
@@ -32,7 +31,7 @@ export default function Application() {
   const { data: deploymentData } = useQuery(
     getLatestApplicationDeployment(uuid, {
       refetchInterval: isDeploying ? 5000 : 15000,
-      enabled: isFocused && isNotRunning,
+      enabled: isFocused && isNotRunning && !isEditing,
     })
   );
 

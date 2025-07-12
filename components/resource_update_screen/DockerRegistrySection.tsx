@@ -1,28 +1,19 @@
 import { UpdateApplicationBody } from "@/api/types/application.types";
 import { openBrowserAsync } from "expo-web-browser";
+import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
 import InfoDialog from "../InfoDialog";
-import { useConfiguration } from "../providers/ConfigurationProvider";
 import { Input } from "../ui/input";
 import { Text } from "../ui/text";
 import { H3 } from "../ui/typography";
 
-export default function DockerRegistrySection() {
-  const { configuration, updateConfiguration } =
-    useConfiguration<UpdateApplicationBody>();
-
-  const setDockerRegistryImageName = (value: string) => {
-    updateConfiguration({
-      docker_registry_image_name: value,
-    });
-  };
-
-  const setDockerRegistryImageTag = (value: string) => {
-    updateConfiguration({
-      docker_registry_image_tag: value,
-    });
-  };
-
+export default function DockerRegistrySection({
+  control,
+  errors,
+}: {
+  control: Control<Partial<UpdateApplicationBody>>;
+  errors: FieldErrors<Partial<UpdateApplicationBody>>;
+}) {
   return (
     <View className="gap-2">
       <View className="flex-row items-center gap-1">
@@ -59,10 +50,17 @@ export default function DockerRegistrySection() {
             }
           />
         </View>
-        <Input
-          placeholder="Enter Docker image name"
-          value={configuration.docker_registry_image_name ?? ""}
-          onChangeText={setDockerRegistryImageName}
+        <Controller
+          control={control}
+          name="docker_registry_image_name"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input
+              value={value ?? ""}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Enter Docker image name"
+            />
+          )}
         />
       </View>
       <View className="gap-1">
@@ -83,10 +81,17 @@ export default function DockerRegistrySection() {
             }
           />
         </View>
-        <Input
-          placeholder="Enter Docker image tag (e.g. latest)"
-          value={configuration.docker_registry_image_tag ?? ""}
-          onChangeText={setDockerRegistryImageTag}
+        <Controller
+          control={control}
+          name="docker_registry_image_tag"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Input
+              value={value ?? ""}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              placeholder="Enter Docker image tag (e.g. latest)"
+            />
+          )}
         />
       </View>
     </View>
