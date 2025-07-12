@@ -10,17 +10,18 @@ import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { Redirect, router, useNavigation } from "expo-router";
 import { useLayoutEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   RefreshControl,
   ScrollView,
   TouchableOpacity,
   View,
 } from "react-native";
-import { Pressable } from "react-native-gesture-handler";
 import { toast } from "sonner-native";
 import { AnimatedHeader } from "./AnimatedHeaderTitle";
 import { DomainsSelect } from "./DomainsSelect";
 import { HealthDialog } from "./HealthDialog";
+import { Edit } from "./icons/Edit";
 import LoadingScreen from "./LoadingScreen";
 import { ResourceActions } from "./ResourceActions";
 import { SafeView } from "./SafeView";
@@ -88,8 +89,17 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
     })
   );
 
-  const [name, setName] = useState(data?.name ?? "");
-  const [description, setDescription] = useState(data?.description ?? "");
+  const {
+    control,
+    formState: { errors },
+    handleSubmit,
+    reset,
+  } = useForm({
+    values: {
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+    },
+  });
 
   const healthy_running = data?.status === "running:healthy";
   const unhealthy_running = data?.status === "running:unhealthy";
@@ -187,12 +197,12 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
     refetch().finally(() => setIsRefreshing(false));
   };
 
-  const submitDetails = () => {
+  const submitDetails = (data: { name: string; description: string }) => {
     setIsEditDetails(false);
     toast.promise(
       updateDetailsMutation.mutateAsync({
-        name,
-        description,
+        name: data.name,
+        description: data.description,
       }),
       {
         loading: "Updating details...",
@@ -201,6 +211,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
           return "Details updated successfully!";
         },
         error: (err: unknown) => {
+          setIsEditDetails(true);
           return (
             (err as ResourceHttpError).message ?? "Failed to save changes."
           );
@@ -282,22 +293,44 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
         keyboardShouldPersistTaps="always"
         keyboardDismissMode="interactive"
       >
-        <Pressable onLongPress={() => setIsEditDetails(true)}>
+        <View>
           <View className="flex flex-row justify-between items-center">
             {isEditDetails ? (
-              <Input
-                value={name}
-                onChangeText={setName}
-                onSubmitEditing={submitDetails}
-                autoCapitalize="words"
-              />
+              <View className="w-5/6">
+                <Controller
+                  control={control}
+                  name="name"
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <Input
+                      value={value}
+                      onChangeText={onChange}
+                      onSubmitEditing={handleSubmit(submitDetails)}
+                      autoCapitalize="words"
+                      placeholder="Resource name"
+                    />
+                  )}
+                />
+                {errors.name && (
+                  <Text className="text-red-500">
+                    Resource name is required.
+                  </Text>
+                )}
+              </View>
             ) : (
-              <H1 className="w-5/6" numberOfLines={1}>
-                {data?.name}
-              </H1>
+              <View className="w-5/6 flex-row items-center gap-2">
+                <H1 numberOfLines={1}>{data.name}</H1>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onPress={() => setIsEditDetails(true)}
+                >
+                  <Edit className="text-muted-foreground" />
+                </Button>
+              </View>
             )}
             <TouchableOpacity
-              className="w-1/6 items-end"
+              className="items-end"
               onPress={() => setIsHealthDialogOpen(true)}
             >
               <View
@@ -311,26 +344,33 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
           </View>
 
           {isEditDetails ? (
-            <Input
-              value={description}
-              onChangeText={setDescription}
-              onSubmitEditing={submitDetails}
+            <Controller
+              control={control}
+              name="description"
+              render={({ field: { value, onChange } }) => (
+                <Input
+                  className="mt-2"
+                  value={value}
+                  onChangeText={onChange}
+                  onSubmitEditing={handleSubmit(submitDetails)}
+                  placeholder="Resource description"
+                />
+              )}
             />
           ) : (
-            <Text className="text-muted-foreground">{data?.description}</Text>
+            <Text className="text-muted-foreground">{data.description}</Text>
           )}
-        </Pressable>
+        </View>
         {isEditDetails && (
           <View className="flex-row gap-2">
-            <Button onPress={submitDetails}>
+            <Button onPress={handleSubmit(submitDetails)}>
               <Text>Save</Text>
             </Button>
             <Button
               variant="outline"
               onPress={() => {
                 setIsEditDetails(false);
-                setName(data.name ?? "");
-                setDescription(data.description ?? "");
+                reset();
               }}
             >
               <Text>Cancel</Text>
@@ -343,7 +383,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
         <HealthDialog
           isOpen={isHealthDialogOpen}
           onOpenChange={setIsHealthDialogOpen}
-          status={data?.status}
+          status={data.status}
           resourceType="application"
         />
       </ScrollView>

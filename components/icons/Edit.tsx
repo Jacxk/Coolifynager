@@ -7,4 +7,4 @@ iconWithClassName(LucideEdit);
 const Edit = (props: React.ComponentProps<LucideIcon>) => (
   <LucideEdit className={cn("text-foreground", props.className)} {...props} />
 );
-export { LucideEdit };
+export { Edit };
