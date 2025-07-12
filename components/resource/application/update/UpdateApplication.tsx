@@ -4,9 +4,8 @@ import {
   UpdateApplicationBody,
 } from "@/api/types/application.types";
 import { ResourceHttpError } from "@/api/types/resources.types";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { useMutation } from "@tanstack/react-query";
-import { useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { toast } from "sonner-native";
@@ -63,8 +62,6 @@ export default function UpdateApplication({
     updateApplication(data.uuid)
   );
 
-  const toastId = useRef<string | number | undefined>(undefined);
-
   const handleSave = (data: Partial<UpdateApplicationBody>) => {
     toast.promise(
       saveChanges({ ...data, domains: data.domains?.split("\n").join(",") }),
@@ -92,42 +89,15 @@ export default function UpdateApplication({
     reset();
   };
 
-  useEffect(() => {
-    if (isDirty && !toastId.current) {
-      const newToastId = toast("You have unsaved changes", {
-        dismissible: false,
-        description: "Save your changes or cancel to discard them.",
-        duration: Infinity,
-        action: {
-          label: "Save",
-          onClick: handleSubmit(handleSave),
-        },
-        cancel: {
-          label: "Cancel",
-          onClick: () => {
-            handleCancel();
-          },
-        },
-      });
-      toastId.current = newToastId;
-      setIsEditing(true);
-    } else if (!isDirty && toastId.current) {
-      toast.dismiss(toastId.current);
-      toastId.current = undefined;
-      setIsEditing(false);
-    }
-  }, [isDirty]);
-
-  useFocusEffect(
-    useCallback(() => {
-      reset();
-      return () => {
-        if (toastId.current) toast.dismiss(toastId.current);
-        toastId.current = undefined;
-        setIsEditing(false);
-      };
-    }, [])
-  );
+  useUnsavedChanges({
+    isDirty,
+    onSave: handleSubmit(handleSave),
+    onCancel: handleCancel,
+    onOpen: () => setIsEditing(true),
+    onClose: () => setIsEditing(false),
+    onLostFocus: () => setIsEditing(false),
+    onFocus: reset,
+  });
 
   return (
     <View className="gap-10">
