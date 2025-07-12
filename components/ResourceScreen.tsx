@@ -24,7 +24,6 @@ import { HealthDialog } from "./HealthDialog";
 import { Edit } from "./icons/Edit";
 import LoadingScreen from "./LoadingScreen";
 import { ResourceActions } from "./ResourceActions";
-import { SafeView } from "./SafeView";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Text } from "./ui/text";
@@ -282,111 +281,110 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   if (!data) return <Redirect href="/404" />;
 
   return (
-    <SafeView className="p-0" bottomInset={false}>
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-        }
-        contentContainerClassName="gap-4 p-4"
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        keyboardShouldPersistTaps="always"
-        keyboardDismissMode="interactive"
-      >
-        <View>
-          <View className="flex flex-row justify-between items-center">
-            {isEditDetails ? (
-              <View className="w-5/6">
-                <Controller
-                  control={control}
-                  name="name"
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange } }) => (
-                    <Input
-                      value={value}
-                      onChangeText={onChange}
-                      onSubmitEditing={handleSubmit(submitDetails)}
-                      autoCapitalize="words"
-                      placeholder="Resource name"
-                    />
-                  )}
-                />
-                {errors.name && (
-                  <Text className="text-red-500">
-                    Resource name is required.
-                  </Text>
-                )}
-              </View>
-            ) : (
-              <View className="w-5/6 flex-row items-center gap-2">
-                <H1 numberOfLines={1}>{data.name}</H1>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onPress={() => setIsEditDetails(true)}
-                >
-                  <Edit className="text-muted-foreground" />
-                </Button>
-              </View>
-            )}
-            <TouchableOpacity
-              className="items-end"
-              onPress={() => setIsHealthDialogOpen(true)}
-            >
-              <View
-                className={cn("size-4 rounded-full animate-pulse", {
-                  "bg-red-500 animate-ping": unhealthy_exited,
-                  "bg-green-500": healthy_running,
-                  "bg-yellow-500": unhealthy_running,
-                })}
-              />
-            </TouchableOpacity>
-          </View>
-
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+      }
+      contentContainerClassName="gap-4 p-4"
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="interactive"
+      automaticallyAdjustContentInsets={false}
+      automaticallyAdjustKeyboardInsets={true}
+      contentInsetAdjustmentBehavior="never"
+    >
+      <View>
+        <View className="flex flex-row justify-between items-center">
           {isEditDetails ? (
-            <Controller
-              control={control}
-              name="description"
-              render={({ field: { value, onChange } }) => (
-                <Input
-                  className="mt-2"
-                  value={value}
-                  onChangeText={onChange}
-                  onSubmitEditing={handleSubmit(submitDetails)}
-                  placeholder="Resource description"
-                />
+            <View className="w-5/6">
+              <Controller
+                control={control}
+                name="name"
+                rules={{ required: true }}
+                render={({ field: { value, onChange } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    onSubmitEditing={handleSubmit(submitDetails)}
+                    autoCapitalize="words"
+                    placeholder="Resource name"
+                  />
+                )}
+              />
+              {errors.name && (
+                <Text className="text-red-500">Resource name is required.</Text>
               )}
-            />
+            </View>
           ) : (
-            <Text className="text-muted-foreground">{data.description}</Text>
+            <View className="w-5/6 flex-row items-center gap-2">
+              <H1 numberOfLines={1}>{data.name}</H1>
+              <Button
+                variant="ghost"
+                size="icon"
+                onPress={() => setIsEditDetails(true)}
+              >
+                <Edit className="text-muted-foreground" />
+              </Button>
+            </View>
           )}
+          <TouchableOpacity
+            className="items-end"
+            onPress={() => setIsHealthDialogOpen(true)}
+          >
+            <View
+              className={cn("size-4 rounded-full animate-pulse", {
+                "bg-red-500 animate-ping": unhealthy_exited,
+                "bg-green-500": healthy_running,
+                "bg-yellow-500": unhealthy_running,
+              })}
+            />
+          </TouchableOpacity>
         </View>
-        {isEditDetails && (
-          <View className="flex-row gap-2">
-            <Button onPress={handleSubmit(submitDetails)}>
-              <Text>Save</Text>
-            </Button>
-            <Button
-              variant="outline"
-              onPress={() => {
-                setIsEditDetails(false);
-                reset();
-              }}
-            >
-              <Text>Cancel</Text>
-            </Button>
-          </View>
+
+        {isEditDetails ? (
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { value, onChange } }) => (
+              <Input
+                className="mt-2"
+                value={value}
+                onChangeText={onChange}
+                onSubmitEditing={handleSubmit(submitDetails)}
+                placeholder="Resource description"
+              />
+            )}
+          />
+        ) : (
+          <Text className="text-muted-foreground">{data.description}</Text>
         )}
+      </View>
+      {isEditDetails && (
+        <View className="flex-row gap-2">
+          <Button onPress={handleSubmit(submitDetails)}>
+            <Text>Save</Text>
+          </Button>
+          <Button
+            variant="outline"
+            onPress={() => {
+              setIsEditDetails(false);
+              reset();
+            }}
+          >
+            <Text>Cancel</Text>
+          </Button>
+        </View>
+      )}
 
-        {children(data)}
+      {children(data)}
 
-        <HealthDialog
-          isOpen={isHealthDialogOpen}
-          onOpenChange={setIsHealthDialogOpen}
-          status={data.status}
-          resourceType="application"
-        />
-      </ScrollView>
-    </SafeView>
+      <HealthDialog
+        isOpen={isHealthDialogOpen}
+        onOpenChange={setIsHealthDialogOpen}
+        status={data.status}
+        resourceType="application"
+      />
+    </ScrollView>
   );
 }

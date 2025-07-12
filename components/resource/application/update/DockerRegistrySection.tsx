@@ -1,11 +1,11 @@
 import { UpdateApplicationBody } from "@/api/types/application.types";
+import InfoDialog from "@/components/InfoDialog";
+import { Input } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
+import { H3 } from "@/components/ui/typography";
 import { openBrowserAsync } from "expo-web-browser";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
-import InfoDialog from "../../../InfoDialog";
-import { Input } from "../../../ui/input";
-import { Text } from "../../../ui/text";
-import { H3 } from "../../../ui/typography";
 
 export default function DockerRegistrySection({
   control,
@@ -59,6 +59,7 @@ export default function DockerRegistrySection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="Enter Docker image name"
+              autoCapitalize="none"
             />
           )}
         />
@@ -90,6 +91,7 @@ export default function DockerRegistrySection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="Enter Docker image tag (e.g. latest)"
+              autoCapitalize="none"
             />
           )}
         />

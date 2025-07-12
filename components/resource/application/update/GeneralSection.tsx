@@ -3,20 +3,20 @@ import {
   RedirectType,
   UpdateApplicationBody,
 } from "@/api/types/application.types";
-import { Textarea } from "@/components/ui/textarea";
-import { isValidUrl } from "@/lib/utils";
-import { Control, Controller, FieldErrors } from "react-hook-form";
-import { View } from "react-native";
-import InfoDialog from "../../../InfoDialog";
+import InfoDialog from "@/components/InfoDialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../ui/select";
-import { Text } from "../../../ui/text";
-import { H3 } from "../../../ui/typography";
+} from "@/components/ui/select";
+import { Text } from "@/components/ui/text";
+import { Textarea } from "@/components/ui/textarea";
+import { H3 } from "@/components/ui/typography";
+import { isValidUrl } from "@/lib/utils";
+import { Control, Controller, FieldErrors } from "react-hook-form";
+import { View } from "react-native";
 
 const redirectLabel = (type?: string) =>
   type === RedirectType.both
@@ -120,6 +120,8 @@ export default function GeneralSection({
               onChangeText={onChange}
               onBlur={onBlur}
               className="max-h-24 min-h-10"
+              keyboardType="url"
+              autoCapitalize="none"
             />
           )}
         />

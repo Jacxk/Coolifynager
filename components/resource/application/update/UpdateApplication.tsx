@@ -28,7 +28,7 @@ const getInitialValues = (
   ports_mappings: data.ports_mappings,
   build_pack: data.build_pack,
   redirect: data.redirect,
-  domains: data.fqdn.split(",").join("\n"),
+  domains: data.fqdn?.split(",").join("\n"),
   docker_registry_image_name: data.docker_registry_image_name,
   docker_registry_image_tag: data.docker_registry_image_tag,
   install_command: data.install_command,

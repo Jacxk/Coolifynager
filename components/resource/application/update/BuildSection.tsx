@@ -2,6 +2,12 @@ import {
   BuildPack,
   UpdateApplicationBody,
 } from "@/api/types/application.types";
+import InfoDialog from "@/components/InfoDialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
+import { Textarea } from "@/components/ui/textarea";
+import { H3 } from "@/components/ui/typography";
 import { openBrowserAsync } from "expo-web-browser";
 import {
   Control,
@@ -10,12 +16,6 @@ import {
   useController,
 } from "react-hook-form";
 import { View } from "react-native";
-import InfoDialog from "../../../InfoDialog";
-import { Checkbox } from "../../../ui/checkbox";
-import { Input } from "../../../ui/input";
-import { Text } from "../../../ui/text";
-import { Textarea } from "../../../ui/textarea";
-import { H3 } from "../../../ui/typography";
 
 function NixpacksSection({
   control,
@@ -41,6 +41,7 @@ function NixpacksSection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="Enter Install Command"
+              autoCapitalize="none"
             />
           )}
         />
@@ -62,6 +63,7 @@ function NixpacksSection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="Enter Build Command"
+              autoCapitalize="none"
             />
           )}
         />
@@ -83,6 +85,7 @@ function NixpacksSection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="Enter Start Command"
+              autoCapitalize="none"
             />
           )}
         />
@@ -119,6 +122,7 @@ function NixpacksPublishDirectorySection({
             onChangeText={onChange}
             onBlur={onBlur}
             placeholder="Enter Publish Directory"
+            autoCapitalize="none"
           />
         )}
       />
@@ -155,6 +159,7 @@ function DockerComposeSection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="/docker-compose.yaml"
+              autoCapitalize="none"
             />
           )}
         />
@@ -195,6 +200,7 @@ function DockerComposeSection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="docker compose build"
+              autoCapitalize="none"
             />
           )}
         />
@@ -231,6 +237,7 @@ function DockerComposeSection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="docker compose up -d"
+              autoCapitalize="none"
             />
           )}
         />
@@ -263,6 +270,7 @@ function BaseSection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="src/page/**"
+              autoCapitalize="none"
             />
           )}
         />
@@ -309,6 +317,7 @@ function BaseSection({
               onChangeText={onChange}
               onBlur={onBlur}
               placeholder="--cap-add SYS_ADMIN --device=/dev/fuse --security-opt apparmor:unconfined --ulimit nofile=1024:1024 --tmpfs /run:rw,noexec,nosuid,size=65536k --hostname=myapp"
+              autoCapitalize="none"
             />
           )}
         />
@@ -385,7 +394,12 @@ export default function BuildSection({
               control={control}
               name="base_directory"
               render={({ field: { onChange, value, onBlur } }) => (
-                <Input value={value} onChangeText={onChange} onBlur={onBlur} />
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="none"
+                />
               )}
             />
           </View>
