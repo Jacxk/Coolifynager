@@ -80,7 +80,6 @@ export default function UpdateApplication({
         return "Changes saved successfully!";
       },
       error: (err: unknown) => {
-        console.log(err);
         return (err as ResourceHttpError).message ?? "Failed to save changes.";
       },
     });
