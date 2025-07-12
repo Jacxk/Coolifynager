@@ -2,10 +2,10 @@ import { UpdateApplicationBody } from "@/api/types/application.types";
 import { openBrowserAsync } from "expo-web-browser";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
-import InfoDialog from "../InfoDialog";
-import { Input } from "../ui/input";
-import { Text } from "../ui/text";
-import { H3 } from "../ui/typography";
+import InfoDialog from "../../../InfoDialog";
+import { Input } from "../../../ui/input";
+import { Text } from "../../../ui/text";
+import { H3 } from "../../../ui/typography";
 
 export default function DockerRegistrySection({
   control,

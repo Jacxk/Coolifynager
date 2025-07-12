@@ -10,12 +10,12 @@ import {
   useController,
 } from "react-hook-form";
 import { View } from "react-native";
-import InfoDialog from "../InfoDialog";
-import { Checkbox } from "../ui/checkbox";
-import { Input } from "../ui/input";
-import { Text } from "../ui/text";
-import { Textarea } from "../ui/textarea";
-import { H3 } from "../ui/typography";
+import InfoDialog from "../../../InfoDialog";
+import { Checkbox } from "../../../ui/checkbox";
+import { Input } from "../../../ui/input";
+import { Text } from "../../../ui/text";
+import { Textarea } from "../../../ui/textarea";
+import { H3 } from "../../../ui/typography";
 
 function NixpacksSection({
   control,

@@ -6,7 +6,7 @@ import {
   updateApplication,
 } from "@/api/application";
 import { getLatestApplicationDeployment } from "@/api/deployments";
-import UpdateApplication from "@/components/resource_update_screen/UpdateApplication";
+import UpdateApplication from "@/components/resource/application/update/UpdateApplication";
 import ResourceScreen from "@/components/ResourceScreen";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";

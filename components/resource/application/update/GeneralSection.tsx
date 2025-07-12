@@ -5,17 +5,17 @@ import {
 } from "@/api/types/application.types";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
-import InfoDialog from "../InfoDialog";
-import { Input } from "../ui/input";
+import InfoDialog from "../../../InfoDialog";
+import { Input } from "../../../ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Text } from "../ui/text";
-import { H3 } from "../ui/typography";
+} from "../../../ui/select";
+import { Text } from "../../../ui/text";
+import { H3 } from "../../../ui/typography";
 
 const redirectLabel = (type?: string) =>
   type === RedirectType.both
