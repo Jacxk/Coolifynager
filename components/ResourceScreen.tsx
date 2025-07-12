@@ -8,7 +8,7 @@ import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { cn } from "@/lib/utils";
 import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { router, useNavigation } from "expo-router";
+import { Redirect, router, useNavigation } from "expo-router";
 import { useLayoutEffect, useState } from "react";
 import {
   RefreshControl,
@@ -45,7 +45,7 @@ type MutationObject = {
 export type ResourceScreenProps<T extends ResourceBase = ResourceBase> = {
   uuid: string;
   isDeploying: boolean;
-  children: (data: T | undefined) => React.ReactNode;
+  children: (data: T) => React.ReactNode;
   isApplication: boolean;
   isEnabled?: boolean;
   getResource: (
@@ -212,50 +212,47 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   useRefreshOnFocus(refetch);
 
   useLayoutEffect(() => {
-    if (data) {
-      let domains: string[] = [];
+    if (!data) return;
+    let domains: string[] = [];
 
-      if ("fqdn" in data && data.fqdn) {
-        domains = (data.fqdn as string).split(",").filter(Boolean);
-      } else if ("applications" in data && data.applications) {
-        domains =
-          (data.applications as any[])
-            ?.map((app) => app.fqdn)
-            .filter(Boolean)
-            .flatMap((fqdn) => fqdn.split(","))
-            .filter(Boolean) || [];
-      }
-
-      navigation.setOptions({
-        header: () => (
-          <AnimatedHeader
-            name={data.name}
-            status={data.status || ""}
-            showTitle={showHeaderTitle}
-            leftComponent={
-              domains.length > 0 ? (
-                <DomainsSelect domains={domains} />
-              ) : undefined
-            }
-            rightComponent={
-              <ResourceActions
-                resourceType="application"
-                isRunning={healthy_running || unhealthy_running}
-                onStart={handleDeploy}
-                onRedeploy={handleDeploy}
-                onStop={handleStop}
-                onRestart={handleRestart}
-                isDeploying={isDeploying}
-                stopDisabled={stopMutation.isPending}
-                restartDisabled={restartMutation.isPending}
-                showDeploy={true}
-              />
-            }
-          />
-        ),
-        headerShown: true,
-      });
+    if ("fqdn" in data && data.fqdn) {
+      domains = (data.fqdn as string).split(",").filter(Boolean);
+    } else if ("applications" in data && data.applications) {
+      domains =
+        (data.applications as any[])
+          ?.map((app) => app.fqdn)
+          .filter(Boolean)
+          .flatMap((fqdn) => fqdn.split(","))
+          .filter(Boolean) || [];
     }
+
+    navigation.setOptions({
+      header: () => (
+        <AnimatedHeader
+          name={data.name}
+          status={data.status || ""}
+          showTitle={showHeaderTitle}
+          leftComponent={
+            domains.length > 0 ? <DomainsSelect domains={domains} /> : undefined
+          }
+          rightComponent={
+            <ResourceActions
+              resourceType="application"
+              isRunning={healthy_running || unhealthy_running}
+              onStart={handleDeploy}
+              onRedeploy={handleDeploy}
+              onStop={handleStop}
+              onRestart={handleRestart}
+              isDeploying={isDeploying}
+              stopDisabled={stopMutation.isPending}
+              restartDisabled={restartMutation.isPending}
+              showDeploy={true}
+            />
+          }
+        />
+      ),
+      headerShown: true,
+    });
   }, [
     isDeploying,
     data,
@@ -270,6 +267,8 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   if (isPending) {
     return <LoadingScreen />;
   }
+
+  if (!data) return <Redirect href="/404" />;
 
   return (
     <SafeView className="p-0" bottomInset={false}>
@@ -330,8 +329,8 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
               variant="outline"
               onPress={() => {
                 setIsEditDetails(false);
-                setName(data?.name ?? "");
-                setDescription(data?.description ?? "");
+                setName(data.name ?? "");
+                setDescription(data.description ?? "");
               }}
             >
               <Text>Cancel</Text>
