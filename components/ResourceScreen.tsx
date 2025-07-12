@@ -2,19 +2,21 @@ import { ApplicationActionResponse } from "@/api/types/application.types";
 import {
   ResourceActionResponse,
   ResourceBase,
+  ResourceHttpError,
 } from "@/api/types/resources.types";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { cn } from "@/lib/utils";
 import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { router, useNavigation } from "expo-router";
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import {
   RefreshControl,
   ScrollView,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Pressable } from "react-native-gesture-handler";
 import { toast } from "sonner-native";
 import { AnimatedHeader } from "./AnimatedHeaderTitle";
 import { DomainsSelect } from "./DomainsSelect";
@@ -22,6 +24,8 @@ import { HealthDialog } from "./HealthDialog";
 import LoadingScreen from "./LoadingScreen";
 import { ResourceActions } from "./ResourceActions";
 import { SafeView } from "./SafeView";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import { Text } from "./ui/text";
 import { H1 } from "./ui/typography";
 
@@ -54,6 +58,7 @@ export type ResourceScreenProps<T extends ResourceBase = ResourceBase> = {
   startResource: (uuid: string) => MutationObject;
   stopResource: (uuid: string) => MutationObject;
   restartResource: (uuid: string) => MutationObject;
+  updateResource: (uuid: string) => MutationObject;
 };
 
 export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
@@ -61,6 +66,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   startResource,
   stopResource,
   restartResource,
+  updateResource,
   uuid,
   children,
   isDeploying,
@@ -73,19 +79,17 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
   const [showHeaderTitle, setShowHeaderTitle] = useState(false);
+  const [isEditDetails, setIsEditDetails] = useState(false);
 
-  const {
-    data: resourceData,
-    isPending,
-    refetch,
-  } = useQuery<T>(
+  const { data, isPending, refetch } = useQuery<T>(
     getResource(uuid, {
       refetchInterval: 20000,
-      enabled: isFocused && isEnabled,
+      enabled: isFocused && isEnabled && !isEditDetails,
     })
   );
 
-  const data = useMemo(() => resourceData, [resourceData]);
+  const [name, setName] = useState(data?.name ?? "");
+  const [description, setDescription] = useState(data?.description ?? "");
 
   const healthy_running = data?.status === "running:healthy";
   const unhealthy_running = data?.status === "running:unhealthy";
@@ -104,6 +108,8 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
       toast.error(error.message || "Failed to restart resource");
     },
   });
+
+  const updateDetailsMutation = useMutation(updateResource(uuid));
 
   const handleDeploy = () => {
     if (isApplication) {
@@ -181,6 +187,28 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
     refetch().finally(() => setIsRefreshing(false));
   };
 
+  const submitDetails = () => {
+    setIsEditDetails(false);
+    toast.promise(
+      updateDetailsMutation.mutateAsync({
+        name,
+        description,
+      }),
+      {
+        loading: "Updating details...",
+        success: () => {
+          refetch();
+          return "Details updated successfully!";
+        },
+        error: (err: unknown) => {
+          return (
+            (err as ResourceHttpError).message ?? "Failed to save changes."
+          );
+        },
+      }
+    );
+  };
+
   useRefreshOnFocus(refetch);
 
   useLayoutEffect(() => {
@@ -255,11 +283,20 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
         keyboardShouldPersistTaps="always"
         keyboardDismissMode="interactive"
       >
-        <View>
+        <Pressable onLongPress={() => setIsEditDetails(true)}>
           <View className="flex flex-row justify-between items-center">
-            <H1 className="w-5/6" numberOfLines={1}>
-              {data?.name}
-            </H1>
+            {isEditDetails ? (
+              <Input
+                value={name}
+                onChangeText={setName}
+                onSubmitEditing={submitDetails}
+                autoCapitalize="words"
+              />
+            ) : (
+              <H1 className="w-5/6" numberOfLines={1}>
+                {data?.name}
+              </H1>
+            )}
             <TouchableOpacity
               className="w-1/6 items-end"
               onPress={() => setIsHealthDialogOpen(true)}
@@ -273,8 +310,34 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
               />
             </TouchableOpacity>
           </View>
-          <Text className="text-muted-foreground">{data?.description}</Text>
-        </View>
+
+          {isEditDetails ? (
+            <Input
+              value={description}
+              onChangeText={setDescription}
+              onSubmitEditing={submitDetails}
+            />
+          ) : (
+            <Text className="text-muted-foreground">{data?.description}</Text>
+          )}
+        </Pressable>
+        {isEditDetails && (
+          <View className="flex-row gap-2">
+            <Button onPress={submitDetails}>
+              <Text>Save</Text>
+            </Button>
+            <Button
+              variant="outline"
+              onPress={() => {
+                setIsEditDetails(false);
+                setName(data?.name ?? "");
+                setDescription(data?.description ?? "");
+              }}
+            >
+              <Text>Cancel</Text>
+            </Button>
+          </View>
+        )}
 
         {children(data)}
 

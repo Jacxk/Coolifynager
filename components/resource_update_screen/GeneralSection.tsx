@@ -100,6 +100,18 @@ export default function GeneralSection({
         <Controller
           control={control}
           name="domains"
+          rules={{
+            required: "Domains are required",
+            validate: (domains) => {
+              return domains
+                ?.split(",")
+                .some((domain) =>
+                  !URL.canParse(domain)
+                    ? `Invalid domain: ${domain}`
+                    : undefined
+                );
+            },
+          }}
           render={({ field: { onChange, value, onBlur } }) => (
             <Input value={value} onChangeText={onChange} onBlur={onBlur} />
           )}

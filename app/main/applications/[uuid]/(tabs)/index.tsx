@@ -3,6 +3,7 @@ import {
   restartApplication,
   startApplication,
   stopApplication,
+  updateApplication,
 } from "@/api/application";
 import { getLatestApplicationDeployment } from "@/api/deployments";
 import UpdateApplication from "@/components/resource_update_screen/UpdateApplication";
@@ -63,6 +64,7 @@ export default function Application() {
       startResource={startApplication}
       stopResource={stopApplication}
       restartResource={restartApplication}
+      updateResource={updateApplication}
       isEnabled={!isEditing}
     >
       {(data) => <UpdateApplication data={data} setIsEditing={setIsEditing} />}
