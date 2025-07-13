@@ -1,4 +1,6 @@
 import { SSLMode } from "@/api/types/database.types";
+import InfoDialog from "@/components/InfoDialog";
+import ReadOnlyText from "@/components/ReadOnlyText";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -19,11 +21,31 @@ export default function SslConfigurationSection({
     <View className="gap-2">
       <H3>SSL Configuration</H3>
       <View className="flex-1 gap-4 flex-row">
-        <Text className="text-muted-foreground">Enable SSL</Text>
+        <InfoDialog
+          label="Enable SSL"
+          description={
+            <View className="gap-2">
+              <Text className="text-muted-foreground">
+                Database should be stopped to change this settings.
+              </Text>
+              <ReadOnlyText />
+            </View>
+          }
+        />
         <Checkbox disabled checked={enable_ssl} onCheckedChange={() => {}} />
       </View>
       <View className="flex-1 gap-1">
-        <Text className="text-muted-foreground">SSL Mode</Text>
+        <InfoDialog
+          label="SSL Mode"
+          description={
+            <View className="gap-2">
+              <Text className="text-muted-foreground">
+                Database should be stopped to change this settings.
+              </Text>
+              <ReadOnlyText />
+            </View>
+          }
+        />
         <Input value={sslMode} editable={false} />
       </View>
     </View>

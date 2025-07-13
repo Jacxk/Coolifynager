@@ -94,7 +94,11 @@ export default function UpdateService({
 
   return (
     <View className="gap-2">
-      <GeneralSection control={control} errors={errors} />
+      <GeneralSection
+        control={control}
+        errors={errors}
+        custom_docker_run_options={data.custom_docker_run_options}
+      />
       <NetworkSection
         ports_mappings={data.ports_mappings}
         internal_db_url={data.internal_db_url}

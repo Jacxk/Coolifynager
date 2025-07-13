@@ -10,12 +10,13 @@ import { Text } from "@/components/ui/text";
 import React from "react";
 
 type InfoDialogProps = {
-  title: string;
+  title?: string;
   description?: string | React.ReactNode;
   children?: React.ReactNode;
   iconSize?: number;
   iconClassName?: string;
   triggerAccessibilityLabel?: string;
+  label?: string | React.ReactNode;
 };
 
 export default function InfoDialog({
@@ -25,10 +26,17 @@ export default function InfoDialog({
   iconSize = 18,
   iconClassName = "text-yellow-500 ml-2",
   triggerAccessibilityLabel = "Info",
+  label,
 }: InfoDialogProps) {
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <DialogTrigger className="flex-row items-center">
+        {label &&
+          (typeof label === "string" ? (
+            <Text className="text-muted-foreground">{label}</Text>
+          ) : (
+            label
+          ))}
         <Info
           className={iconClassName}
           size={iconSize}
@@ -36,7 +44,7 @@ export default function InfoDialog({
         />
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle>{title ?? label}</DialogTitle>
         <DialogDescription>
           {typeof description === "string" ? (
             <Text className="text-muted-foreground">{description}</Text>

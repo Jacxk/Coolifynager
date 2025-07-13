@@ -9,9 +9,11 @@ import PostgressDetails from "./PostgressDetails";
 export default function GeneralSection({
   control,
   errors,
+  custom_docker_run_options,
 }: {
   control: Control<UpdateDatabaseBody>;
   errors: FieldErrors<UpdateDatabaseBody>;
+  custom_docker_run_options: string | null;
 }) {
   return (
     <View className="gap-2">
@@ -40,7 +42,11 @@ export default function GeneralSection({
         automations (like backups) won't work.
       </Text>
 
-      <PostgressDetails control={control} errors={errors} />
+      <PostgressDetails
+        control={control}
+        errors={errors}
+        custom_docker_run_options={custom_docker_run_options}
+      />
     </View>
   );
 }
