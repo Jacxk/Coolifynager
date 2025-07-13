@@ -1,6 +1,6 @@
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
-import { Database } from "./types/database.types";
+import { Database, UpdateDatabaseBody } from "./types/database.types";
 import { ResourceActionResponse } from "./types/resources.types";
 
 type QueryKey = string | number;
@@ -92,4 +92,22 @@ export const getDatabaseLogs = (
   queryKey: ["databases.logs", uuid, lines],
   queryFn: () =>
     coolifyFetch<DatabaseLogs>(`/databases/${uuid}/logs?lines=${lines}`),
+});
+
+export const updateDatabase = (
+  uuid: string,
+  options?: Omit<
+    UseMutationOptions<ResourceActionResponse, Error, UpdateDatabaseBody>,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
+  mutationKey: ["databases.update", uuid],
+  mutationFn: async (data: UpdateDatabaseBody) => {
+    return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: data,
+    });
+  },
 });

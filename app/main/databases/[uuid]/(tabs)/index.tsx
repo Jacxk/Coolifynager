@@ -3,14 +3,16 @@ import {
   restartDatabase,
   startDatabase,
   stopDatabase,
+  updateDatabase,
 } from "@/api/databases";
-import ResourceScreen from "@/components/ResourceScreen";
-import { Text } from "@/components/ui/text";
+import UpdateDatabase from "@/components/resource/database/UpdateDatabase";
+import ResourceScreen from "@/components/resource/ResourceScreen";
 import { useLocalSearchParams } from "expo-router";
-import { View } from "react-native";
+import { useState } from "react";
 
 export default function Database() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
+  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <ResourceScreen
@@ -21,48 +23,10 @@ export default function Database() {
       startResource={startDatabase}
       stopResource={stopDatabase}
       restartResource={restartDatabase}
+      updateResource={updateDatabase}
+      isEnabled={!isEditing}
     >
-      {(data) => (
-        <>
-          <Text>Status: {data?.status}</Text>
-          <Text>Database Type: {data?.database_type}</Text>
-          <Text>Image: {data?.image}</Text>
-
-          {data?.internal_db_url && (
-            <View>
-              <Text className="font-semibold">Internal URL:</Text>
-              <Text className="text-muted-foreground">
-                {data.internal_db_url}
-              </Text>
-            </View>
-          )}
-
-          {data?.external_db_url && (
-            <View>
-              <Text className="font-semibold">External URL:</Text>
-              <Text className="text-muted-foreground">
-                {data.external_db_url}
-              </Text>
-            </View>
-          )}
-
-          {data?.public_port && <Text>Public Port: {data.public_port}</Text>}
-
-          <Text>SSL Enabled: {data?.enable_ssl ? "Yes" : "No"}</Text>
-
-          {data?.postgres_user && (
-            <View>
-              <Text className="font-semibold">Database Credentials:</Text>
-              <Text className="text-muted-foreground">
-                User: {data.postgres_user}
-              </Text>
-              <Text className="text-muted-foreground">
-                Database: {data.postgres_db}
-              </Text>
-            </View>
-          )}
-        </>
-      )}
+      {(data) => <UpdateDatabase data={data} setIsEditing={setIsEditing} />}
     </ResourceScreen>
   );
 }

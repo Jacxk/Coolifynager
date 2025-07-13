@@ -11,7 +11,7 @@ import React from "react";
 
 type InfoDialogProps = {
   title: string;
-  description: string | React.ReactNode;
+  description?: string | React.ReactNode;
   children?: React.ReactNode;
   iconSize?: number;
   iconClassName?: string;

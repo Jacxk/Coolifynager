@@ -18,16 +18,16 @@ import {
   View,
 } from "react-native";
 import { toast } from "sonner-native";
-import { AnimatedHeader } from "./AnimatedHeaderTitle";
-import { DomainsSelect } from "./DomainsSelect";
-import { HealthDialog } from "./HealthDialog";
-import { Edit } from "./icons/Edit";
-import LoadingScreen from "./LoadingScreen";
+import { AnimatedHeader } from "../AnimatedHeaderTitle";
+import { DomainsSelect } from "../DomainsSelect";
+import { HealthDialog } from "../HealthDialog";
+import { Edit } from "../icons/Edit";
+import LoadingScreen from "../LoadingScreen";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Text } from "../ui/text";
+import { H1 } from "../ui/typography";
 import { ResourceActions } from "./ResourceActions";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Text } from "./ui/text";
-import { H1 } from "./ui/typography";
 
 type QueryKey = string | number;
 
@@ -197,7 +197,6 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   };
 
   const submitDetails = (data: { name: string; description: string }) => {
-    setIsEditDetails(false);
     toast.promise(
       updateDetailsMutation.mutateAsync({
         name: data.name,
@@ -207,6 +206,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
         loading: "Updating details...",
         success: () => {
           refetch();
+          setIsEditDetails(false);
           return "Details updated successfully!";
         },
         error: (err: unknown) => {

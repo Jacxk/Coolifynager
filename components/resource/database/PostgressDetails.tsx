@@ -1,0 +1,114 @@
+import { UpdateDatabaseBody } from "@/api/types/database.types";
+import { Input } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
+import { Control, Controller, FieldErrors } from "react-hook-form";
+import { View } from "react-native";
+
+export default function PostgressDetails({
+  control,
+  errors,
+}: {
+  control: Control<UpdateDatabaseBody>;
+  errors: FieldErrors<UpdateDatabaseBody>;
+}) {
+  return (
+    <>
+      <View className="flex-1 gap-1">
+        <Text className="text-muted-foreground">Username</Text>
+        <Controller
+          control={control}
+          name="postgres_user"
+          rules={{ required: "Username is required" }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="If empty: postgres"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+            />
+          )}
+        />
+        {errors.postgres_user && (
+          <Text className="text-red-500">{errors.postgres_user.message}</Text>
+        )}
+      </View>
+
+      <View className="flex-1 gap-1">
+        <Text className="text-muted-foreground">Password</Text>
+        <Controller
+          control={control}
+          name="postgres_password"
+          rules={{ required: "Password is required" }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="Enter DB password"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              secureTextEntry
+            />
+          )}
+        />
+        {errors.postgres_password && (
+          <Text className="text-red-500">
+            {errors.postgres_password.message}
+          </Text>
+        )}
+      </View>
+
+      <View className="flex-1 gap-1">
+        <Text className="text-muted-foreground">Initial Database</Text>
+        <Controller
+          control={control}
+          name="postgres_db"
+          disabled
+          render={({ field: { onChange, onBlur, value, disabled } }) => (
+            <Input
+              placeholder="If empty, it will be the same as Username."
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              editable={!disabled}
+            />
+          )}
+        />
+      </View>
+
+      <View className="flex-1 gap-1">
+        <Text className="text-muted-foreground">
+          Initial Database Arguments
+        </Text>
+        <Controller
+          control={control}
+          name="postgres_initdb_args"
+          disabled
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="If empty, use default. See in docker docs."
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value ?? ""}
+            />
+          )}
+        />
+      </View>
+
+      <View className="flex-1 gap-1">
+        <Text className="text-muted-foreground">Host Auth Method</Text>
+        <Controller
+          control={control}
+          name="postgres_host_auth_method"
+          disabled
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="If empty, use default. See in docker docs."
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value ?? ""}
+            />
+          )}
+        />
+      </View>
+    </>
+  );
+}

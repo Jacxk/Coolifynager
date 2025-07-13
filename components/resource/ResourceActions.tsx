@@ -15,8 +15,8 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-import { Loader2 } from "./icons/Loader2";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { Loader2 } from "../icons/Loader2";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,8 +27,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "./ui/alert-dialog";
-import { Text } from "./ui/text";
+} from "../ui/alert-dialog";
+import { Text } from "../ui/text";
 
 type RestartActionProps = {
   onRestart?: () => void;

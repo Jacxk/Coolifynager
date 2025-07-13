@@ -1,5 +1,5 @@
 import { getApplicationLogs } from "@/api/application";
-import { ResourceLogs } from "@/components/ResourceLogs";
+import { ResourceLogs } from "@/components/resource/ResourceLogs";
 import { SafeView } from "@/components/SafeView";
 
 export default function ApplicationLogs() {

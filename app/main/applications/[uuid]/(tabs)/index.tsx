@@ -7,7 +7,7 @@ import {
 } from "@/api/application";
 import { getLatestApplicationDeployment } from "@/api/deployments";
 import UpdateApplication from "@/components/resource/application/update/UpdateApplication";
-import ResourceScreen from "@/components/ResourceScreen";
+import ResourceScreen from "@/components/resource/ResourceScreen";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
