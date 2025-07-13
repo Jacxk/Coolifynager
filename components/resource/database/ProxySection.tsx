@@ -1,3 +1,4 @@
+import { UpdateDatabaseBody } from "@/api/types/database.types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -6,7 +7,11 @@ import { H3 } from "@/components/ui/typography";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
 
-export default function ProxySection({ control }: { control: Control<any> }) {
+export default function ProxySection({
+  control,
+}: {
+  control: Control<UpdateDatabaseBody>;
+}) {
   return (
     <View className="gap-2">
       <H3>Proxy</H3>
@@ -18,7 +23,7 @@ export default function ProxySection({ control }: { control: Control<any> }) {
           control={control}
           name="is_public"
           render={({ field: { value, onChange } }) => (
-            <Checkbox checked={value} onCheckedChange={onChange} />
+            <Checkbox checked={value ?? false} onCheckedChange={onChange} />
           )}
         />
       </View>
@@ -29,9 +34,10 @@ export default function ProxySection({ control }: { control: Control<any> }) {
           name="public_port"
           render={({ field: { value, onChange } }) => (
             <Input
+              keyboardType="number-pad"
               placeholder="5432"
               value={value?.toString() ?? ""}
-              onChangeText={onChange}
+              onChangeText={(text) => onChange(Number(text))}
             />
           )}
         />

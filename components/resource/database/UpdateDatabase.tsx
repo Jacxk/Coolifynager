@@ -14,18 +14,9 @@ import ProxySection from "./ProxySection";
 import SslConfiguration from "./SslConfigurationSection";
 
 const getInitialValues = (data: Database): UpdateDatabaseBody => ({
-  name: data.name,
-  description: data.description,
   image: data.image,
   is_public: data.is_public,
   public_port: data.public_port,
-  limits_memory: data.limits_memory,
-  limits_memory_swap: data.limits_memory_swap,
-  limits_memory_swappiness: data.limits_memory_swappiness,
-  limits_memory_reservation: data.limits_memory_reservation,
-  limits_cpus: data.limits_cpus,
-  limits_cpuset: data.limits_cpuset,
-  limits_cpu_shares: data.limits_cpu_shares,
   postgres_user: data.postgres_user,
   postgres_password: data.postgres_password,
   postgres_db: data.postgres_db,
@@ -33,7 +24,7 @@ const getInitialValues = (data: Database): UpdateDatabaseBody => ({
   postgres_host_auth_method: data.postgres_host_auth_method,
 });
 
-export default function UpdateService({
+export default function UpdateDatabase({
   data,
   setIsEditing,
 }: {
@@ -44,7 +35,7 @@ export default function UpdateService({
     control,
     reset,
     handleSubmit,
-    formState: { isDirty, errors },
+    formState: { errors, dirtyFields },
   } = useForm<UpdateDatabaseBody>({
     values: getInitialValues(data),
   });
@@ -83,7 +74,7 @@ export default function UpdateService({
   };
 
   useUnsavedChanges({
-    isDirty,
+    isDirty: Object.keys(dirtyFields).length > 0,
     onSave: handleSubmit(handleSave),
     onCancel: handleCancel,
     onOpen: () => setIsEditing(true),
