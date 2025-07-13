@@ -1,11 +1,25 @@
 import { ResourceBase } from "./resources.types";
 
+export enum SSLMode {
+  DISABLED = "disabled",
+  ALLOW = "allow",
+  REQUIRE = "require",
+  VERIFY_CA = "verify-ca",
+  VERIFY_FULL = "verify-full",
+}
+
+export type InitScript = {
+  index: number;
+  filename: string;
+  content: string;
+};
+
 export type Database = ResourceBase & {
   database_type: string;
   enable_ssl: boolean;
   external_db_url: string | null;
   image: string;
-  init_scripts: string | null;
+  init_scripts: InitScript[] | null;
   internal_db_url: string;
   is_include_timestamps: boolean;
   is_log_drain_enabled: boolean;
@@ -17,7 +31,7 @@ export type Database = ResourceBase & {
   postgres_password: string;
   postgres_user: string;
   public_port: number | null;
-  ssl_mode: string;
+  ssl_mode: SSLMode;
   started_at: string;
 };
 
