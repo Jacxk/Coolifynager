@@ -77,7 +77,11 @@ export default function UpdateService({
 
   return (
     <View className="flex-1 gap-2">
-      <H3>Service Stack</H3>
+      <InfoDialog
+        label={<H3>Service Stack</H3>}
+        title="Service Stack"
+        description="All the fields are read-only. To update the service stack, please use the Coolify UI."
+      />
       <View className="flex-row items-center gap-4">
         <InfoDialog
           label="Connect To Predefined Network"
@@ -111,7 +115,11 @@ export default function UpdateService({
           control={control}
           name="connect_to_docker_network"
           render={({ field: { onChange, value } }) => (
-            <Checkbox checked={value ?? false} onCheckedChange={onChange} />
+            <Checkbox
+              checked={value ?? false}
+              onCheckedChange={onChange}
+              disabled
+            />
           )}
         />
       </View>
@@ -134,7 +142,7 @@ export default function UpdateService({
               onChangeText={onChange}
               onBlur={onBlur}
               value={showDeployableCompose ? data.docker_compose : value}
-              editable={!disabled}
+              editable={false}
             />
           )}
         />

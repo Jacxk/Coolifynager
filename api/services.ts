@@ -112,10 +112,12 @@ export const updateService = (
   ...options,
   mutationKey: ["services.update", uuid],
   mutationFn: async (data: UpdateServiceBody) => {
-    return coolifyFetch<ResourceActionResponse>(`/services/${uuid}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: data,
-    });
+    throw new Error("Not implemented");
+    // TODO: Uncomment this when the API is updated
+    // return coolifyFetch<ResourceActionResponse>(`/services/${uuid}`, {
+    //   method: "PATCH",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: data,
+    // });
   },
 });
