@@ -26,18 +26,20 @@ export function ProjectCard({ project }: ProjectCardProps) {
     })
   );
 
+  if (!data) return null;
+
   return (
     <Link
       href={{
         pathname: "/main/projects/[uuid]",
-        params: { uuid: project.uuid, name: project.name },
+        params: { uuid: data.uuid, name: data.name },
       }}
     >
       <Card className="w-full max-w-sm relative">
         <CardHeader>
-          <CardTitle>{project.name ?? data?.name}</CardTitle>
+          <CardTitle>{project.name ?? data.name}</CardTitle>
           <CardDescription>
-            {project.description ?? data?.description}
+            {project.description ?? data.description}
           </CardDescription>
         </CardHeader>
         <Button

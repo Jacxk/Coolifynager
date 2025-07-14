@@ -11,11 +11,10 @@ import {
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
-import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
 
 const cards = [
@@ -43,7 +42,11 @@ export default function MainIndex() {
     })
   );
 
-  useRefreshOnFocus(queryClient.invalidateQueries);
+  useEffect(() => {
+    if (isFocused) {
+      queryClient.invalidateQueries();
+    }
+  }, [isFocused]);
 
   const onRefresh = async () => {
     setIsRefreshing(true);
