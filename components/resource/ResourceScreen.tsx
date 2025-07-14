@@ -256,7 +256,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
               isDeploying={isDeploying}
               stopDisabled={stopMutation.isPending}
               restartDisabled={restartMutation.isPending}
-              showDeploy={true}
+              showDeploy={isApplication}
             />
           }
         />
