@@ -133,55 +133,51 @@ export enum RedirectType {
   both = "both",
 }
 
-export type UpdateApplicationBody = Omit<
-  SingleApplication,
-  | "id"
-  | "uuid"
-  | "config_hash"
-  | "destination"
-  | "destination_id"
-  | "destination_type"
-  | "environment_id"
-  | "deleted_at"
-  | "status"
-  | "server_status"
-  | "created_at"
-  | "updated_at"
-  | "last_online_at"
-  | "fqdn"
-  | "additional_networks_count"
-  | "additional_servers"
-  | "additional_servers_count"
-  | "compose_parsing_version"
-  | "custom_healthcheck_found"
-  | "custom_network_aliases"
-  | "custom_nginx_configuration"
-  | "dockerfile_location"
-  | "dockerfile_target_build"
-  | "git_full_url"
-  | "is_http_basic_auth_enabled"
-  | "http_basic_auth_password"
-  | "http_basic_auth_username"
-  | "laravel_through_key"
-  | "preview_url_template"
-  | "private_key_id"
-  | "repository_project_id"
-  | "source_id"
-  | "source_type"
-  | "static_image"
-  | "swarm_placement_constraints"
-  | "swarm_replicas"
-> & {
-  project_uuid: string;
-  server_uuid: string;
-  environment_name: string;
-  github_app_uuid: string;
-  destination_uuid: string;
-  domains: string;
-  is_static: boolean;
-  instant_deploy: boolean;
-  use_build_server: boolean;
-  connect_to_docker_network: boolean;
-  build_pack: BuildPack;
-  redirect: RedirectType;
-};
+export type UpdateApplicationBody = Partial<
+  Omit<
+    SingleApplication,
+    | "id"
+    | "uuid"
+    | "config_hash"
+    | "destination"
+    | "destination_id"
+    | "destination_type"
+    | "environment_id"
+    | "deleted_at"
+    | "status"
+    | "server_status"
+    | "created_at"
+    | "updated_at"
+    | "last_online_at"
+    | "fqdn"
+    | "additional_networks_count"
+    | "additional_servers"
+    | "additional_servers_count"
+    | "compose_parsing_version"
+    | "custom_healthcheck_found"
+    | "dockerfile_location"
+    | "dockerfile_target_build"
+    | "git_full_url"
+    | "laravel_through_key"
+    | "preview_url_template"
+    | "private_key_id"
+    | "repository_project_id"
+    | "source_id"
+    | "source_type"
+    | "swarm_placement_constraints"
+    | "swarm_replicas"
+  > & {
+    project_uuid: string;
+    server_uuid: string;
+    environment_name: string;
+    github_app_uuid: string;
+    destination_uuid: string;
+    domains: string;
+    is_static: boolean;
+    instant_deploy: boolean;
+    use_build_server: boolean;
+    connect_to_docker_network: boolean;
+    build_pack: BuildPack;
+    redirect: RedirectType;
+  }
+>;

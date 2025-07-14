@@ -162,17 +162,13 @@ export const restartApplication = (
 export const updateApplication = (
   uuid: string,
   options?: Omit<
-    UseMutationOptions<
-      ResourceUpdateResponse,
-      Error,
-      Partial<UpdateApplicationBody>
-    >,
+    UseMutationOptions<ResourceUpdateResponse, Error, UpdateApplicationBody>,
     "mutationKey" | "mutationFn"
   >
 ) => ({
   ...options,
   mutationKey: ["applications.update", uuid],
-  mutationFn: async (body: Partial<UpdateApplicationBody>) => {
+  mutationFn: async (body: UpdateApplicationBody) => {
     return coolifyFetch<ResourceActionResponse>(`/applications/${uuid}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
