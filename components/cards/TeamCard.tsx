@@ -1,5 +1,8 @@
+import { getTeam } from "@/api/teams";
 import { Team } from "@/api/types/teams.types";
-import { useFavorites } from "@/hooks/useFavorites";
+import { FavoriteResource, useFavorites } from "@/hooks/useFavorites";
+import { useIsFocused } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { Star } from "../icons/Star";
 import { Button } from "../ui/button";
@@ -10,8 +13,19 @@ export type TeamCardProps = {
 };
 
 export function TeamCard({ team }: TeamCardProps) {
-  const { isFavorite, toggleFavorite } = useFavorites<typeof team>("id");
-  const favorite = { ...team, type: "team" };
+  const isFocused = useIsFocused();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favoriteData: FavoriteResource = {
+    uuid: team.id.toString(),
+    type: "team",
+  };
+
+  const { data } = useQuery(
+    getTeam(team.id.toString(), {
+      enabled: (!team.name || !team.description) && isFocused,
+    })
+  );
+
   return (
     <Link
       href={{
@@ -21,17 +35,21 @@ export function TeamCard({ team }: TeamCardProps) {
     >
       <Card className="w-full max-w-sm relative">
         <CardHeader>
-          <CardTitle>{team.name}</CardTitle>
-          <CardDescription>{team.description}</CardDescription>
+          <CardTitle>{team.name ?? data?.name}</CardTitle>
+          <CardDescription>
+            {team.description ?? data?.description}
+          </CardDescription>
         </CardHeader>
         <Button
           size="icon"
           variant="ghost"
           className="absolute top-4 right-4"
-          onPress={() => toggleFavorite(favorite)}
+          onPress={() => toggleFavorite(favoriteData)}
         >
           <Star
-            className={isFavorite(team) ? "text-yellow-500" : "text-foreground"}
+            className={
+              isFavorite(favoriteData) ? "text-yellow-500" : "text-foreground"
+            }
           />
         </Button>
       </Card>

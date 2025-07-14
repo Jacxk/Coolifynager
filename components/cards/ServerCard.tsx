@@ -1,5 +1,8 @@
+import { getServer } from "@/api/servers";
 import { Server } from "@/api/types/server.types";
-import { useFavorites } from "@/hooks/useFavorites";
+import { FavoriteResource, useFavorites } from "@/hooks/useFavorites";
+import { useIsFocused } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { Star } from "../icons/Star";
 import { Button } from "../ui/button";
@@ -10,8 +13,19 @@ type ServerCardProps = {
 };
 
 export function ServerCard({ server }: ServerCardProps) {
-  const { isFavorite, toggleFavorite } = useFavorites<typeof server>("uuid");
-  const favorite = { ...server, type: "server" };
+  const isFocused = useIsFocused();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favoriteData: FavoriteResource = {
+    uuid: server.uuid,
+    type: "server",
+  };
+
+  const { data } = useQuery(
+    getServer(server.uuid, {
+      enabled: (!server.name || !server.description) && isFocused,
+    })
+  );
+
   return (
     <Link
       href={{
@@ -21,18 +35,20 @@ export function ServerCard({ server }: ServerCardProps) {
     >
       <Card className="w-full max-w-sm relative">
         <CardHeader>
-          <CardTitle>{server.name}</CardTitle>
-          <CardDescription>{server.description}</CardDescription>
+          <CardTitle>{server.name ?? data?.name}</CardTitle>
+          <CardDescription>
+            {server.description ?? data?.description}
+          </CardDescription>
         </CardHeader>
         <Button
           size="icon"
           variant="ghost"
           className="absolute top-4 right-4"
-          onPress={() => toggleFavorite(favorite)}
+          onPress={() => toggleFavorite(favoriteData)}
         >
           <Star
             className={
-              isFavorite(server) ? "text-yellow-500" : "text-foreground"
+              isFavorite(favoriteData) ? "text-yellow-500" : "text-foreground"
             }
           />
         </Button>

@@ -13,7 +13,7 @@ import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useIsFocused } from "@react-navigation/native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { useState } from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
@@ -33,20 +33,21 @@ const cards = [
 
 export default function MainIndex() {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
   const isFocused = useIsFocused();
 
-  const { data: deployments, refetch } = useQuery(
+  const { data: deployments } = useQuery(
     getDeployments({
       refetchInterval: 20000,
       enabled: isFocused,
     })
   );
 
-  useRefreshOnFocus(refetch);
+  useRefreshOnFocus(queryClient.invalidateQueries);
 
   const onRefresh = async () => {
     setIsRefreshing(true);
-    refetch().finally(() => setIsRefreshing(false));
+    queryClient.invalidateQueries().finally(() => setIsRefreshing(false));
   };
 
   return (

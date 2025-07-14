@@ -1,11 +1,10 @@
 import { ApplicationCard } from "@/components/cards/ApplicationCard";
 import { ProjectCard } from "@/components/cards/ProjectCard";
-import { ServerCard } from "@/components/cards/ServerCard";
 import { ServiceCard } from "@/components/cards/ServiceCard";
-import { TeamCard } from "@/components/cards/TeamCard";
 import { Text } from "@/components/ui/text";
-import { useFavorites } from "@/hooks/useFavorites";
+import { FavoriteResource, useFavorites } from "@/hooks/useFavorites";
 import { View } from "react-native";
+import { DatabaseCard } from "./cards/DatabaseCard";
 import {
   Accordion,
   AccordionContent,
@@ -15,7 +14,7 @@ import {
 import { H2 } from "./ui/typography";
 
 export function FavoritesList() {
-  const { favorites } = useFavorites<any>("uuid");
+  const { favorites } = useFavorites();
 
   if (!favorites.length) {
     return (
@@ -40,6 +39,7 @@ export function FavoritesList() {
     { type: "server", label: "Servers" },
     { type: "team", label: "Teams" },
     { type: "service", label: "Services" },
+    { type: "database", label: "Databases" },
   ];
 
   const presentTypes = typeOrder.filter(({ type }) => grouped[type]);
@@ -56,7 +56,7 @@ export function FavoritesList() {
             </AccordionTrigger>
             <AccordionContent className="gap-2">
               {grouped[type].map((favorite) => {
-                switch (type) {
+                switch (type as FavoriteResource["type"]) {
                   case "application":
                     return (
                       <ApplicationCard key={favorite.uuid} {...favorite} />
@@ -65,14 +65,10 @@ export function FavoritesList() {
                     return (
                       <ProjectCard key={favorite.uuid} project={favorite} />
                     );
-                  case "server":
-                    return <ServerCard key={favorite.uuid} server={favorite} />;
-                  case "team":
-                    return <TeamCard key={favorite.id} team={favorite} />;
                   case "service":
-                    return (
-                      <ServiceCard key={favorite.uuid} service={favorite} />
-                    );
+                    return <ServiceCard key={favorite.uuid} {...favorite} />;
+                  case "database":
+                    return <DatabaseCard key={favorite.uuid} {...favorite} />;
                   default:
                     return null;
                 }

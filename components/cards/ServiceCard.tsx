@@ -1,4 +1,7 @@
-import { useFavorites } from "@/hooks/useFavorites";
+import { getService } from "@/api/services";
+import { FavoriteResource, useFavorites } from "@/hooks/useFavorites";
+import { useIsFocused } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { Star } from "../icons/Star";
 import { Button } from "../ui/button";
@@ -17,17 +20,19 @@ export function ServiceCard({
   name,
   description,
   status,
-  service_type,
 }: ServiceCardProps) {
-  const { isFavorite, toggleFavorite } = useFavorites<ServiceCardProps>("uuid");
-  const favorite = {
+  const isFocused = useIsFocused();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favoriteData: FavoriteResource = {
     uuid,
-    name,
-    description,
-    status,
-    service_type,
     type: "service",
   };
+
+  const { data } = useQuery(
+    getService(uuid, {
+      enabled: (!name || !description || !status) && isFocused,
+    })
+  );
 
   return (
     <Link
@@ -38,18 +43,20 @@ export function ServiceCard({
     >
       <Card className="w-full max-w-sm relative">
         <CardHeader>
-          <CardTitle>{name}</CardTitle>
-          <CardDescription>{status || description}</CardDescription>
+          <CardTitle>{name ?? data?.name}</CardTitle>
+          <CardDescription>
+            {status ?? description ?? data?.description ?? data?.status}
+          </CardDescription>
         </CardHeader>
         <Button
           size="icon"
           variant="ghost"
           className="absolute top-4 right-4"
-          onPress={() => toggleFavorite(favorite)}
+          onPress={() => toggleFavorite(favoriteData)}
         >
           <Star
             className={
-              isFavorite(favorite) ? "text-yellow-500" : "text-foreground"
+              isFavorite(favoriteData) ? "text-yellow-500" : "text-foreground"
             }
           />
         </Button>
