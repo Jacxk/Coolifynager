@@ -1,5 +1,7 @@
+import { Plus } from "@/components/icons/Plus";
+import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/constants/AppDetails";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 
 export default function MainLayout() {
   return (
@@ -14,10 +16,36 @@ export default function MainLayout() {
       />
       <Stack.Screen
         name="projects/[uuid]"
-        options={({ route }) => ({
-          title: (route.params as { name: string }).name,
-          headerShown: true,
-        })}
+        options={({ route }) => {
+          const routeParams = route.params as {
+            environments: string[];
+            name: string;
+          };
+          return {
+            title: routeParams.name,
+            headerShown: true,
+            headerRight: () => (
+              <Button
+                variant="ghost"
+                size="icon"
+                onPress={() =>
+                  router.push({
+                    pathname: "/main/resources/create",
+                    params: {
+                      environments: routeParams.environments,
+                    },
+                  })
+                }
+              >
+                <Plus />
+              </Button>
+            ),
+          };
+        }}
+      />
+      <Stack.Screen
+        name="resources/create"
+        options={{ title: "New Resource", headerShown: true }}
       />
       <Stack.Screen
         name="servers/index"

@@ -1,4 +1,4 @@
-import { ResourceBase } from "./resources.types";
+import { CoolifyResourceMetadata, ResourceBase } from "./resources.types";
 
 export enum SSLMode {
   DISABLED = "disabled",
@@ -77,3 +77,68 @@ export type UpdateDatabaseBody = Partial<{
   mysql_database: string;
   mysql_conf: string;
 }>;
+
+export enum CoolifyDatabases {
+  POSTGRESQL = "postgresql",
+  MYSQL = "mysql",
+  MARIADB = "mariadb",
+  MONGODB = "mongodb",
+  REDIS = "redis",
+  DRAGONFLY = "dragonfly",
+  KEYDB = "keydb",
+  CLICKHOUSE = "clickhouse",
+}
+
+export const CoolifyDatabaseMetadataMap: Record<
+  CoolifyDatabases,
+  CoolifyResourceMetadata
+> = {
+  [CoolifyDatabases.POSTGRESQL]: {
+    name: "PostgreSQL",
+    description:
+      "A powerful, open source object-relational database system with a strong reputation for reliability, feature robustness, and performance.",
+    docs: "https://coolify.io/docs/databases/postgresql",
+  },
+  [CoolifyDatabases.MYSQL]: {
+    name: "MySQL",
+    description:
+      "The world's most popular open source database, known for its reliability and ease of use.",
+    docs: "https://coolify.io/docs/databases/mysql",
+  },
+  [CoolifyDatabases.MARIADB]: {
+    name: "MariaDB",
+    description:
+      "A community-developed, commercially supported fork of MySQL, intended to remain free and open source.",
+    docs: "https://coolify.io/docs/databases/mariadb",
+  },
+  [CoolifyDatabases.MONGODB]: {
+    name: "MongoDB",
+    description:
+      "A general purpose, document-based, distributed database built for modern application developers and for the cloud era.",
+    docs: "https://coolify.io/docs/databases/mongodb",
+  },
+  [CoolifyDatabases.REDIS]: {
+    name: "Redis",
+    description:
+      "An in-memory data store used as a database, cache, vector database, document database, streaming engine, and message broker.",
+    docs: "https://coolify.io/docs/databases/redis",
+  },
+  [CoolifyDatabases.DRAGONFLY]: {
+    name: "DragonFly",
+    description:
+      "A modern, multi-threaded, drop-in Redis replacement designed for high performance and scalability.",
+    docs: "https://coolify.io/docs/databases/dragonfly",
+  },
+  [CoolifyDatabases.KEYDB]: {
+    name: "KeyDB",
+    description:
+      "A high-performance fork of Redis, focusing on multithreading, memory efficiency, and high availability.",
+    docs: "https://coolify.io/docs/databases/keydb",
+  },
+  [CoolifyDatabases.CLICKHOUSE]: {
+    name: "Clickhouse",
+    description:
+      "A fast open-source column-oriented database management system for online analytical processing (OLAP).",
+    docs: "https://coolify.io/docs/databases/clickhouse",
+  },
+};

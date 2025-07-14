@@ -32,7 +32,13 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <Link
       href={{
         pathname: "/main/projects/[uuid]",
-        params: { uuid: data.uuid, name: data.name },
+        params: {
+          uuid: data.uuid,
+          name: data.name,
+          environments: data.environments.map(
+            (env) => `${env.uuid}:${env.name}`
+          ),
+        },
       }}
     >
       <Card className="w-full max-w-sm relative">

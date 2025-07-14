@@ -123,3 +123,11 @@ export type ResourceUpdateResponse =
   | {
       uuid: string;
     };
+
+export type CoolifyResourceMetadata = {
+  name: string;
+  description: string;
+  docs: string;
+};
+
+export type ResourceType = "application" | "database" | "service";
