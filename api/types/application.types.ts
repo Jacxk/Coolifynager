@@ -192,42 +192,45 @@ export enum CoolifyApplications {
   DOCKER_IMAGE = "docker-image",
 }
 
-export const CoolifyApplicationMetadataMap: Record<
-  CoolifyApplications,
-  CoolifyResourceMetadata
-> = {
-  [CoolifyApplications.PUBLIC_REPOSITORY]: {
+export const CoolifyApplicationMetadataList: CoolifyResourceMetadata[] = [
+  {
     name: "Public Repository",
     description:
       "You can deploy any kind of public repositories from the supported git providers.",
     docs: "https://coolify.io/docs/applications/",
+    type: CoolifyApplications.PUBLIC_REPOSITORY,
   },
-  [CoolifyApplications.PRIVATE_REPOSITORY_GITHUB]: {
+  {
     name: "Private Repository (with GitHub App)",
     description:
       "You can deploy public & private repositories through your GitHub Apps.",
     docs: "https://coolify.io/docs/applications/",
+    type: CoolifyApplications.PRIVATE_REPOSITORY_GITHUB,
   },
-  [CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY]: {
+  {
     name: "Private Repository (with Deploy Key)",
     description: "You can deploy private repositories with a deploy key.",
     docs: "https://coolify.io/docs/applications/",
+    type: CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY,
   },
-  [CoolifyApplications.DOCKERFILE]: {
+  {
     name: "Dockerfile",
     description: "You can deploy a simple Dockerfile, without Git.",
     docs: "https://coolify.io/docs/applications/#dockerfile",
+    type: CoolifyApplications.DOCKERFILE,
   },
-  [CoolifyApplications.DOCKER_COMPOSE_EMPTY]: {
+  {
     name: "Docker Compose Empty",
     description:
       "You can deploy complex application easily with Docker Compose, without Git.",
     docs: "https://coolify.io/docs/applications/#docker-compose",
+    type: CoolifyApplications.DOCKER_COMPOSE_EMPTY,
   },
-  [CoolifyApplications.DOCKER_IMAGE]: {
+  {
     name: "Docker Image",
     description:
       "You can deploy an existing Docker Image from any Registry, without Git.",
     docs: "https://coolify.io/docs/applications/#docker-image",
+    type: CoolifyApplications.DOCKER_IMAGE,
   },
-};
+];

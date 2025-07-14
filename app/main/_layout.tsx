@@ -20,6 +20,7 @@ export default function MainLayout() {
           const routeParams = route.params as {
             environments: string[];
             name: string;
+            uuid: string;
           };
           return {
             title: routeParams.name,
@@ -33,6 +34,7 @@ export default function MainLayout() {
                     pathname: "/main/resources/create",
                     params: {
                       environments: routeParams.environments,
+                      project_uuid: routeParams.uuid,
                     },
                   })
                 }

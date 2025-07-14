@@ -1,7 +1,11 @@
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
-import { ResourceActionResponse } from "./types/resources.types";
 import {
+  ResourceActionResponse,
+  ResourceCreateResponse,
+} from "./types/resources.types";
+import {
+  CreateServiceBody,
   Service,
   SingleService,
   UpdateServiceBody,
@@ -119,5 +123,21 @@ export const updateService = (
     //   headers: { "Content-Type": "application/json" },
     //   body: data,
     // });
+  },
+});
+
+export const createService = (
+  options?: Omit<
+    UseMutationOptions<ResourceCreateResponse, Error, CreateServiceBody>,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
+  mutationKey: ["services.create"],
+  mutationFn: async (data: CreateServiceBody) => {
+    return coolifyFetch<ResourceCreateResponse>(`/services`, {
+      method: "POST",
+      body: data,
+    });
   },
 });

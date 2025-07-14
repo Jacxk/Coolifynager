@@ -1,4 +1,7 @@
+import { CoolifyApplications } from "./application.types";
+import { CoolifyDatabases } from "./database.types";
 import { SingleServer } from "./server.types";
+import { CoolifyServices } from "./services.types";
 
 export type ResourceDestination = {
   id: number;
@@ -111,6 +114,11 @@ export type ResourceActionResponse = {
   message: string;
 };
 
+export type ResourceCreateResponse = {
+  uuid: string;
+  domains: string[];
+};
+
 export type ResourceHttpError = {
   message: string;
   errors?: {
@@ -128,6 +136,7 @@ export type CoolifyResourceMetadata = {
   name: string;
   description: string;
   docs: string;
+  type: CoolifyApplications | CoolifyDatabases | CoolifyServices;
 };
 
 export type ResourceType = "application" | "database" | "service";

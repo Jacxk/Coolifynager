@@ -6,18 +6,39 @@ import { ServiceCard } from "@/components/cards/ServiceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
+import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { SectionList } from "react-native";
+import { useState } from "react";
+import { RefreshControl, SectionList } from "react-native";
 
 export default function Project() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
-  const { data: project, isPending: projectPending } = useQuery(
-    getProject(uuid)
-  );
-  const { data: resources, isPending: resourcesPending } = useQuery(
-    getResources()
-  );
+  const {
+    data: project,
+    isPending: projectPending,
+    refetch: refetchProject,
+  } = useQuery(getProject(uuid));
+  const {
+    data: resources,
+    isPending: resourcesPending,
+    refetch: refetchResources,
+  } = useQuery(getResources());
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  useRefreshOnFocus(async () => {
+    console.log("test");
+    await refetchProject();
+    await refetchResources();
+  });
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetchProject();
+    await refetchResources();
+    setRefreshing(false);
+  };
 
   if (projectPending || resourcesPending) {
     return <LoadingScreen />;
@@ -48,6 +69,9 @@ export default function Project() {
 
   return (
     <SectionList
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
       className="flex-1 p-4"
       contentContainerClassName="gap-2"
       sections={sections}
