@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { Redirect, router, useNavigation } from "expo-router";
+import { Info } from "lucide-react-native";
 import { useLayoutEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -23,6 +24,7 @@ import { DomainsSelect } from "../DomainsSelect";
 import { HealthDialog } from "../HealthDialog";
 import { Edit } from "../icons/Edit";
 import LoadingScreen from "../LoadingScreen";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Text } from "../ui/text";
@@ -280,6 +282,8 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
 
   if (!data) return <Redirect href="/404" />;
 
+  const serverStatus = (data.destination ?? data).server.proxy.status;
+
   return (
     <ScrollView
       refreshControl={
@@ -295,6 +299,14 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
       contentInsetAdjustmentBehavior="never"
     >
       <View>
+        {serverStatus !== "running" && (
+          <Alert icon={Info} variant="destructive" className="mb-4">
+            <AlertTitle>Warning</AlertTitle>
+            <AlertDescription>
+              The server this resource is running on is not responding.
+            </AlertDescription>
+          </Alert>
+        )}
         <View className="flex flex-row justify-between items-center">
           {isEditDetails ? (
             <View className="w-5/6">
