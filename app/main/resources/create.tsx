@@ -1,3 +1,4 @@
+import { CoolifyApplicationMetadataMap } from "@/api/types/application.types";
 import { CoolifyDatabaseMetadataMap } from "@/api/types/database.types";
 import {
   CoolifyResourceMetadata,
@@ -101,7 +102,9 @@ export default function CreateResource() {
   });
 
   const environmentsArray = environments.split(",");
-  const applications: CoolifyResourceMetadata[] = [];
+  const applications: CoolifyResourceMetadata[] = Object.values(
+    CoolifyApplicationMetadataMap
+  );
   const databases: CoolifyResourceMetadata[] = Object.values(
     CoolifyDatabaseMetadataMap
   );
@@ -163,7 +166,7 @@ export default function CreateResource() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Create resource{" "}
+              Create resource from{" "}
               <Text className="text-xl font-bold">{resourceName}</Text> on{" "}
               <Text className="text-xl font-bold">
                 {selectedEnvironment?.label}

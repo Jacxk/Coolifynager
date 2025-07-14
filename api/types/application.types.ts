@@ -1,4 +1,5 @@
 import {
+  CoolifyResourceMetadata,
   ResourceActionResponse,
   ResourceBase,
   ResourceUpdateResponse,
@@ -181,3 +182,52 @@ export type UpdateApplicationBody = Partial<
     redirect: RedirectType;
   }
 >;
+
+export enum CoolifyApplications {
+  PUBLIC_REPOSITORY = "public-repository",
+  PRIVATE_REPOSITORY_GITHUB = "private-repository-github",
+  PRIVATE_REPOSITORY_DEPLOY_KEY = "private-repository-deploy-key",
+  DOCKERFILE = "dockerfile",
+  DOCKER_COMPOSE_EMPTY = "docker-compose-empty",
+  DOCKER_IMAGE = "docker-image",
+}
+
+export const CoolifyApplicationMetadataMap: Record<
+  CoolifyApplications,
+  CoolifyResourceMetadata
+> = {
+  [CoolifyApplications.PUBLIC_REPOSITORY]: {
+    name: "Public Repository",
+    description:
+      "You can deploy any kind of public repositories from the supported git providers.",
+    docs: "https://coolify.io/docs/applications/",
+  },
+  [CoolifyApplications.PRIVATE_REPOSITORY_GITHUB]: {
+    name: "Private Repository (with GitHub App)",
+    description:
+      "You can deploy public & private repositories through your GitHub Apps.",
+    docs: "https://coolify.io/docs/applications/",
+  },
+  [CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY]: {
+    name: "Private Repository (with Deploy Key)",
+    description: "You can deploy private repositories with a deploy key.",
+    docs: "https://coolify.io/docs/applications/",
+  },
+  [CoolifyApplications.DOCKERFILE]: {
+    name: "Dockerfile",
+    description: "You can deploy a simple Dockerfile, without Git.",
+    docs: "https://coolify.io/docs/applications/#dockerfile",
+  },
+  [CoolifyApplications.DOCKER_COMPOSE_EMPTY]: {
+    name: "Docker Compose Empty",
+    description:
+      "You can deploy complex application easily with Docker Compose, without Git.",
+    docs: "https://coolify.io/docs/applications/#docker-compose",
+  },
+  [CoolifyApplications.DOCKER_IMAGE]: {
+    name: "Docker Image",
+    description:
+      "You can deploy an existing Docker Image from any Registry, without Git.",
+    docs: "https://coolify.io/docs/applications/#docker-image",
+  },
+};
