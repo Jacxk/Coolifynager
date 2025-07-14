@@ -1,0 +1,80 @@
+import { getServers } from "@/api/servers";
+import useStorage from "@/hooks/useStorage";
+import { useQuery } from "@tanstack/react-query";
+import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Text } from "./ui/text";
+
+type ServerSelectProps = {
+  displayLabel?: boolean;
+  label?: string;
+};
+
+export default function ServerSelect({
+  displayLabel = true,
+  label = "Server",
+}: ServerSelectProps) {
+  const insets = useSafeAreaInsets();
+  const { data: servers, refetch } = useQuery(getServers());
+  const { server, setServer } = useStorage({});
+
+  if (!servers || !server) return null;
+
+  const contentInsets = {
+    top: insets.top,
+    bottom: insets.bottom,
+    left: 12,
+    right: 12,
+  };
+
+  const defaultServer = {
+    label: server.name,
+    value: server.uuid,
+  };
+
+  return (
+    <View className="gap-2">
+      {displayLabel && (
+        <Text className="text-muted-foreground" nativeID="server-label">
+          {label}
+        </Text>
+      )}
+      <Select
+        onValueChange={(option) => {
+          setServer({
+            name: option?.label ?? "",
+            uuid: option?.value ?? "",
+          });
+        }}
+        defaultValue={defaultServer}
+        onOpenChange={(open) => {
+          if (open) refetch();
+        }}
+      >
+        <SelectTrigger nativeID="server-select">
+          <SelectValue placeholder="Select a server" />
+        </SelectTrigger>
+        <SelectContent insets={contentInsets}>
+          <SelectLabel>Select Server</SelectLabel>
+          {servers?.map((server) => (
+            <SelectItem
+              key={server.uuid}
+              value={server.uuid}
+              label={server.name}
+            >
+              {server.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </View>
+  );
+}

@@ -28,7 +28,6 @@ export default function Project() {
   const [refreshing, setRefreshing] = useState(false);
 
   useRefreshOnFocus(async () => {
-    console.log("test");
     await refetchProject();
     await refetchResources();
   });

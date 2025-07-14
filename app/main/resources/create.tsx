@@ -1,4 +1,3 @@
-import { getServers } from "@/api/servers";
 import { createService } from "@/api/services";
 import { CoolifyApplicationMetadataList } from "@/api/types/application.types";
 import { CoolifyDatabaseMetadataList } from "@/api/types/database.types";
@@ -11,7 +10,9 @@ import {
   CoolifyServiceMetadataList,
   CoolifyServices,
 } from "@/api/types/services.types";
+import EnvironmentSelect from "@/components/EnvironmentSelect";
 import { BookOpenText } from "@/components/icons/BookOpenText";
+import ServerSelect from "@/components/ServerSelect";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,23 +30,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Option } from "@rn-primitives/select";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import useStorage from "@/hooks/useStorage";
+import { useMutation } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pressable, SectionList, View } from "react-native";
 import { toast } from "sonner-native";
 
@@ -85,24 +76,23 @@ function ResourceCard({
 export default function CreateResource() {
   const { environments, project_uuid } =
     useLocalSearchParams<LocalSearchParams>();
+  const environmentsArray = environments.split(",");
+
+  const { server } = useStorage({});
+
+  const [selectedEnvironment, setSelectedEnvironment] = useState(() => {
+    const [uuid, name] = environmentsArray[0].split(":");
+    return { uuid, name };
+  });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedResource, setSelectedResource] =
     useState<CoolifyResourceMetadata | null>(null);
-  const [selectedServer, setSelectedServer] = useState<Option>();
-  const [selectedEnvironment, setSelectedEnvironment] = useState<Option>(() => {
-    const environmentsArray = environments.split(",");
-    const [uuid, name] = environmentsArray[0].split(":");
-    return {
-      label: name,
-      value: uuid,
-    };
-  });
 
-  const { data: servers } = useQuery(getServers());
   const { mutateAsync: createServiceMutation } = useMutation(createService());
 
-  const environmentsArray = environments.split(",");
+  if (!server || !selectedEnvironment) return null;
+
   const applications: CoolifyResourceMetadata[] =
     CoolifyApplicationMetadataList;
   const databases: CoolifyResourceMetadata[] = CoolifyDatabaseMetadataList;
@@ -132,12 +122,13 @@ export default function CreateResource() {
 
   const handleCreateResource = () => {
     if (!selectedResource) return;
+
     router.back();
     toast.promise(
       createServiceMutation({
         type: selectedResource.type as CoolifyServices,
-        environment_uuid: selectedEnvironment?.value!,
-        server_uuid: selectedServer?.value!,
+        environment_uuid: selectedEnvironment.uuid,
+        server_uuid: server.uuid,
         project_uuid,
       }),
       {
@@ -152,7 +143,6 @@ export default function CreateResource() {
           return "Resource created successfully";
         },
         error: (error) => {
-          console.error(error);
           router.navigate({
             pathname: "/main/resources/create",
             params: {
@@ -168,25 +158,10 @@ export default function CreateResource() {
     );
   };
 
-  useEffect(() => {
-    if (!selectedServer?.label || !selectedServer?.value) return;
-    AsyncStorage.setItem(
-      "selectedServer",
-      JSON.stringify({
-        name: selectedServer?.label,
-        uuid: selectedServer?.value,
-      })
-    );
-  }, [selectedServer]);
-
-  useEffect(() => {
-    AsyncStorage.getItem("selectedServer").then((value) => {
-      if (value) {
-        const server = JSON.parse(value);
-        setSelectedServer({ label: server.name, value: server.uuid });
-      }
-    });
-  }, []);
+  const defaultEnvironment = {
+    label: selectedEnvironment.name,
+    value: selectedEnvironment.uuid,
+  };
 
   return (
     <>
@@ -225,7 +200,7 @@ export default function CreateResource() {
               </Text>{" "}
               on{" "}
               <Text className="text-xl font-bold">
-                {selectedEnvironment?.label}
+                {selectedEnvironment.name}
               </Text>
               ?
             </AlertDialogTitle>
@@ -235,52 +210,16 @@ export default function CreateResource() {
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <View>
-            <Label nativeID="environment-label">Environment</Label>
-            <Select
-              onValueChange={setSelectedEnvironment}
-              defaultValue={selectedEnvironment}
-            >
-              <SelectTrigger nativeID="environment-select">
-                <SelectValue placeholder="Select an environment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectLabel>Select Environment</SelectLabel>
-                {environmentsArray.map((environment) => {
-                  const [uuid, name] = environment.split(":");
-                  return (
-                    <SelectItem key={uuid} value={uuid} label={name}>
-                      {name}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </View>
+          <EnvironmentSelect
+            environments={environmentsArray.map((env) => ({
+              uuid: env.split(":")[0],
+              name: env.split(":")[1],
+            }))}
+            defaultEnvironment={selectedEnvironment}
+            onSelect={setSelectedEnvironment}
+          />
 
-          <View>
-            <Label nativeID="server-label">Environment</Label>
-            <Select
-              onValueChange={setSelectedServer}
-              defaultValue={selectedServer}
-            >
-              <SelectTrigger nativeID="server-select">
-                <SelectValue placeholder="Select a server" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectLabel>Select Server</SelectLabel>
-                {servers?.map((server) => (
-                  <SelectItem
-                    key={server.uuid}
-                    value={server.uuid}
-                    label={server.name}
-                  >
-                    {server.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </View>
+          <ServerSelect />
 
           <AlertDialogFooter className="flex flex-row gap-2 self-end">
             <AlertDialogCancel>
