@@ -3,9 +3,6 @@ import { DeploymentCard } from "@/components/cards/DeploymentCard";
 import { FavoritesList } from "@/components/FavoritesList";
 import { Layers } from "@/components/icons/Layers";
 import { PackageOpen } from "@/components/icons/PackageOpen";
-import { Server } from "@/components/icons/Server";
-import { Users } from "@/components/icons/Users";
-import { SafeView } from "@/components/SafeView";
 import {
   Card,
   CardDescription,
@@ -13,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { H1, H2 } from "@/components/ui/typography";
+import { H2 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
@@ -31,16 +28,6 @@ const cards = [
     label: "Applications",
     route: "/main/applications" as const,
     icon: <PackageOpen />,
-  },
-  {
-    label: "Servers",
-    route: "/main/servers" as const,
-    icon: <Server />,
-  },
-  {
-    label: "Teams",
-    route: "/main/teams" as const,
-    icon: <Users />,
   },
 ];
 
@@ -64,45 +51,43 @@ export default function MainIndex() {
 
   return (
     <ScrollView
+      contentContainerClassName="gap-10 p-4"
       refreshControl={
         <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
       }
     >
-      <SafeView>
-        <H1>Main Dashboard</H1>
-        <View className="flex flex-row flex-wrap">
-          {cards.map((card) => (
-            <Link key={card.label} href={card.route} className="flex w-1/2 p-2">
-              <Card className="w-full">
-                <CardHeader className="flex items-center justify-center">
-                  <CardTitle>{card.icon}</CardTitle>
-                  <CardDescription className="text-lg font-semibold">
-                    {card.label}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
+      <View className="flex flex-row flex-wrap">
+        {cards.map((card) => (
+          <Link key={card.label} href={card.route} className="flex w-1/2 p-2">
+            <Card className="w-full">
+              <CardHeader className="flex items-center justify-center">
+                <CardTitle>{card.icon}</CardTitle>
+                <CardDescription className="text-lg font-semibold">
+                  {card.label}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+        ))}
+      </View>
+
+      {/* TODO: fix deployment links, api is not returning the application uuid */}
+      {deployments && deployments.length > 0 && (
+        <View className="flex gap-4">
+          <H2>Deployments</H2>
+          {deployments.map((deployment) => (
+            <DeploymentCard
+              key={deployment.deployment_uuid}
+              deployment={deployment}
+            />
           ))}
         </View>
+      )}
 
-        {/* TODO: fix deployment links, api is not returning the application uuid */}
-        {deployments && deployments.length > 0 && (
-          <View className="flex gap-4">
-            <H2>Deployments</H2>
-            {deployments.map((deployment) => (
-              <DeploymentCard
-                key={deployment.deployment_uuid}
-                deployment={deployment}
-              />
-            ))}
-          </View>
-        )}
-
-        <FavoritesList />
-        <Link href="/setup/api_token">
-          <Text>Change api token</Text>
-        </Link>
-      </SafeView>
+      <FavoritesList />
+      <Link href="/setup/api_token">
+        <Text>Change api token</Text>
+      </Link>
     </ScrollView>
   );
 }
