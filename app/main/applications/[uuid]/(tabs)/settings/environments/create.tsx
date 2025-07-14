@@ -7,7 +7,7 @@ import { Text } from "@/components/ui/text";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router, useGlobalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
-import { Keyboard, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { toast } from "sonner-native";
 
 export default function ApplicationEnvironmentsCreate() {
@@ -47,7 +47,7 @@ export default function ApplicationEnvironmentsCreate() {
 
   return (
     <ScrollView
-      onScrollBeginDrag={Keyboard.dismiss}
+      keyboardDismissMode="interactive"
       keyboardShouldPersistTaps="always"
     >
       <SafeView bottomInset={false} className="gap-4">

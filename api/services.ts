@@ -1,7 +1,11 @@
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import { ResourceActionResponse } from "./types/resources.types";
-import { Service, SingleService } from "./types/services.types";
+import {
+  Service,
+  SingleService,
+  UpdateServiceBody,
+} from "./types/services.types";
 
 type QueryKey = string | number;
 
@@ -92,4 +96,28 @@ export const getServiceLogs = (
   queryKey: ["services.logs", uuid, lines],
   queryFn: () =>
     coolifyFetch<ServiceLogs>(`/services/${uuid}/logs?lines=${lines}`),
+});
+
+export const updateService = (
+  uuid: string,
+  options?: Omit<
+    UseMutationOptions<
+      ResourceActionResponse,
+      Error,
+      Partial<UpdateServiceBody>
+    >,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
+  mutationKey: ["services.update", uuid],
+  mutationFn: async (data: UpdateServiceBody) => {
+    throw new Error("Not implemented");
+    // TODO: Uncomment this when the API is updated
+    // return coolifyFetch<ResourceActionResponse>(`/services/${uuid}`, {
+    //   method: "PATCH",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: data,
+    // });
+  },
 });

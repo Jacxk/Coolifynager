@@ -1,13 +1,6 @@
-import Info from "@/components/icons/Info";
+import InfoDialog from "@/components/InfoDialog";
 import SetupScreenContainer from "@/components/SetupScreenContainer";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { APP_NAME } from "@/constants/AppDetails";
@@ -63,52 +56,40 @@ export default function ApiTokenStep() {
     <SetupScreenContainer>
       <View className="flex-row items-center mb-1">
         <Text>Enter your Coolify API Token</Text>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Info
-              className="text-yellow-500 ml-2"
-              size={18}
-              accessibilityLabel="API Token Info"
-            />
-          </DialogTrigger>
-          <DialogContent>
-            <DialogTitle>How to generate an API Token</DialogTitle>
-            <DialogDescription>
-              <Text className="text-muted-foreground">
-                To connect {APP_NAME} to your Coolify instance, you need to
-                generate an API token:
+        <InfoDialog
+          title="How to generate an API Token"
+          description={`To connect ${APP_NAME} to your Coolify instance, you need to generate an API token:`}
+          triggerAccessibilityLabel="API Token Info"
+        >
+          <View className="pl-2">
+            <Text className="text-muted-foreground">
+              1. Open your{" "}
+              <Text
+                className="underline font-semibold text-yellow-500"
+                onPress={openBrowser}
+              >
+                Coolify dashboard
               </Text>
-            </DialogDescription>
-            <View className="pl-2">
-              <Text className="text-muted-foreground">
-                1. Open your{" "}
-                <Text
-                  className="underline font-semibold text-yellow-500"
-                  onPress={openBrowser}
-                >
-                  Coolify dashboard
-                </Text>
-                .
+              .
+            </Text>
+            <Text className="text-muted-foreground">
+              2. Go to{" "}
+              <Text className="font-semibold text-yellow-500">
+                Keys & Tokens {">"} API tokens
               </Text>
-              <Text className="text-muted-foreground">
-                2. Go to{" "}
-                <Text className="font-semibold text-yellow-500">
-                  Keys & Tokens {">"} API tokens
-                </Text>
-                .
-              </Text>
-              <Text className="text-muted-foreground">
-                3. Create a new token with the following permissions:
-              </Text>
-              <View className="pl-4">
-                <Text className="text-muted-foreground">• read</Text>
-                <Text className="text-muted-foreground">• read:sensitive</Text>
-                <Text className="text-muted-foreground">• write</Text>
-                <Text className="text-muted-foreground">• deploy</Text>
-              </View>
+              .
+            </Text>
+            <Text className="text-muted-foreground">
+              3. Create a new token with the following permissions:
+            </Text>
+            <View className="pl-4">
+              <Text className="text-muted-foreground">• read</Text>
+              <Text className="text-muted-foreground">• read:sensitive</Text>
+              <Text className="text-muted-foreground">• write</Text>
+              <Text className="text-muted-foreground">• deploy</Text>
             </View>
-          </DialogContent>
-        </Dialog>
+          </View>
+        </InfoDialog>
       </View>
       <Input
         autoCapitalize="none"

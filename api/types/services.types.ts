@@ -35,3 +35,17 @@ export type SingleService = ServiceBase & {
   laravel_through_key: number;
   server: SingleServer;
 };
+
+export type UpdateServiceBody = Partial<{
+  name: string;
+  description: string | null;
+  project_uuid: string;
+  environment_name: string;
+  environment_uuid: string;
+  server_uuid: string;
+  destination_uuid: string;
+  instant_deploy: boolean;
+  connect_to_docker_network: boolean;
+  docker_compose_raw: string;
+  docker_compose: string;
+}>;

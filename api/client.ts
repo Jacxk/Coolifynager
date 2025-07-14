@@ -33,6 +33,11 @@ export async function coolifyFetch<T>(
 
   const response = await fetch(url, fetchOptions);
 
+  if (response.status >= 400) {
+    const error = await response.json();
+    throw error;
+  }
+
   if (isText) {
     return (await response.text()) as T;
   }

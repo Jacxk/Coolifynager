@@ -1,7 +1,7 @@
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import React, { useRef } from "react";
-import { Keyboard, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import LoadingScreen from "./LoadingScreen";
 
 type LogObject = {
@@ -66,7 +66,7 @@ export default function LogsViewer({
         scrollViewRef.current?.scrollToEnd({ animated: false });
       }}
       className="flex-1 p-4 rounded-md border border-input"
-      onScrollBeginDrag={Keyboard.dismiss}
+      keyboardDismissMode="interactive"
     >
       {isLoading ? (
         <LoadingScreen className="pt-4" />
