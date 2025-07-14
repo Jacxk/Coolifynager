@@ -111,7 +111,7 @@ export const updateService = (
 ) => ({
   ...options,
   mutationKey: ["services.update", uuid],
-  mutationFn: async (data: Partial<UpdateServiceBody>) => {
+  mutationFn: async (data: UpdateServiceBody) => {
     return coolifyFetch<ResourceActionResponse>(`/services/${uuid}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
