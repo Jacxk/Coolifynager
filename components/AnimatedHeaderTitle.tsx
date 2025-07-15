@@ -1,7 +1,7 @@
 import { Text } from "@/components/ui/text";
 import { useTheme } from "@react-navigation/native";
 import { useEffect } from "react";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -53,19 +53,29 @@ export const AnimatedHeader = ({
 
   const containerShadowStyle = useAnimatedStyle(() => {
     const shadowOpacity = interpolate(borderProgress.value, [0, 1], [0, 0.15]);
-    return {
-      shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity,
-      shadowRadius: 6,
-      elevation: interpolate(borderProgress.value, [0, 1], [0, 6]),
+    const baseStyle = {
       backgroundColor: colors.background,
     };
+
+    if (Platform.OS === "ios") {
+      return {
+        ...baseStyle,
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity,
+        shadowRadius: 6,
+      };
+    } else {
+      return {
+        ...baseStyle,
+        elevation: interpolate(borderProgress.value, [0, 1], [0, 6]),
+      };
+    }
   });
 
   return (
     <Animated.View
-      className="flex flex-row justify-between items-center p-4 h-26 mt-4"
+      className="flex flex-row justify-between items-center p-4 h-26"
       style={[{ paddingTop: insets.top }, containerShadowStyle]}
     >
       <View className="">{leftComponent}</View>
