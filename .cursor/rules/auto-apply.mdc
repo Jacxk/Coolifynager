@@ -1,0 +1,32 @@
+---
+alwaysApply: true
+---
+
+## Default Behavior: Apply Changes Unless Told Otherwise
+
+When I describe a code update, fix, addition, refactor, or improvement — assume that I want you to **go ahead and make the change automatically**.
+
+You do **not** need to ask for confirmation or approval unless I explicitly say something like:
+
+- "Don't add this"
+- "Just an example"
+- "This is for reference only"
+- "Do not apply this"
+- "I'm thinking out loud"
+
+### Always apply changes when I:
+
+- Ask you to add, fix, modify, refactor, remove, or replace something
+- Suggest a code improvement or rewrite
+- Point out an issue or pattern that should be changed
+- Say things like: “Make it do…”, “Let’s change…”, “Replace this with…”
+
+### Only skip applying changes when I:
+
+- Use clearly non-instructional phrasing like “for example,” “don’t add this,” or “this is a reference”
+- Ask for a comparison or explanation, not an implementation
+- Explicitly state not to make changes
+
+## Summary
+
+Unless I **explicitly** say otherwise, your default behavior should be to **make the requested changes directly in the code**. Be proactive, not passive — assume implementation is wanted.

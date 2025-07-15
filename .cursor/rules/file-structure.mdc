@@ -1,0 +1,94 @@
+---
+alwaysApply: true
+---
+
+## Component Naming & Structure
+
+This project uses Expo with Expo Router and NativeWind. Please follow these naming and structure conventions:
+
+### Components
+
+- All **reusable components** must live in the `components/` directory or a subdirectory inside it (e.g., `components/forms/`, `components/ui/`).
+- Component file names must use **PascalCase**, e.g., `UserCard.tsx`, `SettingsModal.tsx`.
+- Components must be declared using **function declarations** (not anonymous arrow functions unless used inline).
+- All components should be **functional components** using hooks. Do not use class components.
+- Do not use `index.tsx` files unless re-exporting from a folder with multiple exports.
+
+### Screens
+
+- Screens are located in the `app/` folder and should follow the **file-based routing** conventions of **Expo Router**.
+- Each screen file must use **camelCase** (e.g., `profile.tsx`, `settings.tsx`) unless defined by route pattern (e.g., `[id].tsx`, `index.tsx`, `(auth)/login.tsx`).
+- Screens should contain only the logic and layout for that screen. Extract subcomponents to `components/` as needed.
+
+### Naming Rules:
+
+1. **Each directory or file segment becomes part of the component name** in PascalCase.
+2. **Dynamic segments (e.g., `[uuid]`) should be skipped** or abstracted as singular form if the segment contextually represents a single item.
+3. The final component name must end with the filename (typically `Index`, `Edit`, `Settings`, etc.).
+
+### Examples:
+
+| File Path                                    | Component Name             |
+| -------------------------------------------- | -------------------------- |
+| `app/index.tsx`                              | `Index`                    |
+| `app/applications/index.tsx`                 | `ApplicationsIndex`        |
+| `app/applications/(uuid)/index.tsx`          | `ApplicationIndex`         |
+| `app/applications/(uuid)/settings/index.tsx` | `ApplicationSettingsIndex` |
+| `app/auth/login.tsx`                         | `AuthLogin`                |
+| `app/(user)/dashboard/overview.tsx`          | `DashboardOverview`        |
+
+### Hooks
+
+- Custom hooks must live in the `hooks/` folder.
+- Hook files must start with `use` and follow camelCase, e.g., `useAuth.ts`, `useUserPreferences.ts`.
+
+### Utilities
+
+- Shared utility functions should go in `lib/` or `utils/`, depending on purpose.
+- Utilities should be organized by purpose, e.g., `lib/date.ts`, `utils/formatters.ts`.
+
+---
+
+## File/Folder Layout Conventions
+
+Follow this directory structure:
+
+```
+/
+├── app/                  # All screens and routes (Expo Router)
+│   ├── index.tsx         # Home screen
+│   ├── settings.tsx      # Top-level screen
+│   └── (auth)/login.tsx  # Auth layout group
+│
+├── components/           # Reusable UI components
+│   ├── Button.tsx
+│   └── forms/InputField.tsx
+│
+├── hooks/                # Custom React hooks
+│   └── useSession.ts
+│
+├── lib/                  # App-specific logic and abstractions
+│   └── auth.ts
+│
+├── utils/                # Small general-purpose utilities
+│   └── formatDate.ts
+│
+├── types/                # Shared TypeScript types
+│   └── user.ts
+```
+
+### Rules:
+
+- Keep screen-specific logic in `app/`, not `components/`.
+- Avoid deep nesting unless conceptually justified.
+- Each component or utility should be in its own file unless it is truly trivial.
+
+---
+
+## Summary
+
+- Screens live in `app/` (Expo Router format)
+- Components in `components/`, hooks in `hooks/`, utilities in `lib/` or `utils/`
+- PascalCase for files and components
+- No class components
+- No `style` props — use `className` with NativeWind

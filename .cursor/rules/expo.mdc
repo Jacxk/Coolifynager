@@ -1,0 +1,50 @@
+---
+alwaysApply: true
+---
+
+This project is built using **Expo** and **NativeWind** with **TypeScript**. Please adhere to the following conventions and rules when writing, editing, or suggesting code:
+
+## Framework & Platform
+
+- This is an **Expo** project targeting **React Native** platforms (iOS, Android, and Web).
+- Follow idiomatic **React Native** conventions — do not use web-specific or DOM APIs (e.g., `document`, `window`, etc.).
+- Platform-specific behavior should use the `Platform` module from `react-native` or conditional file extensions (e.g., `Component.ios.tsx`, `Component.android.tsx`).
+
+## Styling with NativeWind
+
+- All styling must be done using **Tailwind utility classes via the `className` prop**.
+- Avoid using the `style` prop unless:
+  - You are applying **computed or dynamic styles** that cannot be expressed using Tailwind.
+  - You are modifying layout conditionally based on runtime values (e.g., animation values, measurements).
+- Do **not** suggest or include inline styles like:
+  ```tsx
+  style={{ marginTop: 12 }}
+  ```
+  Instead, write:
+  ```tsx
+  className = "mt-3";
+  ```
+
+## Component Structure
+
+- All components must be written as **functional components** using **React hooks**.
+- Do not use class components.
+- Prefer colocated components and hooks in organized folders (e.g., `components/`, `hooks/`, `screens/`, `lib/`, `utils/`).
+- Avoid unnecessary abstraction — prioritize simplicity and clarity over indirection.
+
+## TypeScript Conventions
+
+- Always use **explicit prop interfaces** for components.
+- Avoid `any`; use `unknown`, generics, or specific types where applicable.
+- Use `React.FC` only if you require `children`. Otherwise, declare function components without it.
+- Use type-safe navigation and API interaction patterns.
+
+## Best Practices
+
+- All new code should be consistent with existing project conventions.
+- Prefer built-in React Native or Expo APIs over third-party packages unless necessary.
+- When suggesting new code, assume it will be committed unless the user explicitly says not to (e.g., “don’t add this” or “this is just an example”).
+
+## Summary
+
+This is a strict NativeWind + Expo TypeScript project. Do not include `style`, class components, or non-idiomatic patterns unless explicitly allowed or required.
