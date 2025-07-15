@@ -140,3 +140,10 @@ export type CoolifyResourceMetadata = {
 };
 
 export type ResourceType = "application" | "database" | "service";
+
+export type DeleteResourceParams = {
+  delete_configurations: boolean;
+  delete_volumes: boolean;
+  docker_cleanup: boolean;
+  delete_connected_networks: boolean;
+};

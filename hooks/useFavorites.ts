@@ -51,5 +51,13 @@ export function useFavorites() {
     setFavorites(data);
   }, []);
 
-  return { favorites, isFavorite, toggleFavorite };
+  const removeFavorite = useCallback(async (uuid: string) => {
+    const favoriteString = await AsyncStorage.getItem(FAVORITES_STORAGE_KEY);
+    const prev: FavoriteResource[] = JSON.parse(favoriteString ?? "[]");
+    const data = prev.filter((fav) => fav.uuid !== uuid);
+    await AsyncStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(data));
+    setFavorites(data);
+  }, []);
+
+  return { favorites, isFavorite, toggleFavorite, removeFavorite };
 }

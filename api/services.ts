@@ -1,6 +1,7 @@
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import {
+  DeleteResourceParams,
   ResourceActionResponse,
   ResourceCreateResponse,
 } from "./types/resources.types";
@@ -139,5 +140,26 @@ export const createService = (
       method: "POST",
       body: data,
     });
+  },
+});
+
+export const deleteService = (
+  uuid: string,
+  options?: Omit<
+    UseMutationOptions<ResourceActionResponse, Error, DeleteResourceParams>,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
+  mutationKey: ["services.delete", uuid],
+  mutationFn: async (data: DeleteResourceParams) => {
+    return coolifyFetch<ResourceActionResponse>(
+      `/services/${uuid}?${new URLSearchParams(
+        data as unknown as Record<string, string>
+      ).toString()}`,
+      {
+        method: "DELETE",
+      }
+    );
   },
 });
