@@ -8,6 +8,7 @@ import {
   SelectContent,
   SelectItem,
   SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
@@ -60,10 +61,14 @@ export default function ServerSelect({
         }}
       >
         <SelectTrigger nativeID="server-select">
-          <SelectValue placeholder="Select a server" />
+          <SelectValue
+            className="text-foreground"
+            placeholder="Select a server"
+          />
         </SelectTrigger>
         <SelectContent insets={contentInsets}>
-          <SelectLabel>Select Server</SelectLabel>
+          <SelectLabel>Select a Server</SelectLabel>
+          <SelectSeparator />
           {servers?.map((server) => (
             <SelectItem
               key={server.uuid}

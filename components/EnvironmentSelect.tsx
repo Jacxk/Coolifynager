@@ -4,6 +4,7 @@ import {
   SelectContent,
   SelectItem,
   SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -55,10 +56,14 @@ export default function EnvironmentSelect({
         value={selectedEnvironment}
       >
         <SelectTrigger nativeID="environment-select">
-          <SelectValue placeholder="Select an environment" />
+          <SelectValue
+            className="text-foreground"
+            placeholder="Select an environment"
+          />
         </SelectTrigger>
         <SelectContent insets={contentInsets}>
-          <SelectLabel>Select Environment</SelectLabel>
+          <SelectLabel>Select an Environment</SelectLabel>
+          <SelectSeparator />
           {environments.map((env) => (
             <SelectItem key={env.uuid} value={env.uuid} label={env.name} />
           ))}
