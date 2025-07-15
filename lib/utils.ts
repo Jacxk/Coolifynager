@@ -7,5 +7,5 @@ export function cn(...inputs: ClassValue[]) {
 
 export function isValidUrl(url: string) {
   const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
-  return urlPattern.test(url);
+  return urlPattern.test(url.trim());
 }

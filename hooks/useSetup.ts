@@ -1,5 +1,6 @@
 import { getHealth, validateToken } from "@/api/status";
 import { Secrets } from "@/constants/Secrets";
+import { isValidUrl } from "@/lib/utils";
 import SecureStore from "@/utils/SecureStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
@@ -25,9 +26,7 @@ export default function useSetup() {
   const getServerAddress = () =>
     SecureStore.getItemAsync(Secrets.SERVER_ADDRESS);
   const setServerAddress = async (address: string) => {
-    try {
-      new URL(address);
-    } catch (e) {
+    if (!isValidUrl(address)) {
       throw new Error("INVALID_URL");
     }
 
