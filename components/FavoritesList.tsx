@@ -3,6 +3,7 @@ import { ProjectCard } from "@/components/cards/ProjectCard";
 import { ServiceCard } from "@/components/cards/ServiceCard";
 import { Text } from "@/components/ui/text";
 import { FavoriteResource, useFavorites } from "@/hooks/useFavorites";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { DatabaseCard } from "./cards/DatabaseCard";
 import {
@@ -14,7 +15,12 @@ import {
 import { H2 } from "./ui/typography";
 
 export function FavoritesList() {
-  const { favorites } = useFavorites();
+  const [favorites, setFavorites] = useState<FavoriteResource[]>([]);
+  const { getFavorites } = useFavorites();
+
+  useEffect(() => {
+    getFavorites().then(setFavorites);
+  }, [getFavorites]);
 
   if (!favorites.length) {
     return (
