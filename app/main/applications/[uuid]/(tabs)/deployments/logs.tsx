@@ -1,4 +1,4 @@
-import { getDeployment } from "@/api/deployments";
+import { getDeploymentLogs } from "@/api/deployments";
 import { DeploymentLogData } from "@/api/types/deployments.types";
 import LogsViewer from "@/components/LogsViewer";
 import { SafeView } from "@/components/SafeView";
@@ -20,7 +20,7 @@ export default function DeploymentLogs() {
   const [isFinished, setIsFinished] = useState(false);
 
   const { data, isPending } = useQuery(
-    getDeployment(deployment_uuid, {
+    getDeploymentLogs(deployment_uuid, {
       refetchInterval: 2000,
       enabled: isFocused && !isFinished,
     })

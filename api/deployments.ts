@@ -31,6 +31,18 @@ export const getDeployment = (
   queryFn: () => coolifyFetch<Deployment>(`/deployments/${uuid}`),
 });
 
+export const getDeploymentLogs = (
+  uuid: string,
+  options?: Omit<
+    UseQueryOptions<Deployment, Error, Deployment, QueryKey[]>,
+    "queryKey" | "queryFn"
+  >
+) => ({
+  ...options,
+  queryKey: ["deployments", "logs", uuid],
+  queryFn: () => coolifyFetch<Deployment>(`/deployments/${uuid}`),
+});
+
 export const getLatestApplicationDeployment = (
   uuid: string,
   options?: Omit<
