@@ -1,8 +1,9 @@
+import { getApplication } from "@/api/application";
+import { getDatabase } from "@/api/databases";
 import { getProject } from "@/api/projects";
 import { getResources } from "@/api/resources";
-import { ApplicationCard } from "@/components/cards/ApplicationCard";
-import { DatabaseCard } from "@/components/cards/DatabaseCard";
-import { ServiceCard } from "@/components/cards/ServiceCard";
+import { getService } from "@/api/services";
+import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
@@ -78,31 +79,26 @@ export default function Project() {
       renderItem={({ item, section: { title } }) => {
         if (title === "Applications") {
           return (
-            <ApplicationCard
+            <ResourceCard
               uuid={item.uuid}
-              name={item.name}
-              description={item.description || undefined}
-              status={item.status}
+              type="application"
+              getResource={getApplication}
             />
           );
         } else if (title === "Databases") {
           return (
-            <DatabaseCard
+            <ResourceCard
               uuid={item.uuid}
-              name={item.name}
-              description={item.description || undefined}
-              status={item.status}
-              database_type={item.static_image || "Database"}
+              type="database"
+              getResource={getDatabase}
             />
           );
         } else if (title === "Services") {
           return (
-            <ServiceCard
+            <ResourceCard
               uuid={item.uuid}
-              name={item.name}
-              description={item.description || undefined}
-              status={item.status}
-              service_type={item.static_image || "Service"}
+              type="service"
+              getResource={getService}
             />
           );
         }

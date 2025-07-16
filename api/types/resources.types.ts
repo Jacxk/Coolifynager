@@ -139,7 +139,13 @@ export type CoolifyResourceMetadata = {
   type: CoolifyApplications | CoolifyDatabases | CoolifyServices;
 };
 
-export type ResourceType = "application" | "database" | "service";
+export type ResourceType =
+  | "application"
+  | "database"
+  | "service"
+  | "project"
+  | "server"
+  | "team";
 
 export type DeleteResourceParams = {
   delete_configurations: boolean;

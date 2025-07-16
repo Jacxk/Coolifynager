@@ -1,7 +1,7 @@
-import { getServers } from "@/api/servers";
+import { getServer, getServers } from "@/api/servers";
+import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
-import { ServerCard } from "@/components/cards/ServerCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
@@ -31,7 +31,13 @@ export default function ServersIndex() {
         contentContainerClassName="p-4"
         data={data}
         keyExtractor={(item) => item.uuid}
-        renderItem={({ item }) => <ServerCard server={item} />}
+        renderItem={({ item }) => (
+          <ResourceCard
+            uuid={item.uuid}
+            type="server"
+            getResource={getServer}
+          />
+        )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         refreshing={isRefreshing}
         onRefresh={async () => {

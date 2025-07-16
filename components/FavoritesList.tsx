@@ -1,11 +1,13 @@
-import { ApplicationCard } from "@/components/cards/ApplicationCard";
-import { ProjectCard } from "@/components/cards/ProjectCard";
-import { ServiceCard } from "@/components/cards/ServiceCard";
+import { getApplication } from "@/api/application";
+import { getDatabase } from "@/api/databases";
+import { getProject } from "@/api/projects";
+import { getServer } from "@/api/servers";
+import { getService } from "@/api/services";
+import { ResourceType } from "@/api/types/resources.types";
 import { Text } from "@/components/ui/text";
-import { FavoriteResource, useFavorites } from "@/hooks/useFavorites";
-import { useEffect, useState } from "react";
+import { useFavorites } from "@/context/FavoritesContext";
 import { View } from "react-native";
-import { DatabaseCard } from "./cards/DatabaseCard";
+import { ResourceCard } from "./cards/ResourceCard";
 import {
   Accordion,
   AccordionContent,
@@ -14,15 +16,37 @@ import {
 } from "./ui/accordion";
 import { H2 } from "./ui/typography";
 
+function FavoriteCard({ uuid, type }: { uuid: string; type: ResourceType }) {
+  switch (type) {
+    case "application":
+      return (
+        <ResourceCard
+          uuid={uuid}
+          type="application"
+          getResource={getApplication}
+        />
+      );
+    case "project":
+      return (
+        <ResourceCard uuid={uuid} type="project" getResource={getProject} />
+      );
+    case "service":
+      return (
+        <ResourceCard uuid={uuid} type="service" getResource={getService} />
+      );
+    case "database":
+      return (
+        <ResourceCard uuid={uuid} type="database" getResource={getDatabase} />
+      );
+    case "server":
+      return <ResourceCard uuid={uuid} type="server" getResource={getServer} />;
+  }
+}
+
 export function FavoritesList() {
-  const [favorites, setFavorites] = useState<FavoriteResource[]>([]);
-  const { getFavorites } = useFavorites();
+  const { favorites } = useFavorites();
 
-  useEffect(() => {
-    getFavorites().then(setFavorites);
-  }, [getFavorites]);
-
-  if (!favorites.length) {
+  if (favorites.length === 0) {
     return (
       <View>
         <H2>Favorites</H2>
@@ -61,24 +85,13 @@ export function FavoritesList() {
               <Text>{label}</Text>
             </AccordionTrigger>
             <AccordionContent className="gap-2">
-              {grouped[type].map((favorite) => {
-                switch (type as FavoriteResource["type"]) {
-                  case "application":
-                    return (
-                      <ApplicationCard key={favorite.uuid} {...favorite} />
-                    );
-                  case "project":
-                    return (
-                      <ProjectCard key={favorite.uuid} project={favorite} />
-                    );
-                  case "service":
-                    return <ServiceCard key={favorite.uuid} {...favorite} />;
-                  case "database":
-                    return <DatabaseCard key={favorite.uuid} {...favorite} />;
-                  default:
-                    return null;
-                }
-              })}
+              {grouped[type].map((favorite) => (
+                <FavoriteCard
+                  key={favorite.uuid}
+                  uuid={favorite.uuid}
+                  type={type as ResourceType}
+                />
+              ))}
             </AccordionContent>
           </AccordionItem>
         ))}

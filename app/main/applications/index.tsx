@@ -1,5 +1,5 @@
-import { getApplications } from "@/api/application";
-import { ApplicationCard } from "@/components/cards/ApplicationCard";
+import { getApplication, getApplications } from "@/api/application";
+import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
@@ -32,11 +32,10 @@ export default function ApplicationsIndex() {
         data={data}
         keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => (
-          <ApplicationCard
+          <ResourceCard
             uuid={item.uuid}
-            name={item.name}
-            description={item.description ?? ""}
-            status={item.status}
+            type="application"
+            getResource={getApplication}
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}

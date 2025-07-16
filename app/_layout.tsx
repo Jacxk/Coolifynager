@@ -1,5 +1,6 @@
 import "@/global.css";
 
+import { FavoritesProvider } from "@/context/FavoritesContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { NAV_THEME } from "@/lib/constants";
 import {
@@ -57,9 +58,11 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
           <GestureHandlerRootView>
-            <Stack screenOptions={{ headerShown: false }} />
-            <PortalHost />
-            <Toaster />
+            <FavoritesProvider>
+              <Stack screenOptions={{ headerShown: false }} />
+              <PortalHost />
+              <Toaster />
+            </FavoritesProvider>
           </GestureHandlerRootView>
         </SafeAreaProvider>
       </QueryClientProvider>

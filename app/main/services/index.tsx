@@ -1,7 +1,7 @@
-import { getServices } from "@/api/services";
+import { getService, getServices } from "@/api/services";
+import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
-import { ServiceCard } from "@/components/cards/ServiceCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
@@ -32,7 +32,11 @@ export default function ServicesIndex() {
         data={data}
         keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => (
-          <ServiceCard uuid={item.uuid} name={item.name} />
+          <ResourceCard
+            uuid={item.uuid}
+            type="service"
+            getResource={getService}
+          />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         refreshing={isRefreshing}
