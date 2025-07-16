@@ -45,7 +45,7 @@ export const startService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.start", uuid],
+  mutationKey: ["services", "start", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/services/${uuid}/start`, {
       method: "POST",
@@ -61,7 +61,7 @@ export const stopService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.stop", uuid],
+  mutationKey: ["services", "stop", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/services/${uuid}/stop`, {
       method: "POST",
@@ -77,7 +77,7 @@ export const restartService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.restart", uuid],
+  mutationKey: ["services", "restart", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/services/${uuid}/restart`, {
       method: "POST",
@@ -98,7 +98,7 @@ export const getServiceLogs = (
   >
 ) => ({
   ...options,
-  queryKey: ["services.logs", uuid, lines],
+  queryKey: ["services", "logs", uuid, lines],
   queryFn: () =>
     coolifyFetch<ServiceLogs>(`/services/${uuid}/logs?lines=${lines}`),
 });
@@ -115,7 +115,7 @@ export const updateService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.update", uuid],
+  mutationKey: ["services", "update", uuid],
   mutationFn: async (data: UpdateServiceBody) => {
     throw new Error("Not implemented");
     // TODO: Uncomment this when the API is updated
@@ -134,7 +134,7 @@ export const createService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.create"],
+  mutationKey: ["services", "create"],
   mutationFn: async (data: CreateServiceBody) => {
     return coolifyFetch<ResourceCreateResponse>(`/services`, {
       method: "POST",
@@ -151,7 +151,7 @@ export const deleteService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.delete", uuid],
+  mutationKey: ["services", "delete", uuid],
   mutationFn: async (data: DeleteResourceParams) => {
     return coolifyFetch<ResourceActionResponse>(
       `/services/${uuid}?${new URLSearchParams(

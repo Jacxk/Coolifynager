@@ -14,7 +14,7 @@ export default function ApplicationEnvironmentsIndex() {
   const onRefresh = async () => {
     setIsRefreshing(true);
     queryClient
-      .invalidateQueries({ queryKey: ["applications.envs", uuid] })
+      .invalidateQueries({ queryKey: ["applications", "envs", uuid] })
       .finally(() => setIsRefreshing(false));
   };
 

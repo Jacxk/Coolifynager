@@ -36,7 +36,7 @@ export const startDatabase = (
   >
 ) => ({
   ...options,
-  mutationKey: ["databases.start", uuid],
+  mutationKey: ["databases", "start", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/start`, {
       method: "POST",
@@ -52,7 +52,7 @@ export const stopDatabase = (
   >
 ) => ({
   ...options,
-  mutationKey: ["databases.stop", uuid],
+  mutationKey: ["databases", "stop", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/stop`, {
       method: "POST",
@@ -68,7 +68,7 @@ export const restartDatabase = (
   >
 ) => ({
   ...options,
-  mutationKey: ["databases.restart", uuid],
+  mutationKey: ["databases", "restart", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/restart`, {
       method: "POST",
@@ -89,7 +89,7 @@ export const getDatabaseLogs = (
   >
 ) => ({
   ...options,
-  queryKey: ["databases.logs", uuid, lines],
+  queryKey: ["databases", "logs", uuid, lines],
   queryFn: () =>
     coolifyFetch<DatabaseLogs>(`/databases/${uuid}/logs?lines=${lines}`),
 });
@@ -102,7 +102,7 @@ export const updateDatabase = (
   >
 ) => ({
   ...options,
-  mutationKey: ["databases.update", uuid],
+  mutationKey: ["databases", "update", uuid],
   mutationFn: async (data: UpdateDatabaseBody) => {
     return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}`, {
       method: "PATCH",

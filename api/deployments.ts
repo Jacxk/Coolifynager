@@ -44,7 +44,7 @@ export const getLatestApplicationDeployment = (
   >
 ) => ({
   ...options,
-  queryKey: ["application.deployments.latest", uuid],
+  queryKey: ["applications", "deployments", "latest", uuid],
   queryFn: () =>
     coolifyFetch<ApplicationDeployment>(
       `/deployments/applications/${uuid}?skip=0&take=1`
@@ -66,7 +66,7 @@ export const getApplicationDeployments = (
   >
 ) => ({
   ...options,
-  queryKey: ["application.deployments", uuid, pageSize],
+  queryKey: ["application", "deployments", uuid, pageSize],
   queryFn: async ({ pageParam = 0 }) =>
     coolifyFetch<ApplicationDeployment>(
       `/deployments/applications/${uuid}?skip=${pageParam}&take=${pageSize}`
