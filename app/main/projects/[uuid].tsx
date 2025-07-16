@@ -4,7 +4,7 @@ import { getProject } from "@/api/projects";
 import { getResources } from "@/api/resources";
 import { getService } from "@/api/services";
 import { ResourceCard } from "@/components/cards/ResourceCard";
-import LoadingScreen from "@/components/LoadingScreen";
+import { ProjectSkeleton } from "@/components/skeletons/ProjectSkeleton";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
@@ -41,7 +41,7 @@ export default function Project() {
   };
 
   if (projectPending || resourcesPending) {
-    return <LoadingScreen />;
+    return <ProjectSkeleton />;
   }
 
   if (!project || !resources) {
