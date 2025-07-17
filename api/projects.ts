@@ -1,6 +1,7 @@
 import { queryClient } from "@/app/_layout";
 import { UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
+import { getResources } from "./resources";
 import { PartialProject, Project } from "./types/project.types";
 
 type QueryKey = string | number;
@@ -22,7 +23,6 @@ export const getProjects = (
   },
 });
 
-// TODO: Implement getResource prefetching
 export const getProject = (
   uuid: string,
   options?: Omit<
@@ -32,5 +32,8 @@ export const getProject = (
 ) => ({
   ...options,
   queryKey: ["projects", uuid],
-  queryFn: () => coolifyFetch<Project>(`/projects/${uuid}`),
+  queryFn: () => {
+    queryClient.prefetchQuery(getResources());
+    return coolifyFetch<Project>(`/projects/${uuid}`);
+  },
 });
