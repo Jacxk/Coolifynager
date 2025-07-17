@@ -1,4 +1,4 @@
-import { getTeam, getTeams } from "@/api/teams";
+import { getTeams } from "@/api/teams";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
@@ -34,8 +34,13 @@ export default function TeamsIndex() {
         renderItem={({ item }) => (
           <ResourceCard
             uuid={item.id.toString()}
+            title={item.name}
+            description={item.description}
             type="team"
-            getResource={getTeam}
+            href={{
+              pathname: "/main/teams/[id]",
+              params: { id: item.id.toString() },
+            }}
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}

@@ -1,15 +1,13 @@
-import { getApplication } from "@/api/application";
-import { getDatabase } from "@/api/databases";
 import { getProject } from "@/api/projects";
 import { getResources } from "@/api/resources";
-import { getService } from "@/api/services";
+import { ResourceType } from "@/api/types/resources.types";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { ProjectSkeleton } from "@/components/skeletons/ProjectSkeleton";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { LinkProps, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { RefreshControl, SectionList } from "react-native";
 
@@ -77,33 +75,44 @@ export default function Project() {
       sections={sections}
       keyExtractor={(item) => item.uuid}
       renderItem={({ item, section: { title } }) => {
+        const props: Partial<{
+          type: ResourceType;
+          href: LinkProps["href"];
+        }> = {};
+
         if (title === "Applications") {
-          return (
-            <ResourceCard
-              uuid={item.uuid}
-              type="application"
-              getResource={getApplication}
-            />
-          );
+          props.type = "application";
+          props.href = {
+            pathname: "/main/applications/[uuid]/(tabs)",
+            params: { uuid: item.uuid, name: item.name },
+          };
         } else if (title === "Databases") {
-          return (
-            <ResourceCard
-              uuid={item.uuid}
-              type="database"
-              getResource={getDatabase}
-            />
-          );
+          props.type = "database";
+          props.href = {
+            pathname: "/main/databases/[uuid]/(tabs)",
+            params: { uuid: item.uuid, name: item.name },
+          };
         } else if (title === "Services") {
-          return (
-            <ResourceCard
-              uuid={item.uuid}
-              type="service"
-              getResource={getService}
-            />
-          );
+          props.type = "service";
+          props.href = {
+            pathname: "/main/services/[uuid]/(tabs)",
+            params: { uuid: item.uuid, name: item.name },
+          };
         }
 
-        return null;
+        if (!props.type || !props.href) {
+          return null;
+        }
+
+        return (
+          <ResourceCard
+            uuid={item.uuid}
+            title={item.name}
+            description={item.description || item.status}
+            href={props.href}
+            type={props.type}
+          />
+        );
       }}
       renderSectionHeader={({ section: { title } }) => <H3>{title}</H3>}
       showsVerticalScrollIndicator={false}
