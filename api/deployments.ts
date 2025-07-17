@@ -1,3 +1,4 @@
+import { queryClient } from "@/app/_layout";
 import {
   InfiniteData,
   UseInfiniteQueryOptions,
@@ -16,9 +17,20 @@ export const getDeployments = (
 ) => ({
   ...options,
   queryKey: ["deployments"],
-  queryFn: () => coolifyFetch<Deployment[]>("/deployments"),
+  queryFn: async () => {
+    const data = await coolifyFetch<Deployment[]>("/deployments");
+    data.forEach((deployment) => {
+      queryClient.setQueryData(
+        ["deployments", deployment.deployment_uuid],
+        deployment
+      );
+    });
+    return data;
+  },
 });
 
+// Returns cached data from getDeploymentLogs if available,
+// since the logs are baked into a deployment object
 export const getDeployment = (
   uuid: string,
   options?: Omit<
@@ -28,7 +40,18 @@ export const getDeployment = (
 ) => ({
   ...options,
   queryKey: ["deployments", uuid],
-  queryFn: () => coolifyFetch<Deployment>(`/deployments/${uuid}`),
+  queryFn: async () => {
+    const old = queryClient.getQueryData<Deployment>([
+      "deployments",
+      "logs",
+      uuid,
+    ]);
+    if (old) return old;
+
+    const data = await coolifyFetch<Deployment>(`/deployments/${uuid}`);
+    queryClient.setQueryData(["deployments", "logs", uuid], data);
+    return data;
+  },
 });
 
 export const getDeploymentLogs = (
@@ -40,7 +63,12 @@ export const getDeploymentLogs = (
 ) => ({
   ...options,
   queryKey: ["deployments", "logs", uuid],
-  queryFn: () => coolifyFetch<Deployment>(`/deployments/${uuid}`),
+  queryFn: async () => {
+    const data = await coolifyFetch<Deployment>(`/deployments/${uuid}`);
+    queryClient.setQueryData(["deployments", uuid], data);
+
+    return data;
+  },
 });
 
 export const getLatestApplicationDeployment = (
