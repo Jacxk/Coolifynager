@@ -107,10 +107,22 @@ export const getApplicationDeployments = (
 ) => ({
   ...options,
   queryKey: ["application", "deployments", uuid, pageSize],
-  queryFn: async ({ pageParam = 0 }) =>
-    coolifyFetch<ApplicationDeployment>(
+  queryFn: async ({ pageParam = 0 }) => {
+    const data = await coolifyFetch<ApplicationDeployment>(
       `/deployments/applications/${uuid}?skip=${pageParam}&take=${pageSize}`
-    ),
+    );
+    data.deployments.forEach((deployment) => {
+      queryClient.setQueryData(
+        ["deployments", deployment.deployment_uuid],
+        deployment
+      );
+      queryClient.setQueryData(
+        ["deployments", "logs", deployment.deployment_uuid],
+        deployment
+      );
+    });
+    return data;
+  },
   getNextPageParam: (
     lastPage: ApplicationDeployment,
     _: unknown,
