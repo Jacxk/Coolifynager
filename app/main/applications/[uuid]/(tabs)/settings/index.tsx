@@ -1,9 +1,12 @@
+import { getApplicationEnvs } from "@/api/application";
 import { ChevronRight } from "@/components/icons/ChevronRight";
 import { Code } from "@/components/icons/Code";
 import { TriangleAlert } from "@/components/icons/TriangleAlert";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
-import { Link } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, useGlobalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import { ScrollView, View } from "react-native";
 
 function SettingsLink({
@@ -29,6 +32,13 @@ function SettingsLink({
 }
 
 export default function ApplicationSettingsIndex() {
+  const { uuid } = useGlobalSearchParams<{ uuid: string }>();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    queryClient.prefetchQuery(getApplicationEnvs(uuid));
+  }, [uuid]);
+
   return (
     <SafeView bottomInset={false}>
       <ScrollView>

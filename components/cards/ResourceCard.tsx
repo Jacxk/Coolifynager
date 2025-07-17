@@ -1,4 +1,4 @@
-import { SingleApplication } from "@/api/types/application.types";
+import { Application } from "@/api/types/application.types";
 import { Database } from "@/api/types/database.types";
 import { SingleProject } from "@/api/types/project.types";
 import { ResourceType } from "@/api/types/resources.types";
@@ -59,7 +59,7 @@ export function ResourceCard(props: {
     options?: any
   ) => {
     queryKey: QueryKey[];
-    queryFn: () => Promise<SingleApplication>;
+    queryFn: () => Promise<Application>;
     [key: string]: any;
   };
 }): React.JSX.Element;
@@ -146,7 +146,7 @@ export function ResourceCard({
           params: { uuid, name: service.name },
         };
       case "application":
-        const app = data as SingleApplication;
+        const app = data as Application;
         return {
           pathname: "/main/applications/[uuid]/(tabs)",
           params: { uuid, name: app.name },
@@ -183,7 +183,7 @@ export function ResourceCard({
         const service = data as SingleService;
         return service.name;
       case "application":
-        const app = data as SingleApplication;
+        const app = data as Application;
         return app.name;
       case "database":
         const db = data as Database;
@@ -203,7 +203,7 @@ export function ResourceCard({
         const service = data as SingleService;
         return service.description || service.status;
       case "application":
-        const app = data as SingleApplication;
+        const app = data as Application;
         return app.description || app.status;
       case "database":
         const db = data as Database;
