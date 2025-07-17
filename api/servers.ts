@@ -1,3 +1,4 @@
+import { queryClient } from "@/app/_layout";
 import { UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import { Server, SingleServer } from "./types/server.types";
@@ -12,7 +13,13 @@ export const getServers = (
 ) => ({
   ...options,
   queryKey: ["servers"],
-  queryFn: () => coolifyFetch<Server[]>("/servers"),
+  queryFn: async () => {
+    const data = await coolifyFetch<Server[]>("/servers");
+    data.forEach((server) => {
+      queryClient.setQueryData(["servers", server.uuid], server);
+    });
+    return data;
+  },
 });
 
 export const getServer = (
