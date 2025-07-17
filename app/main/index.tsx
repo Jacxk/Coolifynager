@@ -1,4 +1,9 @@
+import { getApplications } from "@/api/application";
+import { getDatabases } from "@/api/databases";
 import { getDeployments } from "@/api/deployments";
+import { getProjects } from "@/api/projects";
+import { getServers } from "@/api/servers";
+import { getServices } from "@/api/services";
 import { DeploymentCard } from "@/components/cards/DeploymentCard";
 import { FavoritesList } from "@/components/FavoritesList";
 import { Layers } from "@/components/icons/Layers";
@@ -46,6 +51,12 @@ export default function MainIndex() {
   useEffect(() => {
     if (isFocused) {
       queryClient.invalidateQueries();
+      queryClient.prefetchQuery(getProjects());
+      queryClient.prefetchQuery(getApplications());
+      queryClient.prefetchQuery(getServices());
+      queryClient.prefetchQuery(getDatabases());
+      queryClient.prefetchQuery(getServers());
+      // queryClient.prefetchQuery(getTeams());
     }
   }, [isFocused]);
 
