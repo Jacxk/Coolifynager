@@ -1,6 +1,6 @@
 import { updateService } from "@/api/services";
 import { ResourceHttpError } from "@/api/types/resources.types";
-import { SingleService, UpdateServiceBody } from "@/api/types/services.types";
+import { Service, UpdateServiceBody } from "@/api/types/services.types";
 import InfoDialog from "@/components/InfoDialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,7 +15,7 @@ import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { toast } from "sonner-native";
 
-const getInitialValues = (data: SingleService): UpdateServiceBody => ({
+const getInitialValues = (data: Service): UpdateServiceBody => ({
   name: data.name,
   description: data.description,
   connect_to_docker_network: data.connect_to_docker_network,
@@ -29,7 +29,7 @@ export default function UpdateService({
   data,
   setIsEditing,
 }: {
-  data: SingleService;
+  data: Service;
   setIsEditing: (isEditing: boolean) => void;
 }) {
   const {

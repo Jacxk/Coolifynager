@@ -1,3 +1,4 @@
+import { queryClient } from "@/app/_layout";
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import {
@@ -8,7 +9,6 @@ import {
 import {
   CreateServiceBody,
   Service,
-  SingleService,
   UpdateServiceBody,
 } from "./types/services.types";
 
@@ -22,19 +22,25 @@ export const getServices = (
 ) => ({
   ...options,
   queryKey: ["services"],
-  queryFn: () => coolifyFetch<Service[]>("/services"),
+  queryFn: async () => {
+    const data = await coolifyFetch<Service[]>("/services");
+    data.forEach((service) => {
+      queryClient.setQueryData(["services", service.uuid], service);
+    });
+    return data;
+  },
 });
 
 export const getService = (
   uuid: string,
   options?: Omit<
-    UseQueryOptions<SingleService, Error, SingleService, QueryKey[]>,
+    UseQueryOptions<Service, Error, Service, QueryKey[]>,
     "queryKey" | "queryFn"
   >
 ) => ({
   ...options,
   queryKey: ["services", uuid],
-  queryFn: () => coolifyFetch<SingleService>(`/services/${uuid}`),
+  queryFn: () => coolifyFetch<Service>(`/services/${uuid}`),
 });
 
 export const startService = (
@@ -136,10 +142,16 @@ export const createService = (
   ...options,
   mutationKey: ["services", "create"],
   mutationFn: async (data: CreateServiceBody) => {
-    return coolifyFetch<ResourceCreateResponse>(`/services`, {
+    const response = await coolifyFetch<ResourceCreateResponse>(`/services`, {
       method: "POST",
       body: data,
     });
+
+    if ("uuid" in response) {
+      queryClient.prefetchQuery(getService(response.uuid));
+    }
+
+    return response;
   },
 });
 
@@ -152,7 +164,9 @@ export const deleteService = (
 ) => ({
   ...options,
   mutationKey: ["services", "delete", uuid],
-  mutationFn: async (data: DeleteResourceParams) => {
+  mutationFn: (data: DeleteResourceParams) => {
+    queryClient.removeQueries({ queryKey: ["services", uuid], exact: true });
+
     return coolifyFetch<ResourceActionResponse>(
       `/services/${uuid}?${new URLSearchParams(
         data as unknown as Record<string, string>

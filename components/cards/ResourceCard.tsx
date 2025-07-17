@@ -3,7 +3,7 @@ import { Database } from "@/api/types/database.types";
 import { SingleProject } from "@/api/types/project.types";
 import { ResourceType } from "@/api/types/resources.types";
 import { SingleServer } from "@/api/types/server.types";
-import { SingleService } from "@/api/types/services.types";
+import { Service } from "@/api/types/services.types";
 import { Team } from "@/api/types/teams.types";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useIsFocused } from "@react-navigation/native";
@@ -44,7 +44,7 @@ export function ResourceCard(
       options?: any
     ) => {
       queryKey: QueryKey[];
-      queryFn: () => Promise<SingleService>;
+      queryFn: () => Promise<Service>;
       [key: string]: any;
     };
   }
@@ -140,7 +140,7 @@ export function ResourceCard({
           },
         };
       case "service":
-        const service = data as SingleService;
+        const service = data as Service;
         return {
           pathname: "/main/services/[uuid]/(tabs)",
           params: { uuid, name: service.name },
@@ -180,7 +180,7 @@ export function ResourceCard({
         const project = data as SingleProject;
         return project.name;
       case "service":
-        const service = data as SingleService;
+        const service = data as Service;
         return service.name;
       case "application":
         const app = data as Application;
@@ -200,7 +200,7 @@ export function ResourceCard({
         const project = data as SingleProject;
         return project.description;
       case "service":
-        const service = data as SingleService;
+        const service = data as Service;
         return service.description || service.status;
       case "application":
         const app = data as Application;
