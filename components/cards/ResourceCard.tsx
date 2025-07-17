@@ -1,6 +1,6 @@
 import { Application } from "@/api/types/application.types";
 import { Database } from "@/api/types/database.types";
-import { SingleProject } from "@/api/types/project.types";
+import { Project } from "@/api/types/project.types";
 import { ResourceType } from "@/api/types/resources.types";
 import { SingleServer } from "@/api/types/server.types";
 import { Service } from "@/api/types/services.types";
@@ -30,7 +30,7 @@ export function ResourceCard(
       options?: any
     ) => {
       queryKey: QueryKey[];
-      queryFn: () => Promise<SingleProject>;
+      queryFn: () => Promise<Project>;
       [key: string]: any;
     };
   }
@@ -128,7 +128,7 @@ export function ResourceCard({
   const getHref = (): LinkProps["href"] => {
     switch (type) {
       case "project":
-        const project = data as SingleProject;
+        const project = data as Project;
         return {
           pathname: "/main/projects/[uuid]",
           params: {
@@ -177,7 +177,7 @@ export function ResourceCard({
   const getName = () => {
     switch (type) {
       case "project":
-        const project = data as SingleProject;
+        const project = data as Project;
         return project.name;
       case "service":
         const service = data as Service;
@@ -197,7 +197,7 @@ export function ResourceCard({
   const getDescription = () => {
     switch (type) {
       case "project":
-        const project = data as SingleProject;
+        const project = data as Project;
         return project.description;
       case "service":
         const service = data as Service;
