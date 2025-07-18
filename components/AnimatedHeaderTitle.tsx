@@ -77,33 +77,33 @@ export const AnimatedHeader = ({
 
   return (
     <Animated.View
-      className="flex flex-row justify-between items-center p-4 h-26"
+      className="flex flex-row justify-between items-center p-4 h-26 relative"
       style={[{ paddingTop: insets.top }, containerShadowStyle]}
     >
-      <View className="">{leftComponent}</View>
+      <View className="z-10">{leftComponent}</View>
 
       <Animated.View
         style={titleAnimatedStyle}
-        className="flex items-center w-1/2"
+        className="flex items-center absolute left-0 bottom-4 right-0"
       >
-        <Pressable onPress={onHeaderClick}>
+        <Pressable onPress={onHeaderClick} hitSlop={10}>
           <Text
             className="text-base font-semibold text-center "
             numberOfLines={1}
           >
             {name}
           </Text>
-        </Pressable>
 
-        <Text
-          className="text-xs text-muted-foreground text-center"
-          numberOfLines={1}
-        >
-          {status}
-        </Text>
+          <Text
+            className="text-xs text-muted-foreground text-center"
+            numberOfLines={1}
+          >
+            {status}
+          </Text>
+        </Pressable>
       </Animated.View>
 
-      <View className="">{rightComponent}</View>
+      <View className="z-10">{rightComponent}</View>
     </Animated.View>
   );
 };
