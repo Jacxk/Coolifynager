@@ -1,4 +1,4 @@
-import { getService, getServices } from "@/api/services";
+import { getServices } from "@/api/services";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
@@ -34,8 +34,13 @@ export default function ServicesIndex() {
         renderItem={({ item }) => (
           <ResourceCard
             uuid={item.uuid}
+            title={item.name}
+            description={item.description || item.status}
             type="service"
-            getResource={getService}
+            href={{
+              pathname: "/main/services/[uuid]/(tabs)",
+              params: { uuid: item.uuid, name: item.name },
+            }}
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}

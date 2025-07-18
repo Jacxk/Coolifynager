@@ -40,8 +40,13 @@ export type ResourceBase = {
   last_online_at: string | null;
 };
 
+export type ResourceFromListType =
+  | "application"
+  | "standalone-postgresql"
+  | "service";
+
 export type Resource = ResourceBase & {
-  type: string;
+  type: ResourceFromListType;
   id: number;
   repository_project_id: number;
   fqdn: string;

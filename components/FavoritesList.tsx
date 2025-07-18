@@ -3,11 +3,15 @@ import { getDatabase } from "@/api/databases";
 import { getProject } from "@/api/projects";
 import { getServer } from "@/api/servers";
 import { getService } from "@/api/services";
+import { getTeam } from "@/api/teams";
 import { ResourceType } from "@/api/types/resources.types";
 import { Text } from "@/components/ui/text";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useQueries, UseQueryOptions } from "@tanstack/react-query";
+import { LinkProps } from "expo-router";
 import { View } from "react-native";
 import { ResourceCard } from "./cards/ResourceCard";
+import { SkeletonCard } from "./skeletons/SkeletonCard";
 import {
   Accordion,
   AccordionContent,
@@ -16,35 +20,96 @@ import {
 } from "./ui/accordion";
 import { H2 } from "./ui/typography";
 
-function FavoriteCard({ uuid, type }: { uuid: string; type: ResourceType }) {
+const getHref = (
+  type: ResourceType,
+  uuid: string,
+  name: string
+): LinkProps["href"] => {
   switch (type) {
     case "application":
-      return (
-        <ResourceCard
-          uuid={uuid}
-          type="application"
-          getResource={getApplication}
-        />
-      );
-    case "project":
-      return (
-        <ResourceCard uuid={uuid} type="project" getResource={getProject} />
-      );
+      return {
+        pathname: "/main/applications/[uuid]/(tabs)",
+        params: { uuid, name },
+      };
     case "service":
-      return (
-        <ResourceCard uuid={uuid} type="service" getResource={getService} />
-      );
+      return {
+        pathname: "/main/services/[uuid]/(tabs)",
+        params: { uuid, name },
+      };
     case "database":
-      return (
-        <ResourceCard uuid={uuid} type="database" getResource={getDatabase} />
-      );
+      return {
+        pathname: "/main/databases/[uuid]/(tabs)",
+        params: { uuid, name },
+      };
+    case "project":
+      return {
+        pathname: "/main/projects/[uuid]",
+        params: { uuid, name },
+      };
     case "server":
-      return <ResourceCard uuid={uuid} type="server" getResource={getServer} />;
+      return {
+        pathname: "/main/servers/[uuid]",
+        params: { uuid, name },
+      };
+    case "team":
+      return {
+        pathname: "/main/teams/[id]",
+        params: { id: uuid },
+      };
   }
-}
+};
+
+type ResourceData = {
+  uuid: string;
+  name: string;
+  description: string | null;
+  status: string;
+};
 
 export function FavoritesList() {
   const { favorites } = useFavorites();
+
+  const { data, pending } = useQueries({
+    queries: favorites.map((favorite) => {
+      switch (favorite.type) {
+        case "application":
+          return getApplication(favorite.uuid);
+        case "service":
+          return getService(favorite.uuid);
+        case "database":
+          return getDatabase(favorite.uuid);
+        case "project":
+          return getProject(favorite.uuid);
+        case "server":
+          return getServer(favorite.uuid);
+        case "team":
+          return getTeam(favorite.uuid);
+        default:
+          return {
+            queryKey: ["disabled", favorite.uuid],
+            queryFn: () => Promise.resolve(null),
+            enabled: false,
+          } as UseQueryOptions<any, Error, any, any>;
+      }
+    }),
+    combine: (results) => {
+      return {
+        data: results.map((result, index) => {
+          const resourceData = result.data;
+          return {
+            uuid: resourceData?.uuid || favorites[index]?.uuid,
+            name: resourceData?.name || "Unknown",
+            description: resourceData?.description || resourceData?.status,
+            status: resourceData?.status,
+            type:
+              favorites.filter((f) => f.uuid === resourceData?.uuid)[0]?.type ||
+              "disabled",
+          } as ResourceData & { type: ResourceType };
+        }),
+        pending: results.some((result) => result.isPending),
+      };
+    },
+  });
 
   if (favorites.length === 0) {
     return (
@@ -57,11 +122,28 @@ export function FavoritesList() {
     );
   }
 
-  const grouped = favorites.reduce((acc: Record<string, any[]>, fav: any) => {
-    if (!acc[fav.type]) acc[fav.type] = [];
-    acc[fav.type].push(fav);
-    return acc;
-  }, {});
+  if (pending) {
+    return (
+      <View>
+        <H2>Favorites</H2>
+        <View className="flex gap-2">
+          <SkeletonCard />
+          <SkeletonCard />
+        </View>
+      </View>
+    );
+  }
+
+  const grouped = data.reduce(
+    (acc: Record<string, (ResourceData & { type: ResourceType })[]>, item) => {
+      if (item && item.type) {
+        if (!acc[item.type]) acc[item.type] = [];
+        acc[item.type].push(item);
+      }
+      return acc;
+    },
+    {}
+  );
 
   const typeOrder = [
     { type: "application", label: "Applications" },
@@ -85,11 +167,14 @@ export function FavoritesList() {
               <Text>{label}</Text>
             </AccordionTrigger>
             <AccordionContent className="gap-2">
-              {grouped[type].map((favorite) => (
-                <FavoriteCard
-                  key={favorite.uuid}
-                  uuid={favorite.uuid}
-                  type={type as ResourceType}
+              {grouped[type].map((item) => (
+                <ResourceCard
+                  key={item.uuid}
+                  uuid={item.uuid}
+                  title={item.name}
+                  description={item.description || item.status}
+                  type={item.type}
+                  href={getHref(item.type, item.uuid, item.name)}
                 />
               ))}
             </AccordionContent>

@@ -1,4 +1,4 @@
-import { getProject, getProjects } from "@/api/projects";
+import { getProjects } from "@/api/projects";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
 import { ProjectsSkeleton } from "@/components/skeletons/ProjectsSkeleton";
@@ -32,8 +32,13 @@ export default function ProjectsIndex() {
         renderItem={({ item }) => (
           <ResourceCard
             uuid={item.uuid}
+            title={item.name}
+            description={item.description}
             type="project"
-            getResource={getProject}
+            href={{
+              pathname: "/main/projects/[uuid]",
+              params: { uuid: item.uuid, name: item.name },
+            }}
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}

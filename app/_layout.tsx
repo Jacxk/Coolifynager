@@ -27,7 +27,7 @@ const DARK_THEME: Theme = {
   colors: NAV_THEME.dark,
 };
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export {
   // Catch any errors thrown by the Layout component.

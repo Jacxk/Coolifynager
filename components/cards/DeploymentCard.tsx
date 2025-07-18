@@ -6,10 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Text } from "../ui/text";
 
 interface DeploymentCardProps {
+  uuid?: string;
   deployment: Deployment;
 }
 
-export function DeploymentCard({ deployment }: DeploymentCardProps) {
+export function DeploymentCard({
+  uuid = "never",
+  deployment,
+}: DeploymentCardProps) {
   const start = moment(deployment.created_at);
   const end = moment(deployment.finished_at);
 
@@ -25,8 +29,8 @@ export function DeploymentCard({ deployment }: DeploymentCardProps) {
     <Link
       className="mb-2"
       href={{
-        pathname: "./deployments/logs",
-        params: { deployment_uuid: deployment.deployment_uuid },
+        pathname: "/main/applications/[uuid]/(tabs)/deployments/logs",
+        params: { uuid, deployment_uuid: deployment.deployment_uuid },
       }}
     >
       <Card

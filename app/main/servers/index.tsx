@@ -1,4 +1,4 @@
-import { getServer, getServers } from "@/api/servers";
+import { getServers } from "@/api/servers";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
@@ -34,8 +34,13 @@ export default function ServersIndex() {
         renderItem={({ item }) => (
           <ResourceCard
             uuid={item.uuid}
+            title={item.name}
+            description={item.description}
             type="server"
-            getResource={getServer}
+            href={{
+              pathname: "/main/servers/[uuid]",
+              params: { uuid: item.uuid, name: item.name },
+            }}
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}

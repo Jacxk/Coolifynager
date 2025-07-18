@@ -1,3 +1,4 @@
+import { queryClient } from "@/app/_layout";
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import {
@@ -7,7 +8,6 @@ import {
   ApplicationLogs,
   CreateApplicationEnvBody,
   CreateApplicationEnvResponse,
-  SingleApplication,
   UpdateApplicationBody,
 } from "./types/application.types";
 import {
@@ -25,19 +25,27 @@ export const getApplications = (
 ) => ({
   ...options,
   queryKey: ["applications"],
-  queryFn: () => coolifyFetch<Application[]>("/applications"),
+  queryFn: async () => {
+    const applications = await coolifyFetch<Application[]>("/applications");
+
+    applications.forEach((application) => {
+      queryClient.setQueryData(["applications", application.uuid], application);
+    });
+
+    return applications;
+  },
 });
 
 export const getApplication = (
   uuid: string,
   options?: Omit<
-    UseQueryOptions<SingleApplication, Error, SingleApplication, QueryKey[]>,
+    UseQueryOptions<Application, Error, Application, QueryKey[]>,
     "queryKey" | "queryFn"
   >
 ) => ({
   ...options,
   queryKey: ["applications", uuid],
-  queryFn: () => coolifyFetch<SingleApplication>(`/applications/${uuid}`),
+  queryFn: () => coolifyFetch<Application>(`/applications/${uuid}`),
 });
 
 export const getApplicationLogs = (
@@ -80,7 +88,7 @@ export const createApplicationEnv = (
   ...options,
   mutationKey: ["applications", "envs", "create", uuid],
   mutationFn: async (body: CreateApplicationEnvBody) => {
-    return coolifyFetch<CreateApplicationEnvResponse>(
+    const data = await coolifyFetch<CreateApplicationEnvResponse>(
       `/applications/${uuid}/envs`,
       {
         method: "POST",
@@ -88,6 +96,17 @@ export const createApplicationEnv = (
         body,
       }
     );
+
+    if ("message" in data) {
+      throw data;
+    }
+
+    queryClient.setQueryData(
+      ["applications", "envs", uuid],
+      (old: ApplicationEnv[]) => [...old, { ...body, uuid: data.uuid }]
+    );
+
+    return data;
   },
 });
 
@@ -169,6 +188,11 @@ export const updateApplication = (
   ...options,
   mutationKey: ["applications", "update", uuid],
   mutationFn: async (body: UpdateApplicationBody) => {
+    queryClient.setQueryData(["applications", uuid], (old: Application) => ({
+      ...old,
+      ...body,
+    }));
+
     return coolifyFetch<ResourceActionResponse>(`/applications/${uuid}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

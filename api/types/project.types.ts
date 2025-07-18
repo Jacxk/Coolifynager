@@ -15,9 +15,9 @@ export type ProjectBase = {
   description: string;
 };
 
-export type Project = ProjectBase;
+export type PartialProject = ProjectBase;
 
-export type SingleProject = ProjectBase & {
+export type Project = ProjectBase & {
   team_id: number;
   created_at: string;
   updated_at: string;

@@ -1,15 +1,19 @@
 import {
   getApplication,
+  getApplicationLogs,
   restartApplication,
   startApplication,
   stopApplication,
   updateApplication,
 } from "@/api/application";
-import { getLatestApplicationDeployment } from "@/api/deployments";
+import {
+  getApplicationDeployments,
+  getLatestApplicationDeployment,
+} from "@/api/deployments";
 import UpdateApplication from "@/components/resource/application/update/UpdateApplication";
 import ResourceScreen from "@/components/resource/ResourceScreen";
 import { useIsFocused } from "@react-navigation/native";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 
@@ -20,6 +24,8 @@ export default function Application() {
   const [isDeploying, setIsDeploying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+  useQuery(getApplicationLogs(uuid));
+  useInfiniteQuery(getApplicationDeployments(uuid));
   const { data } = useQuery(
     getApplication(uuid, {
       refetchInterval: 20000,
