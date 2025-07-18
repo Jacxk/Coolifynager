@@ -35,7 +35,8 @@ export default function ServicesIndex() {
           <ResourceCard
             uuid={item.uuid}
             title={item.name}
-            description={item.description || item.status}
+            description={item.description}
+            status={item.status}
             type="service"
             href={{
               pathname: "/main/services/[uuid]/(tabs)",

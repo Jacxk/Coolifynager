@@ -172,7 +172,8 @@ export function FavoritesList() {
                   key={item.uuid}
                   uuid={item.uuid}
                   title={item.name}
-                  description={item.description || item.status}
+                  description={item.description}
+                  status={item.status}
                   type={item.type}
                   href={getHref(item.type, item.uuid, item.name)}
                 />

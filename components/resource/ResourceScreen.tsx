@@ -5,23 +5,17 @@ import {
   ResourceHttpError,
 } from "@/api/types/resources.types";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
-import { cn } from "@/lib/utils";
 import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { Redirect, router, useNavigation } from "expo-router";
 import { Info } from "lucide-react-native";
 import { useLayoutEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  RefreshControl,
-  ScrollView,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { RefreshControl, ScrollView, View } from "react-native";
 import { toast } from "sonner-native";
 import { AnimatedHeader } from "../AnimatedHeaderTitle";
 import { DomainsSelect } from "../DomainsSelect";
-import { HealthDialog } from "../HealthDialog";
+import { HealthIndicator } from "../HealthIndicator";
 import { Edit } from "../icons/Edit";
 import LoadingScreen from "../LoadingScreen";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
@@ -79,7 +73,6 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   const navigation = useNavigation();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
   const [showHeaderTitle, setShowHeaderTitle] = useState(false);
   const [isEditDetails, setIsEditDetails] = useState(false);
 
@@ -101,10 +94,6 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
       description: data?.description ?? "",
     },
   });
-
-  const healthy_running = data?.status === "running:healthy";
-  const unhealthy_running = data?.status === "running:unhealthy";
-  const unhealthy_exited = data?.status === "exited:unhealthy";
 
   const startMutation = useMutation({
     ...startResource(uuid),
@@ -250,7 +239,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
           rightComponent={
             <ResourceActions
               resourceType="application"
-              isRunning={healthy_running || unhealthy_running}
+              isRunning={data.status.startsWith("running")}
               onStart={handleDeploy}
               onRedeploy={handleDeploy}
               onStop={handleStop}
@@ -268,8 +257,6 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   }, [
     isDeploying,
     data,
-    healthy_running,
-    unhealthy_running,
     stopMutation.isPending,
     restartMutation.isPending,
     navigation,
@@ -280,7 +267,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
     return <LoadingScreen />;
   }
 
-  if (!data) return <Redirect href="/404" />;
+  if (!data) return <Redirect href="/main" />;
 
   const serverStatus = (data.destination ?? data).server.proxy.status;
 
@@ -340,18 +327,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
               </Button>
             </View>
           )}
-          <TouchableOpacity
-            className="items-end"
-            onPress={() => setIsHealthDialogOpen(true)}
-          >
-            <View
-              className={cn("size-4 rounded-full animate-pulse", {
-                "bg-red-500 animate-ping": unhealthy_exited,
-                "bg-green-500": healthy_running,
-                "bg-yellow-500": unhealthy_running,
-              })}
-            />
-          </TouchableOpacity>
+          <HealthIndicator status={data.status} />
         </View>
 
         {isEditDetails ? (
@@ -390,13 +366,6 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
       )}
 
       {children(data)}
-
-      <HealthDialog
-        isOpen={isHealthDialogOpen}
-        onOpenChange={setIsHealthDialogOpen}
-        status={data.status}
-        resourceType="application"
-      />
     </ScrollView>
   );
 }

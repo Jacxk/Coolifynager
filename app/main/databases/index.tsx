@@ -35,7 +35,8 @@ export default function DatabasesIndex() {
           <ResourceCard
             uuid={item.uuid}
             title={item.name}
-            description={item.description || item.status}
+            description={item.description}
+            status={item.status}
             type="database"
             href={{
               pathname: "/main/databases/[uuid]/(tabs)",

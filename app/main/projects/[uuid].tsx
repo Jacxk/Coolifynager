@@ -117,7 +117,8 @@ export default function Project() {
           <ResourceCard
             uuid={item.uuid}
             title={item.name}
-            description={item.description || item.status}
+            description={item.description}
+            status={item.status}
             href={props.href}
             type={props.type}
           />

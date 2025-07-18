@@ -34,7 +34,8 @@ export default function ApplicationsIndex() {
         renderItem={({ item }) => (
           <ResourceCard
             title={item.name}
-            description={item.description || item.status}
+            description={item.description}
+            status={item.status}
             uuid={item.uuid}
             type="application"
             href={{
