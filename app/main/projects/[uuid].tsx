@@ -7,12 +7,14 @@ import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useQuery } from "@tanstack/react-query";
-import { LinkProps, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { LinkProps, useLocalSearchParams, useNavigation } from "expo-router";
+import { useEffect, useState } from "react";
 import { RefreshControl, SectionList } from "react-native";
 
 export default function Project() {
+  const navigation = useNavigation();
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
+
   const {
     data: project,
     isPending: projectPending,
@@ -26,17 +28,24 @@ export default function Project() {
 
   const [refreshing, setRefreshing] = useState(false);
 
-  useRefreshOnFocus(async () => {
+  const refetch = async () => {
     await refetchProject();
     await refetchResources();
-  });
+  };
+
+  useRefreshOnFocus(refetch);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await refetchProject();
-    await refetchResources();
-    setRefreshing(false);
+    refetch().finally(() => setRefreshing(false));
   };
+
+  useEffect(() => {
+    navigation.setParams({
+      environments:
+        project?.environments.map((env) => `${env.uuid}:${env.name}`) || [],
+    } as any);
+  }, [project]);
 
   if (projectPending || resourcesPending) {
     return <ProjectSkeleton />;
