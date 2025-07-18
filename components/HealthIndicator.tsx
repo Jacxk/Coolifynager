@@ -23,7 +23,7 @@ export function HealthIndicator({
   return (
     <>
       <Pressable
-        className={cn("items-end", className)}
+        className={cn("flex-1 items-end", className)}
         onPress={() => setIsHealthDialogOpen(true)}
         hitSlop={10}
       >
