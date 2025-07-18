@@ -47,7 +47,7 @@ export default function DeploymentLogs() {
   }, [uuid]);
 
   const logs = useMemo<DeploymentLogData[]>(
-    () => JSON.parse(data?.logs ?? "[]") as DeploymentLogData[],
+    () => (JSON.parse(data?.logs ?? "[]") as DeploymentLogData[]).toReversed(),
     [data?.logs]
   );
   const [showHidden, setShowHidden] = useState(false);
