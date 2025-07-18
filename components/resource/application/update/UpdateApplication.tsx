@@ -1,7 +1,7 @@
 import { updateApplication } from "@/api/application";
 import {
+  Application,
   BuildPack,
-  SingleApplication,
   UpdateApplicationBody,
 } from "@/api/types/application.types";
 import { ResourceHttpError } from "@/api/types/resources.types";
@@ -19,7 +19,7 @@ import GeneralSection from "./GeneralSection";
 import HTTPBasicAuthSection from "./HTTPBasicAuthSection";
 import NetworkSection from "./NetworkSection";
 
-const getInitialValues = (data: SingleApplication): UpdateApplicationBody => ({
+const getInitialValues = (data: Application): UpdateApplicationBody => ({
   ports_mappings: data.ports_mappings,
   build_pack: data.build_pack,
   static_image:
@@ -52,7 +52,7 @@ export default function UpdateApplication({
   data,
   setIsEditing,
 }: {
-  data: SingleApplication;
+  data: Application;
   setIsEditing: (isEditing: boolean) => void;
 }) {
   const {

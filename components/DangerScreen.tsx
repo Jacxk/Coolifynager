@@ -1,7 +1,7 @@
 import { deleteService } from "@/api/services";
 import { ResourceType } from "@/api/types/resources.types";
 import { Text } from "@/components/ui/text";
-import { useFavorites } from "@/hooks/useFavorites";
+import { useFavorites } from "@/context/FavoritesContext";
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";

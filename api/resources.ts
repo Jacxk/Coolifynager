@@ -1,8 +1,16 @@
+import { queryClient } from "@/app/_layout";
 import { UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
-import { Resource } from "./types/resources.types";
+import { Resource, ResourceFromListType } from "./types/resources.types";
 
 type QueryKey = string | number;
+
+const getQueryKeyFromType = (type: ResourceFromListType) => {
+  if (type !== "application" && type !== "service") {
+    return "database";
+  }
+  return type;
+};
 
 export const getResources = (
   options?: Omit<
@@ -12,5 +20,12 @@ export const getResources = (
 ) => ({
   ...options,
   queryKey: ["resources"],
-  queryFn: () => coolifyFetch<Resource[]>("/resources"),
+  queryFn: async () => {
+    const data = await coolifyFetch<Resource[]>("/resources");
+    data.forEach((resource) => {
+      const queryKey = [getQueryKeyFromType(resource.type), resource.uuid];
+      queryClient.setQueryData(queryKey, resource);
+    });
+    return data;
+  },
 });

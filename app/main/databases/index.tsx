@@ -1,4 +1,4 @@
-import { getServers } from "@/api/servers";
+import { getDatabases } from "@/api/databases";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
@@ -8,8 +8,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
 
-export default function ServersIndex() {
-  const { data, isPending, refetch } = useQuery(getServers());
+export default function DatabasesIndex() {
+  const { data, isPending, refetch } = useQuery(getDatabases());
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (isPending) {
@@ -19,8 +19,8 @@ export default function ServersIndex() {
   if (!data || data.length === 0) {
     return (
       <SafeView>
-        <H1>Servers</H1>
-        <Text>No servers found.</Text>
+        <H1>Databases</H1>
+        <Text>No databases found.</Text>
       </SafeView>
     );
   }
@@ -36,18 +36,19 @@ export default function ServersIndex() {
             uuid={item.uuid}
             title={item.name}
             description={item.description}
-            type="server"
+            status={item.status}
+            type="database"
             href={{
-              pathname: "/main/servers/[uuid]",
+              pathname: "/main/databases/[uuid]/(tabs)",
               params: { uuid: item.uuid, name: item.name },
             }}
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         refreshing={isRefreshing}
-        onRefresh={async () => {
+        onRefresh={() => {
           setIsRefreshing(true);
-          await refetch().finally(() => setIsRefreshing(false));
+          refetch().finally(() => setIsRefreshing(false));
         }}
       />
     </SafeView>

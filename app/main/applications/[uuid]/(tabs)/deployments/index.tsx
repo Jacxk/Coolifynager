@@ -54,7 +54,7 @@ export default function DeploymentsStack() {
     <SafeView className="p-0" bottomInset={false}>
       <FlatList
         contentContainerClassName="p-4"
-        data={deployments ?? Array.from({ length: 10 })}
+        data={deployments}
         keyExtractor={(item) => item.deployment_uuid}
         refreshing={isRefreshing}
         onRefresh={onRefresh}
@@ -69,6 +69,7 @@ export default function DeploymentsStack() {
         }
         renderItem={({ item: deployment }) => (
           <DeploymentCard
+            uuid={uuid}
             key={deployment.deployment_uuid}
             deployment={deployment}
           />

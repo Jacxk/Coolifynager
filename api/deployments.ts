@@ -1,3 +1,4 @@
+import { queryClient } from "@/app/_layout";
 import {
   InfiniteData,
   UseInfiniteQueryOptions,
@@ -16,9 +17,20 @@ export const getDeployments = (
 ) => ({
   ...options,
   queryKey: ["deployments"],
-  queryFn: () => coolifyFetch<Deployment[]>("/deployments"),
+  queryFn: async () => {
+    const data = await coolifyFetch<Deployment[]>("/deployments");
+    data.forEach((deployment) => {
+      queryClient.setQueryData(
+        ["deployments", deployment.deployment_uuid],
+        deployment
+      );
+    });
+    return data;
+  },
 });
 
+// Returns cached data from getDeploymentLogs if available,
+// since the logs are baked into a deployment object
 export const getDeployment = (
   uuid: string,
   options?: Omit<
@@ -28,7 +40,35 @@ export const getDeployment = (
 ) => ({
   ...options,
   queryKey: ["deployments", uuid],
-  queryFn: () => coolifyFetch<Deployment>(`/deployments/${uuid}`),
+  queryFn: async () => {
+    const old = queryClient.getQueryData<Deployment>([
+      "deployments",
+      "logs",
+      uuid,
+    ]);
+    if (old) return old;
+
+    const data = await coolifyFetch<Deployment>(`/deployments/${uuid}`);
+    queryClient.setQueryData(["deployments", "logs", uuid], data);
+    return data;
+  },
+});
+
+export const getDeploymentLogs = (
+  uuid: string,
+  options?: Omit<
+    UseQueryOptions<Deployment, Error, Deployment, QueryKey[]>,
+    "queryKey" | "queryFn"
+  >
+) => ({
+  ...options,
+  queryKey: ["deployments", "logs", uuid],
+  queryFn: async () => {
+    const data = await coolifyFetch<Deployment>(`/deployments/${uuid}`);
+    queryClient.setQueryData(["deployments", uuid], data);
+
+    return data;
+  },
 });
 
 export const getLatestApplicationDeployment = (
@@ -44,7 +84,7 @@ export const getLatestApplicationDeployment = (
   >
 ) => ({
   ...options,
-  queryKey: ["application.deployments.latest", uuid],
+  queryKey: ["applications", "deployments", "latest", uuid],
   queryFn: () =>
     coolifyFetch<ApplicationDeployment>(
       `/deployments/applications/${uuid}?skip=0&take=1`
@@ -66,11 +106,23 @@ export const getApplicationDeployments = (
   >
 ) => ({
   ...options,
-  queryKey: ["application.deployments", uuid, pageSize],
-  queryFn: async ({ pageParam = 0 }) =>
-    coolifyFetch<ApplicationDeployment>(
+  queryKey: ["application", "deployments", uuid, pageSize],
+  queryFn: async ({ pageParam = 0 }) => {
+    const data = await coolifyFetch<ApplicationDeployment>(
       `/deployments/applications/${uuid}?skip=${pageParam}&take=${pageSize}`
-    ),
+    );
+    data.deployments.forEach((deployment) => {
+      queryClient.setQueryData(
+        ["deployments", deployment.deployment_uuid],
+        deployment
+      );
+      queryClient.setQueryData(
+        ["deployments", "logs", deployment.deployment_uuid],
+        deployment
+      );
+    });
+    return data;
+  },
   getNextPageParam: (
     lastPage: ApplicationDeployment,
     _: unknown,

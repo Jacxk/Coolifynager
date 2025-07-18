@@ -1,7 +1,7 @@
 import { Text } from "@/components/ui/text";
 import { useTheme } from "@react-navigation/native";
 import { useEffect } from "react";
-import { Platform, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -17,6 +17,7 @@ type AnimatedHeaderTitleProps = {
   status?: string;
   leftComponent?: React.ReactNode;
   rightComponent?: React.ReactNode;
+  onHeaderClick?: () => void;
 };
 
 export const AnimatedHeader = ({
@@ -25,6 +26,7 @@ export const AnimatedHeader = ({
   showTitle,
   leftComponent,
   rightComponent,
+  onHeaderClick,
 }: AnimatedHeaderTitleProps) => {
   const titleProgress = useSharedValue(0);
   const borderProgress = useSharedValue(0);
@@ -84,12 +86,14 @@ export const AnimatedHeader = ({
         style={titleAnimatedStyle}
         className="flex items-center w-1/2"
       >
-        <Text
-          className="text-base font-semibold text-center "
-          numberOfLines={1}
-        >
-          {name}
-        </Text>
+        <Pressable onPress={onHeaderClick}>
+          <Text
+            className="text-base font-semibold text-center "
+            numberOfLines={1}
+          >
+            {name}
+          </Text>
+        </Pressable>
 
         <Text
           className="text-xs text-muted-foreground text-center"

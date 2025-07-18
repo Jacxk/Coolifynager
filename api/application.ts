@@ -1,3 +1,4 @@
+import { queryClient } from "@/app/_layout";
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import {
@@ -7,7 +8,6 @@ import {
   ApplicationLogs,
   CreateApplicationEnvBody,
   CreateApplicationEnvResponse,
-  SingleApplication,
   UpdateApplicationBody,
 } from "./types/application.types";
 import {
@@ -25,19 +25,27 @@ export const getApplications = (
 ) => ({
   ...options,
   queryKey: ["applications"],
-  queryFn: () => coolifyFetch<Application[]>("/applications"),
+  queryFn: async () => {
+    const applications = await coolifyFetch<Application[]>("/applications");
+
+    applications.forEach((application) => {
+      queryClient.setQueryData(["applications", application.uuid], application);
+    });
+
+    return applications;
+  },
 });
 
 export const getApplication = (
   uuid: string,
   options?: Omit<
-    UseQueryOptions<SingleApplication, Error, SingleApplication, QueryKey[]>,
+    UseQueryOptions<Application, Error, Application, QueryKey[]>,
     "queryKey" | "queryFn"
   >
 ) => ({
   ...options,
   queryKey: ["applications", uuid],
-  queryFn: () => coolifyFetch<SingleApplication>(`/applications/${uuid}`),
+  queryFn: () => coolifyFetch<Application>(`/applications/${uuid}`),
 });
 
 export const getApplicationLogs = (
@@ -49,7 +57,7 @@ export const getApplicationLogs = (
   >
 ) => ({
   ...options,
-  queryKey: ["applications.logs", uuid, lines],
+  queryKey: ["applications", "logs", uuid, lines],
   queryFn: () =>
     coolifyFetch<ApplicationLogs>(`/applications/${uuid}/logs?lines=${lines}`),
 });
@@ -62,7 +70,7 @@ export const getApplicationEnvs = (
   >
 ) => ({
   ...options,
-  queryKey: ["applications.envs", uuid],
+  queryKey: ["applications", "envs", uuid],
   queryFn: () => coolifyFetch<ApplicationEnv[]>(`/applications/${uuid}/envs`),
 });
 
@@ -78,9 +86,9 @@ export const createApplicationEnv = (
   >
 ) => ({
   ...options,
-  mutationKey: ["applications.envs.create", uuid],
+  mutationKey: ["applications", "envs", "create", uuid],
   mutationFn: async (body: CreateApplicationEnvBody) => {
-    return coolifyFetch<CreateApplicationEnvResponse>(
+    const data = await coolifyFetch<CreateApplicationEnvResponse>(
       `/applications/${uuid}/envs`,
       {
         method: "POST",
@@ -88,6 +96,17 @@ export const createApplicationEnv = (
         body,
       }
     );
+
+    if ("message" in data) {
+      throw data;
+    }
+
+    queryClient.setQueryData(
+      ["applications", "envs", uuid],
+      (old: ApplicationEnv[]) => [...old, { ...body, uuid: data.uuid }]
+    );
+
+    return data;
   },
 });
 
@@ -103,7 +122,7 @@ export const startApplication = (
   >
 ) => ({
   ...options,
-  mutationKey: ["applications.start", uuid],
+  mutationKey: ["applications", "start", uuid],
   mutationFn: async ({
     force = false,
     instant_deploy = false,
@@ -132,7 +151,7 @@ export const stopApplication = (
   >
 ) => ({
   ...options,
-  mutationKey: ["applications.stop", uuid],
+  mutationKey: ["applications", "stop", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/applications/${uuid}/stop`, {
       method: "POST",
@@ -148,7 +167,7 @@ export const restartApplication = (
   >
 ) => ({
   ...options,
-  mutationKey: ["applications.restart", uuid],
+  mutationKey: ["applications", "restart", uuid],
   mutationFn: async () => {
     return coolifyFetch<ApplicationActionResponse>(
       `/applications/${uuid}/restart`,
@@ -167,8 +186,13 @@ export const updateApplication = (
   >
 ) => ({
   ...options,
-  mutationKey: ["applications.update", uuid],
+  mutationKey: ["applications", "update", uuid],
   mutationFn: async (body: UpdateApplicationBody) => {
+    queryClient.setQueryData(["applications", uuid], (old: Application) => ({
+      ...old,
+      ...body,
+    }));
+
     return coolifyFetch<ResourceActionResponse>(`/applications/${uuid}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

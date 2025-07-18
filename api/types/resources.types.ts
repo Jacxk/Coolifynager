@@ -40,8 +40,13 @@ export type ResourceBase = {
   last_online_at: string | null;
 };
 
+export type ResourceFromListType =
+  | "application"
+  | "standalone-postgresql"
+  | "service";
+
 export type Resource = ResourceBase & {
-  type: string;
+  type: ResourceFromListType;
   id: number;
   repository_project_id: number;
   fqdn: string;
@@ -139,7 +144,13 @@ export type CoolifyResourceMetadata = {
   type: CoolifyApplications | CoolifyDatabases | CoolifyServices;
 };
 
-export type ResourceType = "application" | "database" | "service";
+export type ResourceType =
+  | "application"
+  | "database"
+  | "service"
+  | "project"
+  | "server"
+  | "team";
 
 export type DeleteResourceParams = {
   delete_configurations: boolean;

@@ -1,18 +1,16 @@
 import { getTeams } from "@/api/teams";
+import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
-import { TeamCard } from "@/components/cards/TeamCard";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TeamsIndex() {
   const { data, isPending, refetch } = useQuery(getTeams());
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const inset = useSafeAreaInsets();
 
   if (isPending) {
     return <LoadingScreen />;
@@ -33,7 +31,18 @@ export default function TeamsIndex() {
         contentContainerClassName="p-4"
         data={data}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <TeamCard team={item} />}
+        renderItem={({ item }) => (
+          <ResourceCard
+            uuid={item.id.toString()}
+            title={item.name}
+            description={item.description}
+            type="team"
+            href={{
+              pathname: "/main/teams/[id]",
+              params: { id: item.id.toString() },
+            }}
+          />
+        )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         refreshing={isRefreshing}
         onRefresh={() => {

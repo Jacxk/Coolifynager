@@ -1,3 +1,4 @@
+import { queryClient } from "@/app/_layout";
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import { Database, UpdateDatabaseBody } from "./types/database.types";
@@ -13,7 +14,13 @@ export const getDatabases = (
 ) => ({
   ...options,
   queryKey: ["databases"],
-  queryFn: () => coolifyFetch<Database[]>("/databases"),
+  queryFn: async () => {
+    const data = await coolifyFetch<Database[]>("/databases");
+    data.forEach((database) => {
+      queryClient.setQueryData(["databases", database.uuid], database);
+    });
+    return data;
+  },
 });
 
 export const getDatabase = (
@@ -36,7 +43,7 @@ export const startDatabase = (
   >
 ) => ({
   ...options,
-  mutationKey: ["databases.start", uuid],
+  mutationKey: ["databases", "start", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/start`, {
       method: "POST",
@@ -52,7 +59,7 @@ export const stopDatabase = (
   >
 ) => ({
   ...options,
-  mutationKey: ["databases.stop", uuid],
+  mutationKey: ["databases", "stop", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/stop`, {
       method: "POST",
@@ -68,7 +75,7 @@ export const restartDatabase = (
   >
 ) => ({
   ...options,
-  mutationKey: ["databases.restart", uuid],
+  mutationKey: ["databases", "restart", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/restart`, {
       method: "POST",
@@ -80,6 +87,7 @@ type DatabaseLogs = {
   logs: string;
 };
 
+// TODO: Implement logs fetching (api is not implemented yet)
 export const getDatabaseLogs = (
   uuid: string,
   lines = 100,
@@ -89,7 +97,7 @@ export const getDatabaseLogs = (
   >
 ) => ({
   ...options,
-  queryKey: ["databases.logs", uuid, lines],
+  queryKey: ["databases", "logs", uuid, lines],
   queryFn: () =>
     coolifyFetch<DatabaseLogs>(`/databases/${uuid}/logs?lines=${lines}`),
 });
@@ -102,8 +110,10 @@ export const updateDatabase = (
   >
 ) => ({
   ...options,
-  mutationKey: ["databases.update", uuid],
-  mutationFn: async (data: UpdateDatabaseBody) => {
+  mutationKey: ["databases", "update", uuid],
+  mutationFn: (data: UpdateDatabaseBody) => {
+    queryClient.setQueryData(["databases", uuid], data);
+
     return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

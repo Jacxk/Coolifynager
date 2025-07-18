@@ -25,7 +25,7 @@ export default function ApplicationEnvironmentsCreate() {
       onSuccess: () => {
         toast.success("Environment variable created successfully");
         queryClient.invalidateQueries({
-          queryKey: ["applications.envs", uuid],
+          queryKey: ["applications", "envs", uuid],
         });
         router.back();
       },

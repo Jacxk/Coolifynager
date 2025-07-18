@@ -1,6 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Redirect } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootIndex() {
   const [setupComplete, setSetupComplete] = useState<boolean | null>(null);

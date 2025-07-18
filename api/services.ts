@@ -1,3 +1,4 @@
+import { queryClient } from "@/app/_layout";
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import {
@@ -8,7 +9,6 @@ import {
 import {
   CreateServiceBody,
   Service,
-  SingleService,
   UpdateServiceBody,
 } from "./types/services.types";
 
@@ -22,19 +22,25 @@ export const getServices = (
 ) => ({
   ...options,
   queryKey: ["services"],
-  queryFn: () => coolifyFetch<Service[]>("/services"),
+  queryFn: async () => {
+    const data = await coolifyFetch<Service[]>("/services");
+    data.forEach((service) => {
+      queryClient.setQueryData(["services", service.uuid], service);
+    });
+    return data;
+  },
 });
 
 export const getService = (
   uuid: string,
   options?: Omit<
-    UseQueryOptions<SingleService, Error, SingleService, QueryKey[]>,
+    UseQueryOptions<Service, Error, Service, QueryKey[]>,
     "queryKey" | "queryFn"
   >
 ) => ({
   ...options,
   queryKey: ["services", uuid],
-  queryFn: () => coolifyFetch<SingleService>(`/services/${uuid}`),
+  queryFn: () => coolifyFetch<Service>(`/services/${uuid}`),
 });
 
 export const startService = (
@@ -45,7 +51,7 @@ export const startService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.start", uuid],
+  mutationKey: ["services", "start", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/services/${uuid}/start`, {
       method: "POST",
@@ -61,7 +67,7 @@ export const stopService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.stop", uuid],
+  mutationKey: ["services", "stop", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/services/${uuid}/stop`, {
       method: "POST",
@@ -77,7 +83,7 @@ export const restartService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.restart", uuid],
+  mutationKey: ["services", "restart", uuid],
   mutationFn: async () => {
     return coolifyFetch<ResourceActionResponse>(`/services/${uuid}/restart`, {
       method: "POST",
@@ -98,7 +104,7 @@ export const getServiceLogs = (
   >
 ) => ({
   ...options,
-  queryKey: ["services.logs", uuid, lines],
+  queryKey: ["services", "logs", uuid, lines],
   queryFn: () =>
     coolifyFetch<ServiceLogs>(`/services/${uuid}/logs?lines=${lines}`),
 });
@@ -115,7 +121,7 @@ export const updateService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.update", uuid],
+  mutationKey: ["services", "update", uuid],
   mutationFn: async (data: UpdateServiceBody) => {
     throw new Error("Not implemented");
     // TODO: Uncomment this when the API is updated
@@ -134,12 +140,18 @@ export const createService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.create"],
+  mutationKey: ["services", "create"],
   mutationFn: async (data: CreateServiceBody) => {
-    return coolifyFetch<ResourceCreateResponse>(`/services`, {
+    const response = await coolifyFetch<ResourceCreateResponse>(`/services`, {
       method: "POST",
       body: data,
     });
+
+    if ("uuid" in response) {
+      queryClient.prefetchQuery(getService(response.uuid));
+    }
+
+    return response;
   },
 });
 
@@ -151,8 +163,10 @@ export const deleteService = (
   >
 ) => ({
   ...options,
-  mutationKey: ["services.delete", uuid],
-  mutationFn: async (data: DeleteResourceParams) => {
+  mutationKey: ["services", "delete", uuid],
+  mutationFn: (data: DeleteResourceParams) => {
+    queryClient.removeQueries({ queryKey: ["services", uuid], exact: true });
+
     return coolifyFetch<ResourceActionResponse>(
       `/services/${uuid}?${new URLSearchParams(
         data as unknown as Record<string, string>
