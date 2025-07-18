@@ -12,7 +12,6 @@ import { Database } from "@/components/icons/Database";
 import { Layers } from "@/components/icons/Layers";
 import { PackageOpen } from "@/components/icons/PackageOpen";
 import { Server } from "@/components/icons/Server";
-import ServerSelect from "@/components/ServerSelect";
 import {
   Card,
   CardDescription,
@@ -122,7 +121,6 @@ export default function MainIndex() {
         <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
       }
     >
-      <ServerSelect displayLabel={false} />
       <View className="flex flex-row flex-wrap">
         {cards.map((card) => (
           <Link key={card.label} href={card.route} className="flex w-1/2 p-2">
