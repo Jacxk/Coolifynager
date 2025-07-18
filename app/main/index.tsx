@@ -4,6 +4,7 @@ import { getDeployments } from "@/api/deployments";
 import { getProjects } from "@/api/projects";
 import { getServers } from "@/api/servers";
 import { getServices } from "@/api/services";
+import { getTeams } from "@/api/teams";
 import { DeploymentCard } from "@/components/cards/DeploymentCard";
 import { FavoritesList } from "@/components/FavoritesList";
 import { Layers } from "@/components/icons/Layers";
@@ -18,9 +19,10 @@ import {
 import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
 import { useIsFocused } from "@react-navigation/native";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "expo-router";
-import { useEffect, useState } from "react";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect, useRef, useState } from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
 
 const cards = [
@@ -37,9 +39,15 @@ const cards = [
 ];
 
 export default function MainIndex() {
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
+  const fetchingQueries = useIsFetching();
   const isFocused = useIsFocused();
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fallbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data: deployments } = useQuery(
     getDeployments({
@@ -56,9 +64,42 @@ export default function MainIndex() {
       queryClient.prefetchQuery(getServices());
       queryClient.prefetchQuery(getDatabases());
       queryClient.prefetchQuery(getServers());
-      // queryClient.prefetchQuery(getTeams());
+      queryClient.prefetchQuery(getTeams());
     }
   }, [isFocused]);
+
+  useEffect(() => {
+    if (isReady) return;
+
+    if (fallbackTimeout.current) {
+      clearTimeout(fallbackTimeout.current);
+    }
+
+    fallbackTimeout.current = setTimeout(() => {
+      SplashScreen.hide();
+      setIsReady(true);
+    }, 3000);
+
+    if (fetchingQueries < 2) {
+      timeout.current = setTimeout(() => {
+        SplashScreen.hide();
+        setIsReady(true);
+      }, 500);
+    } else {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+    }
+
+    return () => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+      if (fallbackTimeout.current) {
+        clearTimeout(fallbackTimeout.current);
+      }
+    };
+  }, [fetchingQueries, isReady]);
 
   const onRefresh = async () => {
     setIsRefreshing(true);
@@ -102,6 +143,7 @@ export default function MainIndex() {
       )}
 
       <FavoritesList />
+
       <Link href="/setup/api_token">
         <Text>Change api token</Text>
       </Link>
