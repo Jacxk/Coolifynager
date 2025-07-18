@@ -4,9 +4,9 @@ import { Code } from "@/components/icons/Code";
 import { TriangleAlert } from "@/components/icons/TriangleAlert";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
-import { useQueryClient } from "@tanstack/react-query";
+import { useIsFocused } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useGlobalSearchParams } from "expo-router";
-import { useEffect } from "react";
 import { ScrollView, View } from "react-native";
 
 function SettingsLink({
@@ -33,11 +33,9 @@ function SettingsLink({
 
 export default function ApplicationSettingsIndex() {
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
-  const queryClient = useQueryClient();
+  const isFocused = useIsFocused();
 
-  useEffect(() => {
-    queryClient.prefetchQuery(getApplicationEnvs(uuid));
-  }, [uuid]);
+  useQuery(getApplicationEnvs(uuid, { enabled: isFocused }));
 
   return (
     <SafeView bottomInset={false}>

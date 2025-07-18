@@ -56,17 +56,12 @@ export default function MainIndex() {
     })
   );
 
-  useEffect(() => {
-    if (isFocused) {
-      queryClient.invalidateQueries();
-      queryClient.prefetchQuery(getProjects());
-      queryClient.prefetchQuery(getApplications());
-      queryClient.prefetchQuery(getServices());
-      queryClient.prefetchQuery(getDatabases());
-      queryClient.prefetchQuery(getServers());
-      queryClient.prefetchQuery(getTeams());
-    }
-  }, [isFocused]);
+  useQuery(getProjects());
+  useQuery(getApplications());
+  useQuery(getServices());
+  useQuery(getDatabases());
+  useQuery(getServers());
+  useQuery(getTeams());
 
   useEffect(() => {
     if (isReady) return;
