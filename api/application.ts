@@ -1,7 +1,6 @@
 import { queryClient } from "@/app/_layout";
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
-import { getApplicationDeployments } from "./deployments";
 import {
   Application,
   ApplicationActionResponse,
@@ -46,11 +45,7 @@ export const getApplication = (
 ) => ({
   ...options,
   queryKey: ["applications", uuid],
-  queryFn: () => {
-    queryClient.prefetchQuery(getApplicationLogs(uuid));
-    queryClient.prefetchInfiniteQuery(getApplicationDeployments(uuid));
-    return coolifyFetch<Application>(`/applications/${uuid}`);
-  },
+  queryFn: () => coolifyFetch<Application>(`/applications/${uuid}`),
 });
 
 export const getApplicationLogs = (
