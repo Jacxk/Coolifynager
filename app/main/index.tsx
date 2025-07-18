@@ -2,6 +2,7 @@ import { getApplications } from "@/api/application";
 import { getDatabases } from "@/api/databases";
 import { getDeployments } from "@/api/deployments";
 import { getProjects } from "@/api/projects";
+import { getResources } from "@/api/resources";
 import { getServers } from "@/api/servers";
 import { getServices } from "@/api/services";
 import { getTeams } from "@/api/teams";
@@ -62,6 +63,7 @@ export default function MainIndex() {
   useQuery(getDatabases());
   useQuery(getServers());
   useQuery(getTeams());
+  useQuery(getResources());
 
   useEffect(() => {
     if (isReady) return;
