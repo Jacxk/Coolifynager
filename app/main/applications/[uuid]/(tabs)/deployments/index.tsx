@@ -69,6 +69,7 @@ export default function DeploymentsStack() {
         }
         renderItem={({ item: deployment }) => (
           <DeploymentCard
+            uuid={uuid}
             key={deployment.deployment_uuid}
             deployment={deployment}
           />

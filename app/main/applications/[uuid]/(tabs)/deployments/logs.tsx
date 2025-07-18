@@ -8,13 +8,15 @@ import { H3 } from "@/components/ui/typography";
 import { StatusText } from "@/utils/status";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 
 export default function DeploymentLogs() {
-  const { deployment_uuid } = useLocalSearchParams<{
+  const navigation = useNavigation();
+  const { deployment_uuid, uuid } = useLocalSearchParams<{
     deployment_uuid: string;
+    uuid: string;
   }>();
   const isFocused = useIsFocused();
   const [isFinished, setIsFinished] = useState(false);
@@ -36,6 +38,14 @@ export default function DeploymentLogs() {
     }
   }, [data?.status]);
 
+  useLayoutEffect(() => {
+    if (uuid === "never") {
+      navigation.setOptions({
+        headerShown: false,
+      });
+    }
+  }, [uuid]);
+
   const logs = useMemo<DeploymentLogData[]>(
     () => JSON.parse(data?.logs ?? "[]") as DeploymentLogData[],
     [data?.logs]
@@ -43,7 +53,11 @@ export default function DeploymentLogs() {
   const [showHidden, setShowHidden] = useState(false);
 
   return (
-    <SafeView className="gap-2" bottomInset={false}>
+    <SafeView
+      className="gap-2"
+      bottomInset={uuid === "never"}
+      topInset={uuid === "never"}
+    >
       <View className="flex flex-row gap-2 justify-between items-center">
         <H3>Deployment Log</H3>
         <Button onPress={() => setShowHidden((v) => !v)}>
@@ -52,7 +66,7 @@ export default function DeploymentLogs() {
       </View>
 
       <Text className="text-muted-foreground">
-        Deployment is{" "}
+        Deployment{" "}
         <Text className="text-yellow-500">
           {StatusText.deployment(data?.status)}
         </Text>
