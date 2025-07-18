@@ -9,7 +9,7 @@ import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { Redirect, router, useNavigation } from "expo-router";
 import { Info } from "lucide-react-native";
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { RefreshControl, ScrollView, View } from "react-native";
 import { toast } from "sonner-native";
@@ -75,6 +75,8 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showHeaderTitle, setShowHeaderTitle] = useState(false);
   const [isEditDetails, setIsEditDetails] = useState(false);
+
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const { data, isPending, refetch } = useQuery<T>(
     getResource(uuid, {
@@ -233,6 +235,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
           name={data.name}
           status={data.status || ""}
           showTitle={showHeaderTitle}
+          onHeaderClick={() => scrollViewRef.current?.scrollTo({ y: 0 })}
           leftComponent={
             domains.length > 0 ? <DomainsSelect domains={domains} /> : undefined
           }
@@ -273,6 +276,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
 
   return (
     <ScrollView
+      ref={scrollViewRef}
       refreshControl={
         <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
       }
