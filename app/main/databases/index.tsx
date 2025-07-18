@@ -1,0 +1,55 @@
+import { getDatabases } from "@/api/databases";
+import { ResourceCard } from "@/components/cards/ResourceCard";
+import LoadingScreen from "@/components/LoadingScreen";
+import { SafeView } from "@/components/SafeView";
+import { Text } from "@/components/ui/text";
+import { H1 } from "@/components/ui/typography";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { FlatList, View } from "react-native";
+
+export default function DatabasesIndex() {
+  const { data, isPending, refetch } = useQuery(getDatabases());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  if (isPending) {
+    return <LoadingScreen />;
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <SafeView>
+        <H1>Databases</H1>
+        <Text>No databases found.</Text>
+      </SafeView>
+    );
+  }
+
+  return (
+    <SafeView className="p-0">
+      <FlatList
+        contentContainerClassName="p-4"
+        data={data}
+        keyExtractor={(item) => item.uuid}
+        renderItem={({ item }) => (
+          <ResourceCard
+            uuid={item.uuid}
+            title={item.name}
+            description={item.description || item.status}
+            type="database"
+            href={{
+              pathname: "/main/databases/[uuid]/(tabs)",
+              params: { uuid: item.uuid, name: item.name },
+            }}
+          />
+        )}
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+        refreshing={isRefreshing}
+        onRefresh={() => {
+          setIsRefreshing(true);
+          refetch().finally(() => setIsRefreshing(false));
+        }}
+      />
+    </SafeView>
+  );
+}

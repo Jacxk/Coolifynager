@@ -54,6 +54,10 @@ export default function MainLayout() {
         options={{ title: "Servers", headerShown: true }}
       />
       <Stack.Screen
+        name="databases/index"
+        options={{ title: "Databases", headerShown: true }}
+      />
+      <Stack.Screen
         name="services/index"
         options={{ title: "Services", headerShown: true }}
       />

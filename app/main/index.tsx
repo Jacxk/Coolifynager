@@ -8,8 +8,10 @@ import { getServices } from "@/api/services";
 import { getTeams } from "@/api/teams";
 import { DeploymentCard } from "@/components/cards/DeploymentCard";
 import { FavoritesList } from "@/components/FavoritesList";
+import { Database } from "@/components/icons/Database";
 import { Layers } from "@/components/icons/Layers";
 import { PackageOpen } from "@/components/icons/PackageOpen";
+import { Server } from "@/components/icons/Server";
 import ServerSelect from "@/components/ServerSelect";
 import {
   Card,
@@ -36,6 +38,16 @@ const cards = [
     label: "Applications",
     route: "/main/applications" as const,
     icon: <PackageOpen />,
+  },
+  {
+    label: "Services",
+    route: "/main/services" as const,
+    icon: <Server />,
+  },
+  {
+    label: "Databases",
+    route: "/main/databases" as const,
+    icon: <Database />,
   },
 ];
 
