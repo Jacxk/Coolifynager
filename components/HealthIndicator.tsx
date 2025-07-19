@@ -21,12 +21,8 @@ export function HealthIndicator({
   const unhealthy_exited = status === "exited:unhealthy";
 
   return (
-    <>
-      <Pressable
-        className={cn("flex-1 items-end", className)}
-        onPress={() => setIsHealthDialogOpen(true)}
-        hitSlop={10}
-      >
+    <View className={cn("flex-1 items-end justify-center", className)}>
+      <Pressable onPress={() => setIsHealthDialogOpen(true)} hitSlop={10}>
         <View
           className={cn("size-4 rounded-full animate-pulse", iconClassName, {
             "bg-red-500 animate-ping": unhealthy_exited,
@@ -42,6 +38,6 @@ export function HealthIndicator({
         status={status}
         resourceType="application"
       />
-    </>
+    </View>
   );
 }
