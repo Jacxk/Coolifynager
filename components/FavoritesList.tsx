@@ -64,6 +64,8 @@ type ResourceData = {
   name: string;
   description: string | null;
   status: string;
+  serverStatus: string;
+  type: ResourceType;
 };
 
 export function FavoritesList() {
@@ -100,11 +102,12 @@ export function FavoritesList() {
             uuid: resourceData?.uuid || favorites[index]?.uuid,
             name: resourceData?.name || "Unknown",
             description: resourceData?.description || resourceData?.status,
+            serverStatus: resourceData?.server?.proxy?.status,
             status: resourceData?.status,
             type:
               favorites.filter((f) => f.uuid === resourceData?.uuid)[0]?.type ||
               "disabled",
-          } as ResourceData & { type: ResourceType };
+          } as ResourceData;
         }),
         pending: results.some((result) => result.isPending),
       };
@@ -134,16 +137,13 @@ export function FavoritesList() {
     );
   }
 
-  const grouped = data.reduce(
-    (acc: Record<string, (ResourceData & { type: ResourceType })[]>, item) => {
-      if (item && item.type) {
-        if (!acc[item.type]) acc[item.type] = [];
-        acc[item.type].push(item);
-      }
-      return acc;
-    },
-    {}
-  );
+  const grouped = data.reduce((acc: Record<string, ResourceData[]>, item) => {
+    if (item && item.type) {
+      if (!acc[item.type]) acc[item.type] = [];
+      acc[item.type].push(item);
+    }
+    return acc;
+  }, {});
 
   const typeOrder = [
     { type: "application", label: "Applications" },
@@ -174,6 +174,7 @@ export function FavoritesList() {
                   title={item.name}
                   description={item.description}
                   status={item.status}
+                  serverStatus={item.serverStatus}
                   type={item.type}
                   href={getHref(item.type, item.uuid, item.name)}
                 />

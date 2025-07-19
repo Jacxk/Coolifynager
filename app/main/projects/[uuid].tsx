@@ -113,6 +113,9 @@ export default function Project() {
           return null;
         }
 
+        // If the resource is not a service, we need to get the server status from the destination
+        const serverStatus = (item.destination || item).server.proxy.status;
+
         return (
           <ResourceCard
             uuid={item.uuid}
@@ -121,6 +124,7 @@ export default function Project() {
             status={item.status}
             href={props.href}
             type={props.type}
+            serverStatus={serverStatus}
           />
         );
       }}

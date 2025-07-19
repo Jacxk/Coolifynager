@@ -37,6 +37,7 @@ export default function ServicesIndex() {
             title={item.name}
             description={item.description}
             status={item.status}
+            serverStatus={item.server.proxy.status}
             type="service"
             href={{
               pathname: "/main/services/[uuid]/(tabs)",

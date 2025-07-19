@@ -13,8 +13,9 @@ type ResourceCardProps = {
   uuid: string;
   type: ResourceType;
   status?: string | null;
-  description?: string | null;
+  description?: string | React.ReactNode | null;
   hideFavorite?: boolean;
+  serverStatus?: string | null;
 };
 
 export function ResourceCard({
@@ -25,15 +26,21 @@ export function ResourceCard({
   status,
   description,
   hideFavorite = false,
+  serverStatus = "running",
 }: ResourceCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
+  const isServerRunning = serverStatus === "running";
 
   return (
     <Link href={href}>
       <Card className="w-full max-w-sm relative">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
-          <CardDescription>{description}</CardDescription>
+          <CardDescription className={!isServerRunning ? "text-red-500" : ""}>
+            {isServerRunning
+              ? description
+              : "The underlying server has problems"}
+          </CardDescription>
         </CardHeader>
         {status && (
           <HealthIndicator
