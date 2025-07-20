@@ -57,9 +57,7 @@ async function sendToast({
         label: "Undo",
         onClick: async () => {
           const current = await _getFavorites();
-          const data = current.filter(
-            (fav) => !(fav.uuid === params.uuid && fav.type === params.type)
-          );
+          const data = current.filter((fav) => fav.uuid !== params.uuid);
 
           await _setFavorites(data);
           setFavorites(data);

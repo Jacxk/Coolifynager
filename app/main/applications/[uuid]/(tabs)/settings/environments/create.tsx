@@ -2,7 +2,7 @@ import { createApplicationEnv } from "@/api/application";
 import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router, useGlobalSearchParams } from "expo-router";
@@ -63,16 +63,11 @@ export default function ApplicationEnvironmentsCreate() {
         </View>
         <View>
           <Text>Value</Text>
-          <Input
+          <PasswordInput
             ref={valueInputRef}
             placeholder="Enter variable value"
             value={value}
             onChangeText={setValue}
-            autoComplete="off"
-            autoCorrect={false}
-            importantForAutofill="no"
-            textContentType="none"
-            secureTextEntry
           />
         </View>
         <View className="flex flex-row gap-2">
