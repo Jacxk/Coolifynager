@@ -1,9 +1,8 @@
 import { ChevronRight } from "@/components/icons/ChevronRight";
 import { TriangleAlert } from "@/components/icons/TriangleAlert";
-import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
 import { Link } from "expo-router";
-import { ScrollView, View } from "react-native";
+import { FlatList, View } from "react-native";
 
 function SettingsLink({
   href,
@@ -28,15 +27,20 @@ function SettingsLink({
 }
 
 export default function DatabaseSettingsIndex() {
+  const data = [
+    {
+      icon: <TriangleAlert />,
+      href: "./settings/danger",
+      label: "Danger Zone",
+    },
+  ];
   return (
-    <SafeView bottomInset={false}>
-      <ScrollView>
-        <SettingsLink
-          icon={<TriangleAlert />}
-          href="./settings/danger"
-          label="Danger Zone"
-        />
-      </ScrollView>
-    </SafeView>
+    <FlatList
+      className="p-4"
+      data={data}
+      renderItem={({ item }) => (
+        <SettingsLink icon={item.icon} href={item.href} label={item.label} />
+      )}
+    />
   );
 }

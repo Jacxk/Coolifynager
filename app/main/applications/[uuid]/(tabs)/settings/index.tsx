@@ -2,12 +2,11 @@ import { getApplicationEnvs } from "@/api/application";
 import { ChevronRight } from "@/components/icons/ChevronRight";
 import { Code } from "@/components/icons/Code";
 import { TriangleAlert } from "@/components/icons/TriangleAlert";
-import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useGlobalSearchParams } from "expo-router";
-import { ScrollView, View } from "react-native";
+import { FlatList, View } from "react-native";
 
 function SettingsLink({
   href,
@@ -37,20 +36,26 @@ export default function ApplicationSettingsIndex() {
 
   useQuery(getApplicationEnvs(uuid, { enabled: isFocused }));
 
+  const data = [
+    {
+      icon: <Code />,
+      href: "./settings/environments",
+      label: "Environment Variables",
+    },
+    {
+      icon: <TriangleAlert />,
+      href: "./settings/danger",
+      label: "Danger Zone",
+    },
+  ];
+
   return (
-    <SafeView bottomInset={false}>
-      <ScrollView>
-        <SettingsLink
-          icon={<Code />}
-          href="./settings/environments"
-          label="Environment Variables"
-        />
-        <SettingsLink
-          icon={<TriangleAlert />}
-          href="./settings/danger"
-          label="Danger Zone"
-        />
-      </ScrollView>
-    </SafeView>
+    <FlatList
+      className="p-4"
+      data={data}
+      renderItem={({ item }) => (
+        <SettingsLink icon={item.icon} href={item.href} label={item.label} />
+      )}
+    />
   );
 }
