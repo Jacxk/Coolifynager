@@ -7,6 +7,7 @@ import { getTeam } from "@/api/teams";
 import { ResourceType } from "@/api/types/resources.types";
 import { Text } from "@/components/ui/text";
 import { useFavorites } from "@/context/FavoritesContext";
+import { groupBy } from "@/lib/utils";
 import { useQueries, UseQueryOptions } from "@tanstack/react-query";
 import { LinkProps } from "expo-router";
 import { View } from "react-native";
@@ -18,6 +19,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
+import { Skeleton } from "./ui/skeleton";
 import { H2 } from "./ui/typography";
 
 const getHref = (
@@ -126,24 +128,27 @@ export function FavoritesList() {
   }
 
   if (pending) {
+    const groups = groupBy(favorites, (obj) => obj.type);
     return (
-      <View>
+      <View className="gap-4">
         <H2>Favorites</H2>
         <View className="flex gap-2">
-          <SkeletonCard />
-          <SkeletonCard />
+          {Object.keys(groups).map((type) => (
+            <View key={type} className="flex gap-2">
+              <Skeleton key={type} className="w-1/2 h-8" />
+              <View className="p-2 gap-2">
+                {groups[type as ResourceType].map((item) => (
+                  <SkeletonCard key={item.uuid} />
+                ))}
+              </View>
+            </View>
+          ))}
         </View>
       </View>
     );
   }
 
-  const grouped = data.reduce((acc: Record<string, ResourceData[]>, item) => {
-    if (item && item.type) {
-      if (!acc[item.type]) acc[item.type] = [];
-      acc[item.type].push(item);
-    }
-    return acc;
-  }, {});
+  const grouped = groupBy(data, (obj) => obj.type);
 
   const typeOrder = [
     { type: "application", label: "Applications" },
@@ -152,15 +157,17 @@ export function FavoritesList() {
     { type: "team", label: "Teams" },
     { type: "service", label: "Services" },
     { type: "database", label: "Databases" },
-  ];
+  ] as const;
 
   const presentTypes = typeOrder.filter(({ type }) => grouped[type]);
-  const defaultValue = presentTypes.map(({ type }) => type);
 
   return (
     <View className="flex gap-4">
       <H2>Favorites</H2>
-      <Accordion type="multiple" defaultValue={defaultValue}>
+      <Accordion
+        type="multiple"
+        defaultValue={typeOrder.map(({ type }) => type)}
+      >
         {presentTypes.map(({ type, label }) => (
           <AccordionItem className="border-0" key={type} value={type}>
             <AccordionTrigger>
