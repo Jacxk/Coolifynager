@@ -4,7 +4,7 @@ import { Text } from "@/components/ui/text";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 type LogsData = {
@@ -20,13 +20,22 @@ export function ResourceLogs({ logsFetcher }: ResourceLogsProps) {
   const isFocused = useIsFocused();
 
   const [lines, setLines] = useState("100");
+  const [debouncedLines, setDebouncedLines] = useState("100");
 
   const { data: logData, isPending: isPendingLogs } = useQuery(
-    logsFetcher(uuid, Number(lines), {
+    logsFetcher(uuid, Number(debouncedLines), {
       refetchInterval: 2000,
       enabled: isFocused,
     })
   );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedLines(lines);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [lines]);
 
   return (
     <View className="flex-1 gap-2">
