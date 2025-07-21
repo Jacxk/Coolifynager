@@ -13,8 +13,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import LoadingScreen from "./LoadingScreen";
 import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
 
 type LogObject = {
   output: string;
@@ -37,7 +37,9 @@ function LogLineItem({
   return (
     <View className={cn("flex-row items-stretch w-full", className)}>
       <Text
-        className={cn("font-mono", { "text-yellow-500": log.hidden })}
+        className={cn("font-mono flex-1", {
+          "text-yellow-600 bg-yellow-500/10": log.hidden,
+        })}
         selectable
       >
         {log.output}
@@ -86,7 +88,7 @@ export default function LogsViewer({
     <View className="flex-1 relative">
       <FlatList
         ref={scrollViewRef}
-        inverted={!isLoading && !noLogs}
+        inverted={isLoading || !noLogs}
         invertStickyHeaders
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -99,7 +101,15 @@ export default function LogsViewer({
         )}
         keyExtractor={(_, index) => `line-${index.toString()}`}
         ListEmptyComponent={() => {
-          if (isLoading) return <LoadingScreen className="pt-4" />;
+          if (isLoading)
+            return (
+              <View className="gap-2">
+                {Array.from({ length: 30 }).map((_, index) => (
+                  <Skeleton className="h-4 w-full" key={index} />
+                ))}
+              </View>
+            );
+
           if (noLogs)
             return (
               <View className="flex-1 pt-4 items-center">
