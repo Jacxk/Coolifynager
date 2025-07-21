@@ -3,7 +3,6 @@ import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
-import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
@@ -18,9 +17,8 @@ export default function ApplicationsIndex() {
 
   if (!data || data.length === 0) {
     return (
-      <View className="flex-1 justify-center items-center p-8">
-        <H1>Applications</H1>
-        <Text>No applications found.</Text>
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-muted-foreground">No applications found.</Text>
       </View>
     );
   }

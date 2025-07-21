@@ -136,7 +136,6 @@ export default function MainIndex() {
         ))}
       </View>
 
-      {/* TODO: fix deployment links, api is not returning the application uuid */}
       {deployments && deployments.length > 0 && (
         <View className="flex gap-4">
           <H2>Deployments</H2>

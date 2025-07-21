@@ -1,9 +1,8 @@
 import { getTeams } from "@/api/teams";
 import { ResourceCard } from "@/components/cards/ResourceCard";
-import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
+import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
 import { Text } from "@/components/ui/text";
-import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
@@ -13,15 +12,14 @@ export default function TeamsIndex() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (isPending) {
-    return <LoadingScreen />;
+    return <ResourcesSkeleton />;
   }
 
   if (!data || data.length === 0) {
     return (
-      <SafeView>
-        <H1>Teams</H1>
-        <Text>No teams found.</Text>
-      </SafeView>
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-muted-foreground">No teams found.</Text>
+      </View>
     );
   }
 

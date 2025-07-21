@@ -1,7 +1,7 @@
 import { getProjects } from "@/api/projects";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
-import { ProjectsSkeleton } from "@/components/skeletons/ProjectsSkeleton";
+import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
 import { Text } from "@/components/ui/text";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -12,7 +12,7 @@ export default function ProjectsIndex() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (isPending) {
-    return <ProjectsSkeleton />;
+    return <ResourcesSkeleton />;
   }
 
   if (!data || data.length === 0) {
