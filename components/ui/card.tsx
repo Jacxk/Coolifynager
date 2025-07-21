@@ -10,10 +10,13 @@ const cardVariants = cva(
     variants: {
       variant: {
         default: "",
-        destructive: "border-l-red-500 border-l-4",
-        success: "border-l-green-500 border-l-4",
-        info: "border-l-yellow-500 border-l-4",
-        ghost: "border-l-foreground border-l-4",
+        destructive:
+          "ios:border-l-red-500 ios:border-l-4 android:bg-red-500/20",
+        success:
+          "ios:border-l-green-500 ios:border-l-4 android:bg-green-500/20",
+        info: "ios:border-l-yellow-500 ios:border-l-4 android:bg-yellow-500/20",
+        ghost:
+          "ios:border-l-foreground ios:border-l-4 android:bg-foreground/20",
       },
     },
     defaultVariants: {
