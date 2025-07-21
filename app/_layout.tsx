@@ -36,7 +36,7 @@ export {
 
 export default function RootLayout() {
   const hasMounted = useRef(false);
-  const { colorScheme, isDarkColorScheme } = useColorScheme();
+  const { isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
 
   useLayoutEffect(() => {
@@ -54,7 +54,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <StatusBar style={colorScheme} />
+      <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
           <GestureHandlerRootView>
