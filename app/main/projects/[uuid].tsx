@@ -2,14 +2,16 @@ import { getProject } from "@/api/projects";
 import { getResources } from "@/api/resources";
 import { ResourceType } from "@/api/types/resources.types";
 import { ResourceCard } from "@/components/cards/ResourceCard";
+import { SafeView } from "@/components/SafeView";
 import { ProjectSkeleton } from "@/components/skeletons/ProjectSkeleton";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
+import { ChevronUp } from "@/lib/icons/ChevronUp";
 import { useQuery } from "@tanstack/react-query";
 import { LinkProps, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
-import { RefreshControl, SectionList } from "react-native";
+import { RefreshControl, SectionList, View } from "react-native";
 
 export default function Project() {
   const navigation = useNavigation();
@@ -52,7 +54,17 @@ export default function Project() {
   }
 
   if (!project || !resources) {
-    return <Text>No project or resources found</Text>;
+    return (
+      <SafeView className="justify-center items-center relative">
+        <Text className="text-muted-foreground">
+          No resources found on this project.
+        </Text>
+        <View className="absolute top-2 right-7 animate-bounce flex flex-row items-center gap-2">
+          <Text className="text-muted-foreground">Create new resource</Text>
+          <ChevronUp className="text-muted-foreground" size={16} />
+        </View>
+      </SafeView>
+    );
   }
 
   const projectEnvironmentIds = project.environments.map((env) => env.id);

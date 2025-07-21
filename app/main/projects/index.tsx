@@ -17,9 +17,9 @@ export default function ProjectsIndex() {
 
   if (!data || data.length === 0) {
     return (
-      <SafeView className="justify-center items-center">
-        <Text>No projects found.</Text>
-      </SafeView>
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-muted-foreground">No projects found.</Text>
+      </View>
     );
   }
 
