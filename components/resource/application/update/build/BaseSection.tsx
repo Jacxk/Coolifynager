@@ -1,6 +1,10 @@
 import { UpdateApplicationBody } from "@/api/types/application.types";
 import InfoDialog from "@/components/InfoDialog";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Checkbox,
+  CheckboxIcon,
+  CheckboxLabel,
+} from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
@@ -78,35 +82,38 @@ export default function BaseSection({
           )}
         />
       </View>
-      <View className="gap-4 flex-row items-center">
-        <InfoDialog
-          label="Use a Build Server?"
-          description={
-            <Text className="text-muted-foreground">
-              Use a build server to build your application. You can configure
-              your build server in the Server settings. For more info, check the{" "}
-              <Text
-                className="underline"
-                onPress={() =>
-                  openBrowserAsync(
-                    "https://coolify.io/docs/knowledge-base/server/build-server"
-                  )
+      <Controller
+        control={control}
+        name="use_build_server"
+        render={({ field: { onChange, value } }) => (
+          <Checkbox checked={value ?? false} onCheckedChange={onChange}>
+            <CheckboxLabel asChild>
+              <InfoDialog
+                label="Use a Build Server?"
+                description={
+                  <Text className="text-muted-foreground">
+                    Use a build server to build your application. You can
+                    configure your build server in the Server settings. For more
+                    info, check the{" "}
+                    <Text
+                      className="underline"
+                      onPress={() =>
+                        openBrowserAsync(
+                          "https://coolify.io/docs/knowledge-base/server/build-server"
+                        )
+                      }
+                    >
+                      documentation
+                    </Text>
+                    .
+                  </Text>
                 }
-              >
-                documentation
-              </Text>
-              .
-            </Text>
-          }
-        />
-        <Controller
-          control={control}
-          name="use_build_server"
-          render={({ field: { onChange, value } }) => (
-            <Checkbox checked={value ?? false} onCheckedChange={onChange} />
-          )}
-        />
-      </View>
+              />
+            </CheckboxLabel>
+            <CheckboxIcon />
+          </Checkbox>
+        )}
+      />
     </>
   );
 }

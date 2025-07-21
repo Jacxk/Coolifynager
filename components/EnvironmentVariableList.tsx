@@ -1,7 +1,11 @@
 import { getApplicationEnvs } from "@/api/application";
 import { ApplicationEnv } from "@/api/types/application.types";
 import LoadingScreen from "@/components/LoadingScreen";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Checkbox,
+  CheckboxIcon,
+  CheckboxLabel,
+} from "@/components/ui/checkbox";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
@@ -62,30 +66,30 @@ export default function EnvironmentVariableList({ uuid }: { uuid: string }) {
           value={env.value}
         />
         <View className="flex flex-row gap-4 flex-wrap">
-          <View className="flex flex-row gap-2">
-            <Text className="text-muted-foreground">Is Build Variable?</Text>
-            <Checkbox
-              checked={env.is_build_time}
-              onCheckedChange={() => {}}
-              disabled
-            />
-          </View>
-          <View className="flex flex-row gap-2">
-            <Text className="text-muted-foreground">Is Multiline?</Text>
-            <Checkbox
-              checked={env.is_multiline}
-              onCheckedChange={() => {}}
-              disabled
-            />
-          </View>
-          <View className="flex flex-row gap-2">
-            <Text className="text-muted-foreground">Is Literal?</Text>
-            <Checkbox
-              checked={env.is_literal}
-              onCheckedChange={() => {}}
-              disabled
-            />
-          </View>
+          <Checkbox
+            checked={env.is_build_time}
+            onCheckedChange={() => {}}
+            disabled
+          >
+            <CheckboxLabel>Is Build Variable?</CheckboxLabel>
+            <CheckboxIcon />
+          </Checkbox>
+          <Checkbox
+            checked={env.is_multiline}
+            onCheckedChange={() => {}}
+            disabled
+          >
+            <CheckboxLabel>Is Multiline?</CheckboxLabel>
+            <CheckboxIcon />
+          </Checkbox>
+          <Checkbox
+            checked={env.is_literal}
+            onCheckedChange={() => {}}
+            disabled
+          >
+            <CheckboxLabel>Is Literal?</CheckboxLabel>
+            <CheckboxIcon />
+          </Checkbox>
         </View>
       </CardContent>
     </Card>

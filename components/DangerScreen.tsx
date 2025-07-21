@@ -1,5 +1,10 @@
 import { deleteService } from "@/api/services";
 import { ResourceType } from "@/api/types/resources.types";
+import {
+  Checkbox,
+  CheckboxIcon,
+  CheckboxLabel,
+} from "@/components/ui/checkbox";
 import { Text } from "@/components/ui/text";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useMutation } from "@tanstack/react-query";
@@ -19,7 +24,6 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 import { Button } from "./ui/button";
-import { Checkbox } from "./ui/checkbox";
 import { H1, H3 } from "./ui/typography";
 
 // TODO: Add delete action
@@ -88,50 +92,50 @@ export default function DangerScreen({
           </AlertDialogHeader>
 
           <View className="flex gap-3">
-            <View className="flex-row items-center gap-2">
-              <Checkbox
-                checked={deleteVolumes}
-                onCheckedChange={setDeleteVolumes}
-                nativeID="delete-volumes"
-              />
-              <Text className="text-sm" nativeID="delete-volumes">
+            <Checkbox
+              checked={deleteVolumes}
+              onCheckedChange={setDeleteVolumes}
+              nativeID="delete-volumes"
+            >
+              <CheckboxLabel>
                 Permanently delete all volumes associated with this resource.
-              </Text>
-            </View>
+              </CheckboxLabel>
+              <CheckboxIcon />
+            </Checkbox>
 
-            <View className="flex-row items-center gap-2">
-              <Checkbox
-                checked={deleteNetworks}
-                onCheckedChange={setDeleteNetworks}
-                nativeID="delete-networks"
-              />
-              <Text className="text-sm" nativeID="delete-networks">
+            <Checkbox
+              checked={deleteNetworks}
+              onCheckedChange={setDeleteNetworks}
+              nativeID="delete-networks"
+            >
+              <CheckboxLabel>
                 Permanently delete all non-predefined networks associated with
                 this resource.
-              </Text>
-            </View>
+              </CheckboxLabel>
+              <CheckboxIcon />
+            </Checkbox>
 
-            <View className="flex-row items-center gap-2">
-              <Checkbox
-                checked={deleteConfigFiles}
-                onCheckedChange={setDeleteConfigFiles}
-                nativeID="delete-config-files"
-              />
-              <Text className="text-sm" nativeID="delete-config-files">
+            <Checkbox
+              checked={deleteConfigFiles}
+              onCheckedChange={setDeleteConfigFiles}
+              nativeID="delete-config-files"
+            >
+              <CheckboxLabel>
                 Permanently delete all configuration files from the server.
-              </Text>
-            </View>
+              </CheckboxLabel>
+              <CheckboxIcon />
+            </Checkbox>
 
-            <View className="flex-row items-center gap-2">
-              <Checkbox
-                checked={runDockerCleanup}
-                onCheckedChange={setRunDockerCleanup}
-                nativeID="run-docker-cleanup"
-              />
-              <Text className="text-sm" nativeID="run-docker-cleanup">
+            <Checkbox
+              checked={runDockerCleanup}
+              onCheckedChange={setRunDockerCleanup}
+              nativeID="run-docker-cleanup"
+            >
+              <CheckboxLabel>
                 Run Docker Cleanup (remove unused images and builder cache).
-              </Text>
-            </View>
+              </CheckboxLabel>
+              <CheckboxIcon />
+            </Checkbox>
           </View>
 
           <AlertDialogFooter className="flex flex-row gap-2 self-end">

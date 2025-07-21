@@ -3,7 +3,11 @@ import { ResourceHttpError } from "@/api/types/resources.types";
 import { Service, UpdateServiceBody } from "@/api/types/services.types";
 import InfoDialog from "@/components/InfoDialog";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Checkbox,
+  CheckboxIcon,
+  CheckboxLabel,
+} from "@/components/ui/checkbox";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { H3 } from "@/components/ui/typography";
@@ -82,47 +86,49 @@ export default function UpdateService({
         title="Service Stack"
         description="All the fields are read-only. To update the service stack, please use the Coolify UI."
       />
-      <View className="flex-row items-center gap-4">
-        <InfoDialog
-          label="Connect To Predefined Network"
-          description={
-            <View className="gap-2">
-              <Text className="text-muted-foreground">
-                By default, you do not reach the Coolify defined networks.
-                Starting a docker compose based resource will have an internal
-                network. If you connect to a Coolify defined network, you maybe
-                need to use different internal DNS names to connect to a
-                resource.
-              </Text>
-              <Text className="text-muted-foreground">
-                For more information, check{" "}
-                <Text
-                  className="underline"
-                  onPress={() =>
-                    openBrowserAsync(
-                      "https://coolify.io/docs/knowledge-base/docker/compose#connect-to-predefined-networks"
-                    )
-                  }
-                >
-                  this
-                </Text>
-                .
-              </Text>
-            </View>
-          }
-        />
-        <Controller
-          control={control}
-          name="connect_to_docker_network"
-          render={({ field: { onChange, value } }) => (
-            <Checkbox
-              checked={value ?? false}
-              onCheckedChange={onChange}
-              disabled
-            />
-          )}
-        />
-      </View>
+      <Controller
+        control={control}
+        name="connect_to_docker_network"
+        render={({ field: { onChange, value } }) => (
+          <Checkbox
+            checked={value ?? false}
+            onCheckedChange={onChange}
+            disabled
+          >
+            <CheckboxLabel asChild>
+              <InfoDialog
+                label="Connect To Predefined Network"
+                description={
+                  <View className="gap-2">
+                    <Text className="text-muted-foreground">
+                      By default, you do not reach the Coolify defined networks.
+                      Starting a docker compose based resource will have an
+                      internal network. If you connect to a Coolify defined
+                      network, you maybe need to use different internal DNS
+                      names to connect to a resource.
+                    </Text>
+                    <Text className="text-muted-foreground">
+                      For more information, check{" "}
+                      <Text
+                        className="underline"
+                        onPress={() =>
+                          openBrowserAsync(
+                            "https://coolify.io/docs/knowledge-base/docker/compose#connect-to-predefined-networks"
+                          )
+                        }
+                      >
+                        this
+                      </Text>
+                      .
+                    </Text>
+                  </View>
+                }
+              />
+            </CheckboxLabel>
+            <CheckboxIcon />
+          </Checkbox>
+        )}
+      />
       <View className="flex-1 gap-1 h-[50vh]">
         <InfoDialog
           label="Docker Compose"

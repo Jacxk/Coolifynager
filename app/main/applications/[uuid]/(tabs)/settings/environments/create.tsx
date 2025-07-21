@@ -1,7 +1,11 @@
 import { createApplicationEnv } from "@/api/application";
 import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Checkbox,
+  CheckboxIcon,
+  CheckboxLabel,
+} from "@/components/ui/checkbox";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -70,18 +74,18 @@ export default function ApplicationEnvironmentsCreate() {
             onChangeText={setValue}
           />
         </View>
-        <View className="flex flex-row gap-2">
-          <Text>Is Build Variable?</Text>
-          <Checkbox checked={isBuildTime} onCheckedChange={setIsBuildTime} />
-        </View>
-        <View className="flex flex-row gap-2">
-          <Text>Is Literal?</Text>
-          <Checkbox checked={isLiteral} onCheckedChange={setIsLiteral} />
-        </View>
-        <View className="flex flex-row gap-2">
-          <Text>Is Preview?</Text>
-          <Checkbox checked={isPreview} onCheckedChange={setIsPreview} />
-        </View>
+        <Checkbox checked={isBuildTime} onCheckedChange={setIsBuildTime}>
+          <CheckboxLabel>Is Build Variable?</CheckboxLabel>
+          <CheckboxIcon />
+        </Checkbox>
+        <Checkbox checked={isLiteral} onCheckedChange={setIsLiteral}>
+          <CheckboxLabel>Is Literal?</CheckboxLabel>
+          <CheckboxIcon />
+        </Checkbox>
+        <Checkbox checked={isPreview} onCheckedChange={setIsPreview}>
+          <CheckboxLabel>Is Preview?</CheckboxLabel>
+          <CheckboxIcon />
+        </Checkbox>
         {mutation.isError && (
           <Text className="text-red-500">
             {(mutation.error as Error)?.message ||
