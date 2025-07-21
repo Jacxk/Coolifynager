@@ -166,7 +166,7 @@ export function FavoritesList() {
             <AccordionTrigger>
               <Text>{label}</Text>
             </AccordionTrigger>
-            <AccordionContent className="gap-2">
+            <AccordionContent className="gap-2 p-2">
               {grouped[type].map((item) => (
                 <ResourceCard
                   key={item.uuid}
