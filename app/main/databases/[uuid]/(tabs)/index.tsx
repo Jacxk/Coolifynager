@@ -8,11 +8,9 @@ import {
 import UpdateDatabase from "@/components/resource/database/UpdateDatabase";
 import ResourceScreen from "@/components/resource/ResourceScreen";
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
 
 export default function Database() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
-  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <ResourceScreen
@@ -24,9 +22,8 @@ export default function Database() {
       stopResource={stopDatabase}
       restartResource={restartDatabase}
       updateResource={updateDatabase}
-      isEnabled={!isEditing}
     >
-      {(data) => <UpdateDatabase data={data} setIsEditing={setIsEditing} />}
+      {(data) => <UpdateDatabase data={data} />}
     </ResourceScreen>
   );
 }

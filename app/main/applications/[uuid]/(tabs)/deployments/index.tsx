@@ -1,14 +1,14 @@
 import { getApplicationDeployments } from "@/api/deployments";
 import { DeploymentCard } from "@/components/cards/DeploymentCard";
-import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
+import { SkeletonCard } from "@/components/skeletons/SkeletonCard";
 import { Text } from "@/components/ui/text";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useIsFocused } from "@react-navigation/native";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, FlatList } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 
 export default function DeploymentsStack() {
   const isFocused = useIsFocused();
@@ -37,13 +37,19 @@ export default function DeploymentsStack() {
   useRefreshOnFocus(refetch);
 
   if (isPending) {
-    return <LoadingScreen />;
+    return (
+      <View className="p-4 gap-2">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <SkeletonCard className="h-52" key={index} />
+        ))}
+      </View>
+    );
   }
 
   if (!data || !data.pages[0]?.count) {
     return (
       <SafeView className="justify-center items-center">
-        <Text>No deployments found.</Text>
+        <Text className="text-muted-foreground">No deployments found.</Text>
       </SafeView>
     );
   }

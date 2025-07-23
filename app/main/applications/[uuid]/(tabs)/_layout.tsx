@@ -15,28 +15,28 @@ export default function ApplicationTabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <Home size={28} color={color} />,
+          tabBarIcon: (props) => <Home {...props} />,
         }}
       />
       <Tabs.Screen
         name="deployments"
         options={{
           title: "Deployments",
-          tabBarIcon: ({ color }) => <Rocket size={28} color={color} />,
+          tabBarIcon: (props) => <Rocket {...props} />,
         }}
       />
       <Tabs.Screen
         name="logs"
         options={{
           title: "Logs",
-          tabBarIcon: ({ color }) => <Logs size={28} color={color} />,
+          tabBarIcon: (props) => <Logs {...props} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color }) => <Settings size={28} color={color} />,
+          tabBarIcon: (props) => <Settings {...props} />,
         }}
       />
     </Tabs>

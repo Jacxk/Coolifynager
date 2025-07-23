@@ -4,7 +4,7 @@ import LogsViewer from "@/components/LogsViewer";
 import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { H3 } from "@/components/ui/typography";
+import { H2 } from "@/components/ui/typography";
 import { StatusText } from "@/utils/status";
 import { useIsFocused } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
@@ -47,7 +47,7 @@ export default function DeploymentLogs() {
   }, [uuid]);
 
   const logs = useMemo<DeploymentLogData[]>(
-    () => JSON.parse(data?.logs ?? "[]") as DeploymentLogData[],
+    () => (JSON.parse(data?.logs ?? "[]") as DeploymentLogData[]).toReversed(),
     [data?.logs]
   );
   const [showHidden, setShowHidden] = useState(false);
@@ -58,20 +58,20 @@ export default function DeploymentLogs() {
       bottomInset={uuid === "never"}
       topInset={uuid === "never"}
     >
-      <View className="flex flex-row gap-2 justify-between items-center">
-        <H3>Deployment Log</H3>
+      <H2>{data?.commit_message ?? "Manual Deployment"}</H2>
+      <View className="flex flex-row gap-2 justify-between items-end">
+        <Text className="text-muted-foreground">
+          Deployment{" "}
+          <Text className="text-yellow-500">
+            {StatusText.deployment(data?.status ?? "--")}
+          </Text>
+          .
+        </Text>
         <Button onPress={() => setShowHidden((v) => !v)}>
           <Text>{showHidden ? "Hide" : "Show"} Debug Logs</Text>
         </Button>
       </View>
 
-      <Text className="text-muted-foreground">
-        Deployment{" "}
-        <Text className="text-yellow-500">
-          {StatusText.deployment(data?.status)}
-        </Text>
-        .
-      </Text>
       <LogsViewer
         logs={showHidden ? logs : logs?.filter((log) => !log.hidden)}
         isLoading={isPending}

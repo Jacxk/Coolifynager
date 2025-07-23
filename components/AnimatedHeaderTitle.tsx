@@ -1,7 +1,7 @@
 import { Text } from "@/components/ui/text";
 import { useTheme } from "@react-navigation/native";
 import { useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -55,45 +55,55 @@ export const AnimatedHeader = ({
 
   const containerShadowStyle = useAnimatedStyle(() => {
     const shadowOpacity = interpolate(borderProgress.value, [0, 1], [0, 0.15]);
-    return {
-      shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity,
-      shadowRadius: 6,
-      elevation: interpolate(borderProgress.value, [0, 1], [0, 6]),
+    const baseStyle = {
       backgroundColor: colors.background,
     };
+
+    if (Platform.OS === "ios") {
+      return {
+        ...baseStyle,
+        shadowColor: colors.primary,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity,
+        shadowRadius: 6,
+      };
+    } else {
+      return {
+        ...baseStyle,
+        elevation: interpolate(borderProgress.value, [0, 1], [0, 6]),
+      };
+    }
   });
 
   return (
     <Animated.View
-      className="flex flex-row justify-between items-center p-4 h-26 mt-4"
-      style={[{ paddingTop: insets.top }, containerShadowStyle]}
+      className="flex flex-row justify-between items-center pt-8 p-4 h-26 relative"
+      style={[{ paddingTop: insets.top + 10 }, containerShadowStyle]}
     >
-      <View className="">{leftComponent}</View>
+      <View className="z-10">{leftComponent}</View>
 
       <Animated.View
         style={titleAnimatedStyle}
-        className="flex items-center w-1/2"
+        className="flex items-center absolute left-0 bottom-4 right-0"
       >
-        <Pressable onPress={onHeaderClick}>
+        <Pressable onPress={onHeaderClick} hitSlop={10} className="w-1/2">
           <Text
             className="text-base font-semibold text-center "
             numberOfLines={1}
           >
             {name}
           </Text>
-        </Pressable>
 
-        <Text
-          className="text-xs text-muted-foreground text-center"
-          numberOfLines={1}
-        >
-          {status}
-        </Text>
+          <Text
+            className="text-xs text-muted-foreground text-center"
+            numberOfLines={1}
+          >
+            {status}
+          </Text>
+        </Pressable>
       </Animated.View>
 
-      <View className="">{rightComponent}</View>
+      <View className="z-10">{rightComponent}</View>
     </Animated.View>
   );
 };

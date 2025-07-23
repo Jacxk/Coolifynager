@@ -4,12 +4,13 @@ import {
   ResourceBase,
   ResourceHttpError,
 } from "@/api/types/resources.types";
+import { EditingProvider, useEditing } from "@/context/EditingContext";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useIsFocused } from "@react-navigation/native";
 import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { Redirect, router, useNavigation } from "expo-router";
+import { Redirect, router, Stack } from "expo-router";
 import { Info } from "lucide-react-native";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { RefreshControl, ScrollView, View } from "react-native";
 import { toast } from "sonner-native";
@@ -43,7 +44,6 @@ export type ResourceScreenProps<T extends ResourceBase = ResourceBase> = {
   isDeploying: boolean;
   children: (data: T) => React.ReactNode;
   isApplication: boolean;
-  isEnabled?: boolean;
   getResource: (
     uuid: string,
     options?: Omit<
@@ -57,33 +57,31 @@ export type ResourceScreenProps<T extends ResourceBase = ResourceBase> = {
   updateResource: (uuid: string) => MutationObject;
 };
 
-export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
-  getResource,
-  startResource,
-  stopResource,
-  restartResource,
-  updateResource,
-  uuid,
-  children,
-  isDeploying,
-  isApplication,
-  isEnabled = true,
-}: ResourceScreenProps<T>) {
-  const isFocused = useIsFocused();
-  const navigation = useNavigation();
+function extractDomains<T extends ResourceBase>(data: T): string[] {
+  if (!data) return [];
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showHeaderTitle, setShowHeaderTitle] = useState(false);
-  const [isEditDetails, setIsEditDetails] = useState(false);
+  if ("fqdn" in data && data.fqdn) {
+    return (data.fqdn as string).split(",").filter(Boolean);
+  } else if ("applications" in data && data.applications) {
+    return (
+      (data.applications as any[])
+        ?.map((app) => app.fqdn)
+        .filter(Boolean)
+        .flatMap((fqdn) => fqdn.split(","))
+        .filter(Boolean) || []
+    );
+  }
+  return [];
+}
 
-  const scrollViewRef = useRef<ScrollView>(null);
-
-  const { data, isPending, refetch } = useQuery<T>(
-    getResource(uuid, {
-      refetchInterval: 20000,
-      enabled: isFocused && isEnabled && !isEditDetails,
-    })
-  );
+function ResourceEditingForm<T extends ResourceBase>({
+  data,
+  onSubmitDetails,
+}: {
+  data: T;
+  onSubmitDetails: (data: { name: string; description: string }) => void;
+}) {
+  const { isEditingDetails, setIsEditingDetails } = useEditing();
 
   const {
     control,
@@ -97,13 +95,151 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
     },
   });
 
+  if (!isEditingDetails) return null;
+
+  const handleSave = (formData: { name: string; description: string }) => {
+    onSubmitDetails(formData);
+  };
+
+  const handleCancel = () => {
+    reset();
+  };
+
+  return (
+    <>
+      <View className="flex flex-row justify-between items-center">
+        <View className="w-5/6">
+          <Controller
+            control={control}
+            name="name"
+            rules={{ required: true }}
+            render={({ field: { value, onChange } }) => (
+              <Input
+                value={value}
+                onChangeText={onChange}
+                onSubmitEditing={handleSubmit(onSubmitDetails)}
+                autoCapitalize="words"
+                placeholder="Resource name"
+              />
+            )}
+          />
+          {errors.name && (
+            <Text className="text-red-500">Resource name is required.</Text>
+          )}
+        </View>
+        <HealthIndicator status={data.status} />
+      </View>
+      <Controller
+        control={control}
+        name="description"
+        render={({ field: { value, onChange } }) => (
+          <Input
+            className="mt-2"
+            value={value}
+            onChangeText={onChange}
+            onSubmitEditing={handleSubmit(onSubmitDetails)}
+            placeholder="Resource description"
+          />
+        )}
+      />
+
+      <View className="flex-row gap-2 mt-4">
+        <Button onPress={handleSubmit(handleSave)}>
+          <Text>Save</Text>
+        </Button>
+        <Button variant="outline" onPress={handleCancel}>
+          <Text>Cancel</Text>
+        </Button>
+      </View>
+    </>
+  );
+}
+
+function ResourceInfo<T extends ResourceBase>({
+  data,
+  insideHeaderRef,
+  onSubmitDetails,
+}: {
+  data: T;
+  insideHeaderRef: React.RefObject<View | null>;
+  onSubmitDetails: (data: { name: string; description: string }) => void;
+}) {
+  const { isEditingDetails } = useEditing();
+
+  if (isEditingDetails) {
+    return (
+      <ResourceEditingForm data={data} onSubmitDetails={onSubmitDetails} />
+    );
+  }
+
+  return <ResourceDisplay data={data} insideHeaderRef={insideHeaderRef} />;
+}
+
+function ResourceDisplay<T extends ResourceBase>({
+  data,
+  insideHeaderRef,
+}: {
+  data: T;
+  insideHeaderRef: React.RefObject<View | null>;
+}) {
+  const { setIsEditingDetails } = useEditing();
+
+  return (
+    <>
+      <View className="flex flex-row justify-between items-center">
+        <View
+          ref={insideHeaderRef}
+          className="w-5/6 flex-row items-center gap-2"
+        >
+          <H1 numberOfLines={1}>{data.name}</H1>
+          <Button
+            variant="ghost"
+            size="icon"
+            onPress={() => setIsEditingDetails(true)}
+          >
+            <Edit className="text-muted-foreground" />
+          </Button>
+        </View>
+        <HealthIndicator status={data.status} />
+      </View>
+      <Text className="text-muted-foreground">{data.description}</Text>
+    </>
+  );
+}
+
+function ServerStatusWarning({ serverStatus }: { serverStatus: string }) {
+  if (serverStatus === "running") return null;
+
+  return (
+    <Alert icon={Info} variant="destructive" className="mb-4">
+      <AlertTitle>Warning</AlertTitle>
+      <AlertDescription>
+        The server this resource is running on is not responding.
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+function useResourceMutations(
+  uuid: string,
+  isApplication: boolean,
+  startResource: (uuid: string) => MutationObject,
+  stopResource: (uuid: string) => MutationObject,
+  restartResource: (uuid: string) => MutationObject,
+  updateResource: (uuid: string) => MutationObject,
+  refetch: () => void
+) {
+  const { setIsEditingDetails, setIsEditing } = useEditing();
+
   const startMutation = useMutation({
     ...startResource(uuid),
     onError: (error: Error) => {
       toast.error(error.message || "Failed to deploy resource");
     },
   });
+
   const stopMutation = useMutation(stopResource(uuid));
+
   const restartMutation = useMutation({
     ...restartResource(uuid),
     onError: (error: Error) => {
@@ -178,18 +314,9 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
     }
   };
 
-  const handleScroll = (event: any) => {
-    const scrollY = event.nativeEvent.contentOffset.y;
-    const shouldShowHeader = scrollY > 20;
-    setShowHeaderTitle(shouldShowHeader);
-  };
-
-  const onRefresh = () => {
-    setIsRefreshing(true);
-    refetch().finally(() => setIsRefreshing(false));
-  };
-
   const submitDetails = (data: { name: string; description: string }) => {
+    setIsEditingDetails(false);
+    setIsEditing(false);
     toast.promise(
       updateDetailsMutation.mutateAsync({
         name: data.name,
@@ -199,11 +326,9 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
         loading: "Updating details...",
         success: () => {
           refetch();
-          setIsEditDetails(false);
           return "Details updated successfully!";
         },
         error: (err: unknown) => {
-          setIsEditDetails(true);
           return (
             (err as ResourceHttpError).message ?? "Failed to save changes."
           );
@@ -212,59 +337,84 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
     );
   };
 
+  return {
+    startMutation,
+    stopMutation,
+    restartMutation,
+    updateDetailsMutation,
+    handleDeploy,
+    handleStop,
+    handleRestart,
+    submitDetails,
+  };
+}
+
+function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
+  getResource,
+  startResource,
+  stopResource,
+  restartResource,
+  updateResource,
+  uuid,
+  children,
+  isDeploying,
+  isApplication,
+}: ResourceScreenProps<T>) {
+  const isFocused = useIsFocused();
+  const { isEditing } = useEditing();
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showHeaderTitle, setShowHeaderTitle] = useState(false);
+
+  const scrollViewRef = useRef<ScrollView>(null);
+  const insideHeaderRef = useRef<View>(null);
+
+  const { data, isPending, refetch } = useQuery<T>(
+    getResource(uuid, {
+      refetchInterval: 20000,
+      enabled: isFocused && !isEditing,
+    })
+  );
+
+  const {
+    stopMutation,
+    restartMutation,
+    handleDeploy,
+    handleStop,
+    handleRestart,
+    submitDetails,
+  } = useResourceMutations(
+    uuid,
+    isApplication,
+    startResource,
+    stopResource,
+    restartResource,
+    updateResource,
+    refetch
+  );
+
+  const handleScroll = (event: any) => {
+    const scrollY = event.nativeEvent.contentOffset.y;
+    let shouldShowHeader = false;
+
+    insideHeaderRef.current?.measure((x, y, width, height, pageX, pageY) => {
+      shouldShowHeader = scrollY > pageY - height;
+    });
+
+    setShowHeaderTitle(shouldShowHeader);
+  };
+
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    refetch().finally(() => setIsRefreshing(false));
+  };
+
   useRefreshOnFocus(refetch);
 
-  useLayoutEffect(() => {
-    if (!data) return;
-    let domains: string[] = [];
-
-    if ("fqdn" in data && data.fqdn) {
-      domains = (data.fqdn as string).split(",").filter(Boolean);
-    } else if ("applications" in data && data.applications) {
-      domains =
-        (data.applications as any[])
-          ?.map((app) => app.fqdn)
-          .filter(Boolean)
-          .flatMap((fqdn) => fqdn.split(","))
-          .filter(Boolean) || [];
-    }
-
-    navigation.setOptions({
-      header: () => (
-        <AnimatedHeader
-          name={data.name}
-          status={data.status || ""}
-          showTitle={showHeaderTitle}
-          onHeaderClick={() => scrollViewRef.current?.scrollTo({ y: 0 })}
-          leftComponent={
-            domains.length > 0 ? <DomainsSelect domains={domains} /> : undefined
-          }
-          rightComponent={
-            <ResourceActions
-              resourceType="application"
-              isRunning={data.status.startsWith("running")}
-              onStart={handleDeploy}
-              onRedeploy={handleDeploy}
-              onStop={handleStop}
-              onRestart={handleRestart}
-              isDeploying={isDeploying}
-              stopDisabled={stopMutation.isPending}
-              restartDisabled={restartMutation.isPending}
-              showDeploy={isApplication}
-            />
-          }
-        />
-      ),
-      headerShown: true,
-    });
-  }, [
-    isDeploying,
-    data,
-    stopMutation.isPending,
-    restartMutation.isPending,
-    navigation,
-    showHeaderTitle,
-  ]);
+  const domains = useMemo<string[]>(
+    () => extractDomains(data || ({} as T)),
+    [data]
+  );
 
   if (isPending) {
     return <LoadingScreen />;
@@ -275,101 +425,75 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
   const serverStatus = (data.destination ?? data).server.proxy.status;
 
   return (
-    <ScrollView
-      ref={scrollViewRef}
-      refreshControl={
-        <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-      }
-      contentContainerClassName="gap-4 p-4"
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="interactive"
-      automaticallyAdjustContentInsets={false}
-      automaticallyAdjustKeyboardInsets={true}
-      contentInsetAdjustmentBehavior="never"
-    >
-      <View>
-        {serverStatus !== "running" && (
-          <Alert icon={Info} variant="destructive" className="mb-4">
-            <AlertTitle>Warning</AlertTitle>
-            <AlertDescription>
-              The server this resource is running on is not responding.
-            </AlertDescription>
-          </Alert>
-        )}
-        <View className="flex flex-row justify-between items-center">
-          {isEditDetails ? (
-            <View className="w-5/6">
-              <Controller
-                control={control}
-                name="name"
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <Input
-                    value={value}
-                    onChangeText={onChange}
-                    onSubmitEditing={handleSubmit(submitDetails)}
-                    autoCapitalize="words"
-                    placeholder="Resource name"
-                  />
-                )}
-              />
-              {errors.name && (
-                <Text className="text-red-500">Resource name is required.</Text>
-              )}
-            </View>
-          ) : (
-            <View className="w-5/6 flex-row items-center gap-2">
-              <H1 numberOfLines={1}>{data.name}</H1>
-              <Button
-                variant="ghost"
-                size="icon"
-                onPress={() => setIsEditDetails(true)}
-              >
-                <Edit className="text-muted-foreground" />
-              </Button>
-            </View>
-          )}
-          <HealthIndicator status={data.status} />
-        </View>
-
-        {isEditDetails ? (
-          <Controller
-            control={control}
-            name="description"
-            render={({ field: { value, onChange } }) => (
-              <Input
-                className="mt-2"
-                value={value}
-                onChangeText={onChange}
-                onSubmitEditing={handleSubmit(submitDetails)}
-                placeholder="Resource description"
-              />
-            )}
+    <>
+      <Stack.Screen
+        options={{
+          header: () => (
+            <AnimatedHeader
+              name={data.name}
+              status={data.status}
+              showTitle={showHeaderTitle}
+              onHeaderClick={() => scrollViewRef.current?.scrollTo({ y: 0 })}
+              leftComponent={
+                domains.length > 0 ? (
+                  <DomainsSelect domains={domains} />
+                ) : undefined
+              }
+              rightComponent={
+                <ResourceActions
+                  resourceType="application"
+                  isRunning={data.status.startsWith("running")}
+                  onStart={handleDeploy}
+                  onRedeploy={handleDeploy}
+                  onStop={handleStop}
+                  onRestart={handleRestart}
+                  isDeploying={isDeploying}
+                  stopDisabled={stopMutation.isPending}
+                  restartDisabled={restartMutation.isPending}
+                  showDeploy={isApplication}
+                />
+              }
+            />
+          ),
+          headerShown: true,
+        }}
+      />
+      <ScrollView
+        ref={scrollViewRef}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
+        contentContainerClassName="gap-4 p-4"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        automaticallyAdjustContentInsets={false}
+        automaticallyAdjustKeyboardInsets={true}
+        contentInsetAdjustmentBehavior="never"
+      >
+        <View>
+          <ResourceInfo
+            data={data}
+            insideHeaderRef={insideHeaderRef}
+            onSubmitDetails={submitDetails}
           />
-        ) : (
-          <Text className="text-muted-foreground">{data.description}</Text>
-        )}
-      </View>
-      {isEditDetails && (
-        <View className="flex-row gap-2">
-          <Button onPress={handleSubmit(submitDetails)}>
-            <Text>Save</Text>
-          </Button>
-          <Button
-            variant="outline"
-            onPress={() => {
-              setIsEditDetails(false);
-              reset();
-            }}
-          >
-            <Text>Cancel</Text>
-          </Button>
-        </View>
-      )}
 
-      {children(data)}
-    </ScrollView>
+          <ServerStatusWarning serverStatus={serverStatus} />
+        </View>
+
+        {children(data)}
+      </ScrollView>
+    </>
+  );
+}
+
+export default function ResourceScreen<T extends ResourceBase = ResourceBase>(
+  props: ResourceScreenProps<T>
+) {
+  return (
+    <EditingProvider>
+      <ResourceScreenBase {...props} />
+    </EditingProvider>
   );
 }

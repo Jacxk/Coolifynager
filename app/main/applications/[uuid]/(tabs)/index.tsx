@@ -22,14 +22,13 @@ export default function Application() {
   const isFocused = useIsFocused();
 
   const [isDeploying, setIsDeploying] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
 
   useQuery(getApplicationLogs(uuid));
   useInfiniteQuery(getApplicationDeployments(uuid));
   const { data } = useQuery(
     getApplication(uuid, {
       refetchInterval: 20000,
-      enabled: isFocused && !isDeploying && !isEditing,
+      enabled: isFocused && !isDeploying,
     })
   );
 
@@ -38,7 +37,7 @@ export default function Application() {
   const { data: deploymentData } = useQuery(
     getLatestApplicationDeployment(uuid, {
       refetchInterval: isDeploying ? 5000 : 15000,
-      enabled: isFocused && isNotRunning && !isEditing,
+      enabled: isFocused && isNotRunning,
     })
   );
 
@@ -71,9 +70,8 @@ export default function Application() {
       stopResource={stopApplication}
       restartResource={restartApplication}
       updateResource={updateApplication}
-      isEnabled={!isEditing}
     >
-      {(data) => <UpdateApplication data={data} setIsEditing={setIsEditing} />}
+      {(data) => <UpdateApplication data={data} />}
     </ResourceScreen>
   );
 }

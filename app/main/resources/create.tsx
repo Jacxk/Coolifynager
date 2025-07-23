@@ -91,8 +91,6 @@ export default function CreateResource() {
 
   const { mutateAsync: createServiceMutation } = useMutation(createService());
 
-  if (!server || !selectedEnvironment) return null;
-
   const applications: CoolifyResourceMetadata[] =
     CoolifyApplicationMetadataList;
   const databases: CoolifyResourceMetadata[] = CoolifyDatabaseMetadataList;
@@ -121,7 +119,7 @@ export default function CreateResource() {
   ];
 
   const handleCreateResource = () => {
-    if (!selectedResource) return;
+    if (!selectedResource || !server) return;
 
     router.back();
     toast.promise(
@@ -156,11 +154,6 @@ export default function CreateResource() {
         },
       }
     );
-  };
-
-  const defaultEnvironment = {
-    label: selectedEnvironment.name,
-    value: selectedEnvironment.uuid,
   };
 
   return (

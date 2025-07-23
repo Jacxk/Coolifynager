@@ -6,7 +6,7 @@ export const StatusText = {
       case "in_progress":
         return "In Progress";
       case "cancelled-by-user":
-        return "Cancelled by User";
+        return "Cancelled";
       case "failed":
         return "Failed";
       case "queued":

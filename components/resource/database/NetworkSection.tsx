@@ -1,6 +1,6 @@
 import InfoDialog from "@/components/InfoDialog";
 import ReadOnlyText from "@/components/ReadOnlyText";
-import { Input } from "@/components/ui/input";
+import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { View } from "react-native";
@@ -51,7 +51,7 @@ export default function NetworkSection({
           description="If you change the user/password/port, this could be different.
           This is with the default values."
         />
-        <Input value={internal_db_url ?? ""} editable={false} secureTextEntry />
+        <PasswordInput value={internal_db_url ?? ""} editable={false} />
       </View>
       {is_public && (
         <View className="flex-1 gap-1">
@@ -61,11 +61,7 @@ export default function NetworkSection({
             description="If you change the user/password/port, this could be different.
             This is with the default values."
           />
-          <Input
-            value={external_db_url ?? ""}
-            editable={false}
-            secureTextEntry
-          />
+          <PasswordInput value={external_db_url ?? ""} editable={false} />
         </View>
       )}
     </View>

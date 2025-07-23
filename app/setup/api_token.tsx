@@ -1,7 +1,7 @@
 import InfoDialog from "@/components/InfoDialog";
 import SetupScreenContainer from "@/components/SetupScreenContainer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { APP_NAME } from "@/constants/AppDetails";
 import useSetup from "@/hooks/useSetup";
@@ -91,16 +91,13 @@ export default function ApiTokenStep() {
           </View>
         </InfoDialog>
       </View>
-      <Input
-        autoCapitalize="none"
-        autoComplete="off"
+      <PasswordInput
         enterKeyHint="done"
         onChangeText={setToken}
         onSubmitEditing={saveKey}
         value={token}
         placeholder="API TOKEN"
         enablesReturnKeyAutomatically
-        secureTextEntry
       />
       <Button onPress={saveKey} disabled={!valid} loading={loading}>
         <Text>Save</Text>

@@ -1,8 +1,12 @@
 import { createApplicationEnv } from "@/api/application";
 import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import {
+  Checkbox,
+  CheckboxIcon,
+  CheckboxLabel,
+} from "@/components/ui/checkbox";
+import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router, useGlobalSearchParams } from "expo-router";
@@ -63,30 +67,25 @@ export default function ApplicationEnvironmentsCreate() {
         </View>
         <View>
           <Text>Value</Text>
-          <Input
+          <PasswordInput
             ref={valueInputRef}
             placeholder="Enter variable value"
             value={value}
             onChangeText={setValue}
-            autoComplete="off"
-            autoCorrect={false}
-            importantForAutofill="no"
-            textContentType="none"
-            secureTextEntry
           />
         </View>
-        <View className="flex flex-row gap-2">
-          <Text>Is Build Variable?</Text>
-          <Checkbox checked={isBuildTime} onCheckedChange={setIsBuildTime} />
-        </View>
-        <View className="flex flex-row gap-2">
-          <Text>Is Literal?</Text>
-          <Checkbox checked={isLiteral} onCheckedChange={setIsLiteral} />
-        </View>
-        <View className="flex flex-row gap-2">
-          <Text>Is Preview?</Text>
-          <Checkbox checked={isPreview} onCheckedChange={setIsPreview} />
-        </View>
+        <Checkbox checked={isBuildTime} onCheckedChange={setIsBuildTime}>
+          <CheckboxLabel>Is Build Variable?</CheckboxLabel>
+          <CheckboxIcon />
+        </Checkbox>
+        <Checkbox checked={isLiteral} onCheckedChange={setIsLiteral}>
+          <CheckboxLabel>Is Literal?</CheckboxLabel>
+          <CheckboxIcon />
+        </Checkbox>
+        <Checkbox checked={isPreview} onCheckedChange={setIsPreview}>
+          <CheckboxLabel>Is Preview?</CheckboxLabel>
+          <CheckboxIcon />
+        </Checkbox>
         {mutation.isError && (
           <Text className="text-red-500">
             {(mutation.error as Error)?.message ||

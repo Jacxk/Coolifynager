@@ -1,7 +1,7 @@
 import { UpdateDatabaseBody } from "@/api/types/database.types";
 import InfoDialog from "@/components/InfoDialog";
 import ReadOnlyText from "@/components/ReadOnlyText";
-import { Input } from "@/components/ui/input";
+import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { openBrowserAsync } from "expo-web-browser";
 import { Control, Controller, FieldErrors } from "react-hook-form";
@@ -53,12 +53,11 @@ export default function PostgressDetails({
           name="postgres_password"
           rules={{ required: "Password is required" }}
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
+            <PasswordInput
               placeholder="Enter DB password"
               onChangeText={onChange}
               onBlur={onBlur}
               value={value}
-              secureTextEntry
             />
           )}
         />
