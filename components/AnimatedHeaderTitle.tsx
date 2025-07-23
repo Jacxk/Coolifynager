@@ -86,7 +86,7 @@ export const AnimatedHeader = ({
         style={titleAnimatedStyle}
         className="flex items-center absolute left-0 bottom-4 right-0"
       >
-        <Pressable onPress={onHeaderClick} hitSlop={10}>
+        <Pressable onPress={onHeaderClick} hitSlop={10} className="w-1/2">
           <Text
             className="text-base font-semibold text-center "
             numberOfLines={1}

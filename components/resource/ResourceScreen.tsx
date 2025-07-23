@@ -396,7 +396,7 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
     let shouldShowHeader = false;
 
     insideHeaderRef.current?.measure((x, y, width, height, pageX, pageY) => {
-      shouldShowHeader = scrollY > pageY - 10;
+      shouldShowHeader = scrollY > pageY - height;
     });
 
     setShowHeaderTitle(shouldShowHeader);
@@ -471,13 +471,13 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
         contentInsetAdjustmentBehavior="never"
       >
         <View>
-          <ServerStatusWarning serverStatus={serverStatus} />
-
           <ResourceInfo
             data={data}
             insideHeaderRef={insideHeaderRef}
             onSubmitDetails={submitDetails}
           />
+
+          <ServerStatusWarning serverStatus={serverStatus} />
         </View>
 
         {children(data)}
