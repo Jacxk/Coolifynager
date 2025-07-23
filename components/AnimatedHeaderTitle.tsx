@@ -77,8 +77,8 @@ export const AnimatedHeader = ({
 
   return (
     <Animated.View
-      className="flex flex-row justify-between items-center p-4 h-26 relative"
-      style={[{ paddingTop: insets.top }, containerShadowStyle]}
+      className="flex flex-row justify-between items-center pt-8 p-4 h-26 relative"
+      style={[{ paddingTop: insets.top + 10 }, containerShadowStyle]}
     >
       <View className="z-10">{leftComponent}</View>
 
