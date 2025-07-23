@@ -1,6 +1,6 @@
-import { Check } from "@/lib/icons/Check";
-import { ChevronDown } from "@/lib/icons/ChevronDown";
-import { ChevronUp } from "@/lib/icons/ChevronUp";
+import { Check } from "@/components/icons/Check";
+import { ChevronDown } from "@/components/icons/ChevronDown";
+import { ChevronUp } from "@/components/icons/ChevronUp";
 import { cn } from "@/lib/utils";
 import * as SelectPrimitive from "@rn-primitives/select";
 import * as React from "react";

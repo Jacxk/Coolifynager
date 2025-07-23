@@ -1,4 +1,4 @@
-import { X } from "@/lib/icons/X";
+import { X } from "@/components/icons/X";
 import { cn } from "@/lib/utils";
 import * as DialogPrimitive from "@rn-primitives/dialog";
 import * as React from "react";

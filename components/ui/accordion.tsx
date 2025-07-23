@@ -1,5 +1,5 @@
+import { ChevronDown } from "@/components/icons/ChevronDown";
 import { TextClassContext } from "@/components/ui/text";
-import { ChevronDown } from "@/lib/icons/ChevronDown";
 import { cn } from "@/lib/utils";
 import * as AccordionPrimitive from "@rn-primitives/accordion";
 import * as React from "react";
