@@ -147,3 +147,66 @@ export const CoolifyDatabaseMetadataList: CoolifyResourceMetadata[] = [
     type: CoolifyDatabases.CLICKHOUSE,
   },
 ];
+
+export type CreateDatabaseBodyBase = {
+  server_uuid: string;
+  project_uuid: string;
+  environment_uuid: string;
+  environment_name?: string;
+  name?: string;
+  description?: string;
+  image?: string;
+  is_public?: boolean;
+  public_port?: number;
+  instant_deploy?: boolean;
+  destination_uuid?: string;
+};
+
+export type CreatePostgresqlDatabaseBody = CreateDatabaseBodyBase & {
+  postgres_user: string;
+  postgres_password: string;
+  postgres_db: string;
+  postgres_initdb_args: string;
+  postgres_host_auth_method: string;
+  postgres_conf: string;
+};
+
+export type CreateMysqlDatabaseBody = CreateDatabaseBodyBase & {
+  mysql_root_password: string;
+  mysql_password: string;
+  mysql_user: string;
+  mysql_database: string;
+  mysql_conf: string;
+};
+
+export type CreateMariadbDatabaseBody = CreateDatabaseBodyBase & {
+  mariadb_conf: string;
+  mariadb_root_password: string;
+  mariadb_user: string;
+  mariadb_password: string;
+  mariadb_database: string;
+};
+
+export type CreateMongodbDatabaseBody = {
+  mongo_conf: string;
+  mongo_initdb_root_username: string;
+};
+
+export type CreateRedisDatabaseBody = {
+  redis_password: string;
+  redis_conf: string;
+};
+
+export type CreateDragonflyDatabaseBody = {
+  dragonfly_password: string;
+};
+
+export type CreateKeydbDatabaseBody = {
+  keydb_password: string;
+  keydb_conf: string;
+};
+
+export type CreateClickhouseDatabaseBody = {
+  clickhouse_admin_user: string;
+  clickhouse_admin_password: string;
+};

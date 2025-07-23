@@ -1,8 +1,16 @@
 import { queryClient } from "@/app/_layout";
 import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
-import { Database, UpdateDatabaseBody } from "./types/database.types";
-import { ResourceActionResponse } from "./types/resources.types";
+import {
+  CoolifyDatabases,
+  CreateDatabaseBodyBase,
+  Database,
+  UpdateDatabaseBody,
+} from "./types/database.types";
+import {
+  ResourceActionResponse,
+  ResourceCreateResponse,
+} from "./types/resources.types";
 
 type QueryKey = string | number;
 
@@ -118,6 +126,33 @@ export const updateDatabase = (
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: data,
+    });
+  },
+});
+
+export const createDatabase = (
+  options?: Omit<
+    UseMutationOptions<
+      ResourceCreateResponse,
+      Error,
+      { body: CreateDatabaseBodyBase; type: CoolifyDatabases }
+    >,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
+  mutationKey: ["databases", "create"],
+  mutationFn: async ({
+    body,
+    type,
+  }: {
+    body: CreateDatabaseBodyBase;
+    type: CoolifyDatabases;
+  }) => {
+    return coolifyFetch<ResourceCreateResponse>(`/databases/${type}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
     });
   },
 });

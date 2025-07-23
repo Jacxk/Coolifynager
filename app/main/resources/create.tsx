@@ -1,6 +1,9 @@
+import { createDatabase } from "@/api/databases";
 import { createService } from "@/api/services";
-import { CoolifyApplicationMetadataList } from "@/api/types/application.types";
-import { CoolifyDatabaseMetadataList } from "@/api/types/database.types";
+import {
+  CoolifyDatabaseMetadataList,
+  CoolifyDatabases,
+} from "@/api/types/database.types";
 import {
   CoolifyResourceMetadata,
   ResourceHttpError,
@@ -86,10 +89,12 @@ export default function CreateResource() {
   });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState<ResourceType | null>(null);
   const [selectedResource, setSelectedResource] =
     useState<CoolifyResourceMetadata | null>(null);
 
   const { mutateAsync: createServiceMutation } = useMutation(createService());
+  const { mutateAsync: createDatabaseMutation } = useMutation(createDatabase());
 
   const applications: CoolifyResourceMetadata[] =
     CoolifyApplicationMetadataList;
@@ -118,7 +123,8 @@ export default function CreateResource() {
     },
   ];
 
-  const handleCreateResource = () => {
+  const handleCreateService = () => {
+    if (selectedType !== "service") return;
     if (!selectedResource || !server) return;
 
     router.back();
@@ -156,6 +162,55 @@ export default function CreateResource() {
     );
   };
 
+  const handleCreateDatabase = () => {
+    if (selectedType !== "database") return;
+    if (!selectedResource || !server) return;
+
+    router.back();
+    toast.promise(
+      createDatabaseMutation({
+        body: {
+          server_uuid: server.uuid,
+          environment_uuid: selectedEnvironment.uuid,
+          environment_name: selectedEnvironment.name,
+          project_uuid,
+        },
+        type: selectedResource.type as CoolifyDatabases,
+      }),
+      {
+        loading: "Creating resource...",
+        success: (data) => {
+          router.navigate({
+            pathname: "/main/databases/[uuid]/(tabs)",
+            params: {
+              uuid: data.uuid,
+            },
+          });
+          return "Resource created successfully";
+        },
+        error: (error) => {
+          router.navigate({
+            pathname: "/main/resources/create",
+            params: {
+              environments,
+              project_uuid,
+            },
+          });
+          return (
+            (error as ResourceHttpError).message ?? "Failed to create resource"
+          );
+        },
+      }
+    );
+  };
+
+  const handleCreateApplication = () => {
+    if (selectedType !== "application") return;
+    if (!selectedResource || !server) return;
+
+    router.back();
+  };
+
   return (
     <>
       <SectionList
@@ -168,13 +223,14 @@ export default function CreateResource() {
         renderSectionHeader={({ section }) => (
           <H3 className="p-4 bg-background">{section.title}</H3>
         )}
-        renderItem={({ item }) => (
+        renderItem={({ item, section }) => (
           <View className="mb-2 px-4">
             <ResourceCard
               {...item}
               onPress={() => {
                 setIsDialogOpen(true);
                 setSelectedResource(item);
+                setSelectedType(section.type);
               }}
             />
           </View>
@@ -220,8 +276,13 @@ export default function CreateResource() {
             </AlertDialogCancel>
             <AlertDialogAction
               onPress={() => {
-                // TODO: Check which resource type is selected and create the correct resource
-                handleCreateResource();
+                if (selectedType === "service") {
+                  handleCreateService();
+                } else if (selectedType === "database") {
+                  handleCreateDatabase();
+                } else if (selectedType === "application") {
+                  handleCreateApplication();
+                }
               }}
             >
               <Text>Create</Text>
