@@ -1,7 +1,6 @@
-import { Plus } from "@/components/icons/Plus";
-import { Button } from "@/components/ui/button";
+import { AddResourceButton } from "@/components/AddResourceButton";
 import { APP_NAME } from "@/constants/AppDetails";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 
 export default function MainLayout() {
   return (
@@ -12,7 +11,11 @@ export default function MainLayout() {
       />
       <Stack.Screen
         name="projects/index"
-        options={{ title: "Projects", headerShown: true }}
+        options={{
+          title: "Projects",
+          headerShown: true,
+          headerRight: () => <AddResourceButton href="/main/projects/create" />,
+        }}
       />
       <Stack.Screen
         name="projects/[uuid]"
@@ -26,24 +29,22 @@ export default function MainLayout() {
             title: routeParams.name,
             headerShown: true,
             headerRight: () => (
-              <Button
-                variant="ghost"
-                size="icon"
-                onPress={() =>
-                  router.push({
-                    pathname: "/main/resources/create",
-                    params: {
-                      environments: routeParams.environments,
-                      project_uuid: routeParams.uuid,
-                    },
-                  })
-                }
-              >
-                <Plus />
-              </Button>
+              <AddResourceButton
+                href={{
+                  pathname: "/main/resources/create",
+                  params: {
+                    environments: routeParams.environments,
+                    project_uuid: routeParams.uuid,
+                  },
+                }}
+              />
             ),
           };
         }}
+      />
+      <Stack.Screen
+        name="projects/create"
+        options={{ title: "New Project", headerShown: true }}
       />
       <Stack.Screen
         name="resources/create"

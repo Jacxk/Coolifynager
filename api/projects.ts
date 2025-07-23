@@ -33,3 +33,16 @@ export const getProject = (
   queryKey: ["projects", uuid],
   queryFn: () => coolifyFetch<Project>(`/projects/${uuid}`),
 });
+
+export const createProject = () => ({
+  mutationKey: ["projects", "create"],
+  mutationFn: async (data: PartialProject) => {
+    const response = await coolifyFetch<Project>("/projects", {
+      method: "POST",
+      body: data,
+    });
+
+    queryClient.prefetchQuery(getProject(response.uuid));
+    return response;
+  },
+});

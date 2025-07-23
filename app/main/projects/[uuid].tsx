@@ -56,13 +56,7 @@ export default function Project() {
   if (!project || !resources) {
     return (
       <SafeView className="justify-center items-center relative">
-        <Text className="text-muted-foreground">
-          No resources found on this project.
-        </Text>
-        <View className="absolute top-2 right-7 animate-bounce flex flex-row items-center gap-2">
-          <Text className="text-muted-foreground">Create new resource</Text>
-          <ChevronUp className="text-muted-foreground" size={16} />
-        </View>
+        <Text className="text-muted-foreground">No project found</Text>
       </SafeView>
     );
   }
@@ -85,6 +79,20 @@ export default function Project() {
     { title: "Databases", data: databases },
     { title: "Services", data: services },
   ].filter((section) => section.data.length > 0);
+
+  if (sections.length === 0) {
+    return (
+      <SafeView className="justify-center items-center relative">
+        <Text className="text-muted-foreground">
+          No resources found on this project.
+        </Text>
+        <View className="absolute top-2 right-7 animate-bounce flex flex-row items-center gap-2">
+          <Text className="text-muted-foreground">Create new resource</Text>
+          <ChevronUp className="text-muted-foreground" size={16} />
+        </View>
+      </SafeView>
+    );
+  }
 
   return (
     <SectionList
