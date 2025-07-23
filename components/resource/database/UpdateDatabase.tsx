@@ -1,6 +1,7 @@
 import { updateDatabase } from "@/api/databases";
 import { Database, UpdateDatabaseBody } from "@/api/types/database.types";
 import { ResourceHttpError } from "@/api/types/resources.types";
+import { useEditing } from "@/context/EditingContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -24,13 +25,8 @@ const getInitialValues = (data: Database): UpdateDatabaseBody => ({
   postgres_host_auth_method: data.postgres_host_auth_method,
 });
 
-export default function UpdateDatabase({
-  data,
-  setIsEditing,
-}: {
-  data: Database;
-  setIsEditing: (isEditing: boolean) => void;
-}) {
+export default function UpdateDatabase({ data }: { data: Database }) {
+  const { setIsEditing } = useEditing();
   const {
     control,
     reset,

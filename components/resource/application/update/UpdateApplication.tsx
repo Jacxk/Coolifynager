@@ -5,6 +5,7 @@ import {
   UpdateApplicationBody,
 } from "@/api/types/application.types";
 import { ResourceHttpError } from "@/api/types/resources.types";
+import { useEditing } from "@/context/EditingContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -48,13 +49,8 @@ const getInitialValues = (data: Application): UpdateApplicationBody => ({
   post_deployment_command: data.post_deployment_command,
 });
 
-export default function UpdateApplication({
-  data,
-  setIsEditing,
-}: {
-  data: Application;
-  setIsEditing: (isEditing: boolean) => void;
-}) {
+export default function UpdateApplication({ data }: { data: Application }) {
+  const { setIsEditing } = useEditing();
   const {
     control,
     reset,

@@ -44,7 +44,6 @@ export type ResourceScreenProps<T extends ResourceBase = ResourceBase> = {
   isDeploying: boolean;
   children: (data: T) => React.ReactNode;
   isApplication: boolean;
-  isEnabled?: boolean;
   getResource: (
     uuid: string,
     options?: Omit<
@@ -82,7 +81,7 @@ function ResourceEditingForm<T extends ResourceBase>({
   data: T;
   onSubmitDetails: (data: { name: string; description: string }) => void;
 }) {
-  const { isEditing, setIsEditing } = useEditing();
+  const { isEditingDetails, setIsEditingDetails } = useEditing();
 
   const {
     control,
@@ -96,15 +95,15 @@ function ResourceEditingForm<T extends ResourceBase>({
     },
   });
 
-  if (!isEditing) return null;
+  if (!isEditingDetails) return null;
 
   const handleSave = (formData: { name: string; description: string }) => {
     onSubmitDetails(formData);
-    setIsEditing(false);
+    setIsEditingDetails(false);
   };
 
   const handleCancel = () => {
-    setIsEditing(false);
+    setIsEditingDetails(false);
     reset();
   };
 
@@ -167,9 +166,9 @@ function ResourceInfo<T extends ResourceBase>({
   insideHeaderRef: React.RefObject<View | null>;
   onSubmitDetails: (data: { name: string; description: string }) => void;
 }) {
-  const { isEditing } = useEditing();
+  const { isEditingDetails } = useEditing();
 
-  if (isEditing) {
+  if (isEditingDetails) {
     return (
       <ResourceEditingForm data={data} onSubmitDetails={onSubmitDetails} />
     );
@@ -185,7 +184,7 @@ function ResourceDisplay<T extends ResourceBase>({
   data: T;
   insideHeaderRef: React.RefObject<View | null>;
 }) {
-  const { setIsEditing } = useEditing();
+  const { setIsEditingDetails } = useEditing();
 
   return (
     <>
@@ -198,7 +197,7 @@ function ResourceDisplay<T extends ResourceBase>({
           <Button
             variant="ghost"
             size="icon"
-            onPress={() => setIsEditing(true)}
+            onPress={() => setIsEditingDetails(true)}
           >
             <Edit className="text-muted-foreground" />
           </Button>
@@ -358,9 +357,9 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
   children,
   isDeploying,
   isApplication,
-  isEnabled = true,
 }: ResourceScreenProps<T>) {
   const isFocused = useIsFocused();
+  const { isEditing } = useEditing();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showHeaderTitle, setShowHeaderTitle] = useState(false);
@@ -371,7 +370,7 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
   const { data, isPending, refetch } = useQuery<T>(
     getResource(uuid, {
       refetchInterval: 20000,
-      enabled: isFocused && isEnabled,
+      enabled: isFocused && !isEditing,
     })
   );
 

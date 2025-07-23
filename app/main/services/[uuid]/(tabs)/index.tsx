@@ -8,11 +8,9 @@ import {
 import ResourceScreen from "@/components/resource/ResourceScreen";
 import UpdateService from "@/components/resource/service/UpdateService";
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
 
 export default function Service() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
-  const [isEditing, setIsEditing] = useState(false);
 
   return (
     <ResourceScreen
@@ -24,9 +22,8 @@ export default function Service() {
       stopResource={stopService}
       restartResource={restartService}
       updateResource={updateService}
-      isEnabled={!isEditing}
     >
-      {(data) => <UpdateService data={data} setIsEditing={setIsEditing} />}
+      {(data) => <UpdateService data={data} />}
     </ResourceScreen>
   );
 }

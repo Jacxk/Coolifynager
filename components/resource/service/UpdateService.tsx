@@ -11,6 +11,7 @@ import {
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { H3 } from "@/components/ui/typography";
+import { useEditing } from "@/context/EditingContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { useMutation } from "@tanstack/react-query";
 import { openBrowserAsync } from "expo-web-browser";
@@ -29,13 +30,8 @@ const getInitialValues = (data: Service): UpdateServiceBody => ({
   server_uuid: data.server.uuid,
 });
 
-export default function UpdateService({
-  data,
-  setIsEditing,
-}: {
-  data: Service;
-  setIsEditing: (isEditing: boolean) => void;
-}) {
+export default function UpdateService({ data }: { data: Service }) {
+  const { setIsEditing } = useEditing();
   const {
     control,
     reset,
