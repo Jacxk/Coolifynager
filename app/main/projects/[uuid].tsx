@@ -1,19 +1,20 @@
 import { getProject } from "@/api/projects";
 import { getResources } from "@/api/resources";
-import { ApplicationCard } from "@/components/cards/ApplicationCard";
-import { DatabaseCard } from "@/components/cards/DatabaseCard";
-import { ServiceCard } from "@/components/cards/ServiceCard";
-import LoadingScreen from "@/components/LoadingScreen";
+import { ResourceType } from "@/api/types/resources.types";
+import { ResourceCard } from "@/components/cards/ResourceCard";
+import { ProjectSkeleton } from "@/components/skeletons/ProjectSkeleton";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { LinkProps, useLocalSearchParams, useNavigation } from "expo-router";
+import { useEffect, useState } from "react";
 import { RefreshControl, SectionList } from "react-native";
 
 export default function Project() {
+  const navigation = useNavigation();
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
+
   const {
     data: project,
     isPending: projectPending,
@@ -27,20 +28,27 @@ export default function Project() {
 
   const [refreshing, setRefreshing] = useState(false);
 
-  useRefreshOnFocus(async () => {
+  const refetch = async () => {
     await refetchProject();
     await refetchResources();
-  });
+  };
+
+  useRefreshOnFocus(refetch);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await refetchProject();
-    await refetchResources();
-    setRefreshing(false);
+    refetch().finally(() => setRefreshing(false));
   };
 
+  useEffect(() => {
+    navigation.setParams({
+      environments:
+        project?.environments.map((env) => `${env.uuid}:${env.name}`) || [],
+    } as any);
+  }, [project]);
+
   if (projectPending || resourcesPending) {
-    return <LoadingScreen />;
+    return <ProjectSkeleton />;
   }
 
   if (!project || !resources) {
@@ -76,38 +84,45 @@ export default function Project() {
       sections={sections}
       keyExtractor={(item) => item.uuid}
       renderItem={({ item, section: { title } }) => {
+        const props: Partial<{
+          type: ResourceType;
+          href: LinkProps["href"];
+        }> = {};
+
         if (title === "Applications") {
-          return (
-            <ApplicationCard
-              uuid={item.uuid}
-              name={item.name}
-              description={item.description || undefined}
-              status={item.status}
-            />
-          );
+          props.type = "application";
+          props.href = {
+            pathname: "/main/applications/[uuid]/(tabs)",
+            params: { uuid: item.uuid, name: item.name },
+          };
         } else if (title === "Databases") {
-          return (
-            <DatabaseCard
-              uuid={item.uuid}
-              name={item.name}
-              description={item.description || undefined}
-              status={item.status}
-              database_type={item.static_image || "Database"}
-            />
-          );
+          props.type = "database";
+          props.href = {
+            pathname: "/main/databases/[uuid]/(tabs)",
+            params: { uuid: item.uuid, name: item.name },
+          };
         } else if (title === "Services") {
-          return (
-            <ServiceCard
-              uuid={item.uuid}
-              name={item.name}
-              description={item.description || undefined}
-              status={item.status}
-              service_type={item.static_image || "Service"}
-            />
-          );
+          props.type = "service";
+          props.href = {
+            pathname: "/main/services/[uuid]/(tabs)",
+            params: { uuid: item.uuid, name: item.name },
+          };
         }
 
-        return null;
+        if (!props.type || !props.href) {
+          return null;
+        }
+
+        return (
+          <ResourceCard
+            uuid={item.uuid}
+            title={item.name}
+            description={item.description}
+            status={item.status}
+            href={props.href}
+            type={props.type}
+          />
+        );
       }}
       renderSectionHeader={({ section: { title } }) => <H3>{title}</H3>}
       showsVerticalScrollIndicator={false}

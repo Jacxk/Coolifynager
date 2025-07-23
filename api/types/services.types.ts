@@ -27,12 +27,10 @@ export type ServiceBase = ResourceBase & {
   server_id: number;
 };
 
-export type Service = ServiceBase;
-
-export type SingleService = ServiceBase & {
-  is_container_label_escape_enabled: boolean;
+export type Service = ServiceBase & {
+  is_container_label_escape_enabled?: boolean;
   is_container_label_readonly_enabled: boolean;
-  laravel_through_key: number;
+  laravel_through_key?: number;
   server: SingleServer;
 };
 

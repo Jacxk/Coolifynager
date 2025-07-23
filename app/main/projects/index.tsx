@@ -1,9 +1,8 @@
 import { getProjects } from "@/api/projects";
-import { ProjectCard } from "@/components/cards/ProjectCard";
-import LoadingScreen from "@/components/LoadingScreen";
+import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
+import { ProjectsSkeleton } from "@/components/skeletons/ProjectsSkeleton";
 import { Text } from "@/components/ui/text";
-import { H1 } from "@/components/ui/typography";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
@@ -13,13 +12,12 @@ export default function ProjectsIndex() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (isPending) {
-    return <LoadingScreen />;
+    return <ProjectsSkeleton />;
   }
 
   if (!data || data.length === 0) {
     return (
-      <SafeView>
-        <H1>Projects</H1>
+      <SafeView className="justify-center items-center">
         <Text>No projects found.</Text>
       </SafeView>
     );
@@ -31,7 +29,18 @@ export default function ProjectsIndex() {
         contentContainerClassName="p-4"
         data={data}
         keyExtractor={(item) => item.uuid}
-        renderItem={({ item }) => <ProjectCard project={item} />}
+        renderItem={({ item }) => (
+          <ResourceCard
+            uuid={item.uuid}
+            title={item.name}
+            description={item.description}
+            type="project"
+            href={{
+              pathname: "/main/projects/[uuid]",
+              params: { uuid: item.uuid, name: item.name },
+            }}
+          />
+        )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         refreshing={isRefreshing}
         onRefresh={() => {

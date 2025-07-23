@@ -19,10 +19,6 @@ export type ApplicationBase = ResourceBase & {
 };
 
 export type Application = ApplicationBase & {
-  server?: Server;
-};
-
-export type SingleApplication = ApplicationBase & {
   additional_networks_count: number;
   additional_servers: Server[];
   additional_servers_count: number;
@@ -59,7 +55,7 @@ export type SingleApplication = ApplicationBase & {
   http_basic_auth_username: string | null;
   install_command: string;
   is_http_basic_auth_enabled: boolean;
-  laravel_through_key: number;
+  laravel_through_key?: number;
   manual_webhook_secret_bitbucket: string | null;
   manual_webhook_secret_gitea: string | null;
   manual_webhook_secret_github: string | null;
@@ -136,7 +132,7 @@ export enum RedirectType {
 
 export type UpdateApplicationBody = Partial<
   Omit<
-    SingleApplication,
+    Application,
     | "id"
     | "uuid"
     | "config_hash"
