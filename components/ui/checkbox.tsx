@@ -1,6 +1,7 @@
 import { Check } from "@/components/icons/Check";
 import { cn } from "@/lib/utils";
 import * as CheckboxPrimitive from "@rn-primitives/checkbox";
+import * as Slot from "@rn-primitives/slot";
 import * as React from "react";
 import { Platform, Pressable, Text, View } from "react-native";
 
@@ -31,12 +32,7 @@ function CheckboxRoot({
 
   return (
     <CheckboxContext.Provider value={contextValue}>
-      <View
-        className={cn(
-          "flex-1 flex-row items-center gap-4 justify-start",
-          className
-        )}
-      >
+      <View className={cn("flex flex-row items-center gap-4", className)}>
         {children}
       </View>
     </CheckboxContext.Provider>
@@ -52,11 +48,10 @@ type CheckboxLabelProps = {
 };
 
 function CheckboxLabel({
-  children,
-  className,
   onPress,
-  asChild,
+  asChild = false,
   asCheckbox = true,
+  ...props
 }: CheckboxLabelProps) {
   const { checked, disabled, onCheckedChange } =
     React.useContext(CheckboxContext);
@@ -67,20 +62,15 @@ function CheckboxLabel({
     onCheckedChange?.(!checked);
     onPress?.();
   };
-  children = asChild ? (
-    children
-  ) : (
-    <Text className="text-muted-foreground">{children}</Text>
-  );
+
+  const Children = asChild ? Slot.View : Text;
 
   return (
-    <Component
-      className={className}
-      onPress={handlePress}
-      disabled={disabled}
-      hitSlop={6}
-    >
-      {children}
+    <Component onPress={handlePress} disabled={disabled} hitSlop={6}>
+      <Children
+        className={cn("text-muted-foreground", props.className)}
+        {...props}
+      />
     </Component>
   );
 }

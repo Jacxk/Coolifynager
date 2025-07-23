@@ -91,52 +91,50 @@ export default function DangerScreen({
             <AlertDialogTitle>Confirm Resource Deletion?</AlertDialogTitle>
           </AlertDialogHeader>
 
-          <View className="flex gap-3">
-            <Checkbox
-              checked={deleteVolumes}
-              onCheckedChange={setDeleteVolumes}
-              nativeID="delete-volumes"
-            >
-              <CheckboxLabel>
-                Permanently delete all volumes associated with this resource.
-              </CheckboxLabel>
-              <CheckboxIcon />
-            </Checkbox>
+          <Checkbox
+            checked={deleteVolumes}
+            onCheckedChange={setDeleteVolumes}
+            nativeID="delete-volumes"
+          >
+            <CheckboxIcon />
+            <CheckboxLabel>
+              Permanently delete all volumes associated with this resource.
+            </CheckboxLabel>
+          </Checkbox>
 
-            <Checkbox
-              checked={deleteNetworks}
-              onCheckedChange={setDeleteNetworks}
-              nativeID="delete-networks"
-            >
-              <CheckboxLabel>
-                Permanently delete all non-predefined networks associated with
-                this resource.
-              </CheckboxLabel>
-              <CheckboxIcon />
-            </Checkbox>
+          <Checkbox
+            checked={deleteNetworks}
+            onCheckedChange={setDeleteNetworks}
+            nativeID="delete-networks"
+          >
+            <CheckboxIcon />
+            <CheckboxLabel>
+              Permanently delete all non-predefined networks associated with
+              this resource.
+            </CheckboxLabel>
+          </Checkbox>
 
-            <Checkbox
-              checked={deleteConfigFiles}
-              onCheckedChange={setDeleteConfigFiles}
-              nativeID="delete-config-files"
-            >
-              <CheckboxLabel>
-                Permanently delete all configuration files from the server.
-              </CheckboxLabel>
-              <CheckboxIcon />
-            </Checkbox>
+          <Checkbox
+            checked={deleteConfigFiles}
+            onCheckedChange={setDeleteConfigFiles}
+            nativeID="delete-config-files"
+          >
+            <CheckboxIcon />
+            <CheckboxLabel>
+              Permanently delete all configuration files from the server.
+            </CheckboxLabel>
+          </Checkbox>
 
-            <Checkbox
-              checked={runDockerCleanup}
-              onCheckedChange={setRunDockerCleanup}
-              nativeID="run-docker-cleanup"
-            >
-              <CheckboxLabel>
-                Run Docker Cleanup (remove unused images and builder cache).
-              </CheckboxLabel>
-              <CheckboxIcon />
-            </Checkbox>
-          </View>
+          <Checkbox
+            checked={runDockerCleanup}
+            onCheckedChange={setRunDockerCleanup}
+            nativeID="run-docker-cleanup"
+          >
+            <CheckboxIcon />
+            <CheckboxLabel className="text-muted-foreground w-3/4">
+              Run Docker Cleanup (remove unused images and builder cache).
+            </CheckboxLabel>
+          </Checkbox>
 
           <AlertDialogFooter className="flex flex-row gap-2 self-end">
             <AlertDialogCancel>
