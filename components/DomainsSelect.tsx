@@ -5,9 +5,9 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { Text } from "@/components/ui/text";
 import { openBrowserAsync } from "expo-web-browser";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Globe } from "./icons/Globe";
 
 type DomainsSelectProps = {
   domains: string[];
@@ -16,7 +16,6 @@ type DomainsSelectProps = {
 
 export function DomainsSelect({
   domains,
-  label = "Links",
   className,
 }: DomainsSelectProps & { className?: string }) {
   const insets = useSafeAreaInsets();
@@ -33,8 +32,8 @@ export function DomainsSelect({
 
   return (
     <Select className={className}>
-      <SelectTrigger>
-        <Text>{label}</Text>
+      <SelectTrigger className="p-0 gap-2 border-0">
+        <Globe />
       </SelectTrigger>
       <SelectContent insets={contentInsets}>
         <SelectGroup>

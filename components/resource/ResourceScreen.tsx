@@ -233,7 +233,7 @@ export default function ResourceScreen<T extends ResourceBase = ResourceBase>({
       header: () => (
         <AnimatedHeader
           name={data.name}
-          status={data.status || ""}
+          status={data.status}
           showTitle={showHeaderTitle}
           onHeaderClick={() => scrollViewRef.current?.scrollTo({ y: 0 })}
           leftComponent={

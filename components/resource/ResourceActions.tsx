@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Terminal } from "lucide-react-native";
 import { useEffect } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -74,14 +74,9 @@ function RestartAction({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          size="icon"
-          variant="ghost"
-          aria-label="Restart"
-          disabled={disabled}
-        >
+        <Pressable aria-label="Restart" disabled={disabled} hitSlop={5}>
           <RotateCw className="text-yellow-500" />
-        </Button>
+        </Pressable>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -107,9 +102,9 @@ function RedeployAction({ onRedeploy, resourceType }: RedeployActionProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button size="icon" variant="ghost" aria-label="Redeploy">
+        <Pressable aria-label="Redeploy" hitSlop={5}>
           <RotateCwSquare className="text-orange-500" />
-        </Button>
+        </Pressable>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -135,14 +130,9 @@ function StopAction({ onStop, disabled, resourceType }: StopActionProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          size="icon"
-          variant="ghost"
-          aria-label="Stop"
-          disabled={disabled}
-        >
+        <Pressable aria-label="Stop" hitSlop={5} disabled={disabled}>
           <Pause className="text-red-500" />
-        </Button>
+        </Pressable>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -258,7 +248,7 @@ export function ResourceActions({
   }
 
   return (
-    <View className={cn("flex flex-row", className)}>
+    <View className={cn("flex flex-row gap-4", className)}>
       {isRunning ? (
         <>
           {showDeploy && (
