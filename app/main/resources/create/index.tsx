@@ -1,6 +1,10 @@
 import { createDatabase } from "@/api/databases";
 import { createService } from "@/api/services";
 import {
+  CoolifyApplicationMetadataList,
+  CoolifyApplications,
+} from "@/api/types/application.types";
+import {
   CoolifyDatabaseMetadataList,
   CoolifyDatabases,
 } from "@/api/types/database.types";
@@ -204,11 +208,38 @@ export default function CreateResource() {
     );
   };
 
-  const handleCreateApplication = () => {
-    if (selectedType !== "application") return;
-    if (!selectedResource || !server) return;
-
-    router.back();
+  const handleCreateApplication = (
+    selectedResource: CoolifyResourceMetadata
+  ) => {
+    const type = selectedResource.type as CoolifyApplications;
+    if (type === CoolifyApplications.PUBLIC_REPOSITORY) {
+      router.push({
+        pathname: "/main/resources/create/application/git/public",
+        params: {
+          environment_uuid: selectedEnvironment.uuid,
+          server_uuid: server?.uuid,
+          project_uuid,
+        },
+      });
+    } else if (type === CoolifyApplications.PRIVATE_REPOSITORY_GITHUB) {
+      router.push({
+        pathname: "/main/resources/create/application/git/private-app",
+        params: {
+          environment_uuid: selectedEnvironment.uuid,
+          server_uuid: server?.uuid,
+          project_uuid,
+        },
+      });
+    } else if (type === CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY) {
+      router.push({
+        pathname: "/main/resources/create/application/git/private-key",
+        params: {
+          environment_uuid: selectedEnvironment.uuid,
+          server_uuid: server?.uuid,
+          project_uuid,
+        },
+      });
+    }
   };
 
   return (
@@ -228,6 +259,10 @@ export default function CreateResource() {
             <ResourceCard
               {...item}
               onPress={() => {
+                if (section.type === "application") {
+                  handleCreateApplication(item);
+                  return;
+                }
                 setIsDialogOpen(true);
                 setSelectedResource(item);
                 setSelectedType(section.type);
@@ -280,8 +315,6 @@ export default function CreateResource() {
                   handleCreateService();
                 } else if (selectedType === "database") {
                   handleCreateDatabase();
-                } else if (selectedType === "application") {
-                  handleCreateApplication();
                 }
               }}
             >

@@ -6,12 +6,16 @@ import {
   ApplicationActionResponse,
   ApplicationEnv,
   ApplicationLogs,
+  CoolifyApplications,
+  CreateApplicationBody,
   CreateApplicationEnvBody,
   CreateApplicationEnvResponse,
+  CreateApplicationUrl,
   UpdateApplicationBody,
 } from "./types/application.types";
 import {
   ResourceActionResponse,
+  ResourceCreateResponse,
   ResourceUpdateResponse,
 } from "./types/resources.types";
 
@@ -198,5 +202,28 @@ export const updateApplication = (
       headers: { "Content-Type": "application/json" },
       body,
     });
+  },
+});
+
+export const createApplication = <
+  T extends CoolifyApplications,
+  B extends CreateApplicationBody
+>(
+  options?: Omit<
+    UseMutationOptions<ResourceCreateResponse, Error, { body: B; type: T }>,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
+  mutationKey: ["applications", "create"],
+  mutationFn: async ({ body, type }: { body: B; type: T }) => {
+    return coolifyFetch<ResourceCreateResponse>(
+      `/applications${CreateApplicationUrl[type]}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      }
+    );
   },
 });

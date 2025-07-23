@@ -47,10 +47,6 @@ export default function MainLayout() {
         options={{ title: "New Project", headerShown: true }}
       />
       <Stack.Screen
-        name="resources/create"
-        options={{ title: "New Resource", headerShown: true }}
-      />
-      <Stack.Screen
         name="servers/index"
         options={{ title: "Servers", headerShown: true }}
       />

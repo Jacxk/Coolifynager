@@ -39,6 +39,36 @@ const buildPackLabel = (type?: string) =>
     ? "Dockerfile"
     : "Docker Compose";
 
+export function BuildPackSelect({
+  value,
+  onChange,
+}: {
+  value: BuildPack;
+  onChange: (value: BuildPack) => void;
+}) {
+  return (
+    <Select
+      value={{
+        value: value,
+        label: buildPackLabel(value),
+      }}
+      onValueChange={(option) => onChange(option?.value as BuildPack)}
+    >
+      <SelectTrigger>
+        <SelectValue
+          placeholder="Select a build pack"
+          className="text-foreground"
+        />
+      </SelectTrigger>
+      <SelectContent>
+        {Object.values(BuildPack).map((value) => (
+          <SelectItem key={value} value={value} label={buildPackLabel(value)} />
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 export default function GeneralSection({
   control,
   errors,
@@ -64,29 +94,10 @@ export default function GeneralSection({
           control={control}
           name="build_pack"
           render={({ field: { onChange, value } }) => (
-            <Select
-              value={{
-                value: value ?? "",
-                label: buildPackLabel(value),
-              }}
-              onValueChange={(option) => onChange(option?.value)}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder="Select a build pack"
-                  className="text-foreground"
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(BuildPack).map((value) => (
-                  <SelectItem
-                    key={value}
-                    value={value}
-                    label={buildPackLabel(value)}
-                  />
-                ))}
-              </SelectContent>
-            </Select>
+            <BuildPackSelect
+              value={value ?? BuildPack.nixpacks}
+              onChange={onChange}
+            />
           )}
         />
       </View>

@@ -188,6 +188,15 @@ export enum CoolifyApplications {
   DOCKER_IMAGE = "docker-image",
 }
 
+export const CreateApplicationUrl = {
+  [CoolifyApplications.PUBLIC_REPOSITORY]: "/public",
+  [CoolifyApplications.PRIVATE_REPOSITORY_GITHUB]: "/private-github-app",
+  [CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY]: "/private-deploy-key",
+  [CoolifyApplications.DOCKERFILE]: "/dockerfile",
+  [CoolifyApplications.DOCKER_COMPOSE_EMPTY]: "/dockercompose",
+  [CoolifyApplications.DOCKER_IMAGE]: "/dockerimage",
+};
+
 export const CoolifyApplicationMetadataList: CoolifyResourceMetadata[] = [
   {
     name: "Public Repository",
@@ -230,3 +239,40 @@ export const CoolifyApplicationMetadataList: CoolifyResourceMetadata[] = [
     type: CoolifyApplications.DOCKER_IMAGE,
   },
 ];
+
+export type CreateApplicationBody = {
+  environment_uuid: string;
+  server_uuid: string;
+  project_uuid: string;
+};
+
+export type CreateApplicationBodyGit = CreateApplicationBody & {
+  ports_exposes: string;
+  git_repository: string;
+  git_branch: string;
+  build_pack: BuildPack;
+};
+
+export type CreateApplicationBodyGitPrivateApp = CreateApplicationBodyGit & {
+  ports_exposes: string;
+  github_app_uuid: string;
+};
+
+export type CreateApplicationBodyGitPrivateKey = CreateApplicationBodyGit & {
+  ports_exposes: string;
+  private_key_uuid: string;
+};
+
+export type CreateApplicationBodyDockerfile = CreateApplicationBody & {
+  dockerfile: string;
+};
+
+export type CreateApplicationBodyDockerCompose = CreateApplicationBody & {
+  docker_compose_raw: string;
+};
+
+export type CreateApplicationBodyDockerImage = CreateApplicationBody & {
+  ports_exposes: string;
+  docker_registry_image_name: string;
+  docker_registry_image_tag: string;
+};
