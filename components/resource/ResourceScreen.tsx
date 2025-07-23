@@ -99,11 +99,9 @@ function ResourceEditingForm<T extends ResourceBase>({
 
   const handleSave = (formData: { name: string; description: string }) => {
     onSubmitDetails(formData);
-    setIsEditingDetails(false);
   };
 
   const handleCancel = () => {
-    setIsEditingDetails(false);
     reset();
   };
 
@@ -231,6 +229,8 @@ function useResourceMutations(
   updateResource: (uuid: string) => MutationObject,
   refetch: () => void
 ) {
+  const { setIsEditingDetails, setIsEditing } = useEditing();
+
   const startMutation = useMutation({
     ...startResource(uuid),
     onError: (error: Error) => {
@@ -315,6 +315,8 @@ function useResourceMutations(
   };
 
   const submitDetails = (data: { name: string; description: string }) => {
+    setIsEditingDetails(false);
+    setIsEditing(false);
     toast.promise(
       updateDetailsMutation.mutateAsync({
         name: data.name,

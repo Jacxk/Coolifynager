@@ -39,7 +39,6 @@ export function useUnsavedChanges<T>({
     if (isDirty && !toastId.current) {
       const newToastId = toast("You have unsaved changes", {
         dismissible: false,
-        description: "Save your changes or cancel to discard them.",
         duration: Infinity,
         action: {
           label: "Save",
