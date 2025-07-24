@@ -251,6 +251,10 @@ export type CreateApplicationBodyGit = CreateApplicationBody & {
   git_repository: string;
   git_branch: string;
   build_pack: BuildPack;
+  is_static?: boolean;
+  publish_directory?: string;
+  docker_compose_location?: string;
+  base_directory?: string;
 };
 
 export type CreateApplicationBodyGitPrivateApp = CreateApplicationBodyGit & {

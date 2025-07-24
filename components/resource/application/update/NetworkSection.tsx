@@ -6,6 +6,33 @@ import { H3 } from "@/components/ui/typography";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
 
+export function PortsExposes({
+  value,
+  onChange,
+  onBlur,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onBlur: () => void;
+}) {
+  return (
+    <View className="gap-1">
+      <InfoDialog
+        label="Ports Exposes"
+        description="A comma separated list of ports your application uses. The first port will be used as default healthcheck port if nothing defined in the Healthcheck menu. Be sure to set this correctly."
+      />
+      <Input
+        value={value}
+        onChangeText={onChange}
+        onBlur={onBlur}
+        autoCapitalize="none"
+        keyboardType="numbers-and-punctuation"
+        placeholder="3000,3001"
+      />
+    </View>
+  );
+}
+
 export default function NetworkSection({
   control,
 }: {
@@ -14,26 +41,24 @@ export default function NetworkSection({
   return (
     <View className="gap-2">
       <H3>Network</H3>
-      <View className="gap-1">
-        <InfoDialog
-          label="Ports Exposes"
-          description="A comma separated list of ports your application uses. The first port will be used as default healthcheck port if nothing defined in the Healthcheck menu. Be sure to set this correctly."
-        />
-        <Controller
-          control={control}
-          name="ports_exposes"
-          render={({ field: { onChange, value, onBlur } }) => (
-            <Input
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              autoCapitalize="none"
-              keyboardType="numbers-and-punctuation"
-              placeholder="3000,3001"
-            />
-          )}
-        />
-      </View>
+      <Controller
+        control={control}
+        name="ports_exposes"
+        rules={{
+          pattern: {
+            value: /^(\d+)(,\d+)*$/,
+            message:
+              "Invalid ports exposes. Use comma separated numbers (e.g. 80,443)",
+          },
+        }}
+        render={({ field: { onChange, value, onBlur } }) => (
+          <PortsExposes
+            onChange={onChange}
+            value={value ?? ""}
+            onBlur={onBlur}
+          />
+        )}
+      />
       <View className="gap-1">
         <InfoDialog
           label="Ports Mappings"

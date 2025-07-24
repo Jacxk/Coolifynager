@@ -5,6 +5,39 @@ import { Text } from "@/components/ui/text";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
 
+export function DockerComposeLocationController({
+  control,
+}: {
+  control: Control<any>;
+}) {
+  return (
+    <Controller
+      control={control}
+      name="docker_compose_location"
+      render={({ field: { onChange, value, onBlur } }) => (
+        <View className="gap-1">
+          <InfoDialog
+            label="Docker Compose Location"
+            description={
+              <Text className="text-muted-foreground">
+                It is calculated together with the Base Directory:{" "}
+                <Text className="text-yellow-500">/docker-compose.yaml</Text>
+              </Text>
+            }
+          />
+          <Input
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            placeholder="/docker-compose.yaml"
+            autoCapitalize="none"
+          />
+        </View>
+      )}
+    />
+  );
+}
+
 export default function DockerComposeSection({
   control,
 }: {
@@ -12,30 +45,7 @@ export default function DockerComposeSection({
 }) {
   return (
     <>
-      <View className="gap-1">
-        <InfoDialog
-          label="Docker Compose Location"
-          description={
-            <Text className="text-muted-foreground">
-              It is calculated together with the Base Directory:{" "}
-              <Text className="text-yellow-500">/docker-compose.yaml</Text>
-            </Text>
-          }
-        />
-        <Controller
-          control={control}
-          name="docker_compose_location"
-          render={({ field: { onChange, value, onBlur } }) => (
-            <Input
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="/docker-compose.yaml"
-              autoCapitalize="none"
-            />
-          )}
-        />
-      </View>
+      <DockerComposeLocationController control={control} />
       <Text className="text-muted-foreground mt-6">
         The following commands are for advanced use cases. Only modify them if
         you know what are you doing.

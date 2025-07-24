@@ -4,36 +4,154 @@ import {
   CoolifyApplications,
   CreateApplicationBodyGit,
 } from "@/api/types/application.types";
-import { BuildPackSelect } from "@/components/resource/application/update/GeneralSection";
+import InfoDialog from "@/components/InfoDialog";
+import { DockerComposeLocationController } from "@/components/resource/application/update/build/DockerComposeSection";
+import { BaseDirectoryController } from "@/components/resource/application/update/BuildSection";
+import { BuildPackSelectController } from "@/components/resource/application/update/GeneralSection";
 import { Button } from "@/components/ui/button";
+import {
+  Checkbox,
+  CheckboxIcon,
+  CheckboxLabel,
+} from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { useMutation } from "@tanstack/react-query";
-import { router, useLocalSearchParams } from "expo-router";
-import { Controller, useForm } from "react-hook-form";
+import { Link, router, useLocalSearchParams } from "expo-router";
+import { Control, Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { toast } from "sonner-native";
 
-// TODO: Implement server and environment selection
+function BuildPackController({
+  control,
+}: {
+  control: Control<CreateApplicationBodyGit>;
+}) {
+  const isStatic = useWatch({
+    control,
+    name: "is_static",
+  });
+
+  const buildPack = useWatch({
+    control,
+    name: "build_pack",
+  });
+
+  return (
+    <>
+      {isStatic && buildPack === BuildPack.nixpacks && (
+        <Controller
+          control={control}
+          name="publish_directory"
+          defaultValue="/dist"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <View className="gap-1">
+              <InfoDialog
+                label="Publish Directory"
+                description="If there is a build process involved (like Svelte, React, Next, etc..), please specify the output directory for the build assets"
+              />
+              <Input
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                autoCapitalize="none"
+                placeholder="/public"
+                autoComplete="off"
+                autoCorrect={false}
+              />
+            </View>
+          )}
+        />
+      )}
+      <BuildPackSelectController control={control} />
+      <BaseDirectoryController control={control} />
+      <BuildPackControllerDynamic control={control} />
+    </>
+  );
+}
+
+function BuildPackControllerDynamic({
+  control,
+}: {
+  control: Control<CreateApplicationBodyGit>;
+}) {
+  const buildPack = useWatch({
+    control,
+    name: "build_pack",
+  });
+
+  if (buildPack === BuildPack.nixpacks) {
+    return (
+      <>
+        <Controller
+          control={control}
+          name="ports_exposes"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <View className="gap-1">
+              <InfoDialog
+                label="Port"
+                description="The port your application listens on."
+              />
+              <Input
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                autoCapitalize="none"
+                keyboardType="numbers-and-punctuation"
+                placeholder="3000"
+              />
+            </View>
+          )}
+        />
+        <Controller
+          control={control}
+          name="is_static"
+          render={({ field: { onChange, value, onBlur } }) => (
+            <Checkbox
+              checked={value ?? false}
+              onCheckedChange={onChange}
+              onBlur={onBlur}
+            >
+              <CheckboxLabel asChild>
+                <InfoDialog
+                  label="Is it a static site?"
+                  description="If your application is a static site or the final build assets should be served as a static site, enable this."
+                />
+              </CheckboxLabel>
+              <CheckboxIcon />
+            </Checkbox>
+          )}
+        />
+      </>
+    );
+  } else if (buildPack === BuildPack.dockercompose) {
+    return <DockerComposeLocationController control={control} />;
+  }
+}
+
 export default function CreatePublicRepositoryApplication() {
   const { environment_uuid, server_uuid, project_uuid } = useLocalSearchParams<{
     environment_uuid: string;
     server_uuid: string;
     project_uuid: string;
   }>();
-  const headerHeight = useHeaderHeight();
 
-  const { control, handleSubmit } = useForm({
-    values: {
+  const {
+    control,
+    handleSubmit,
+    formState: { isValid },
+  } = useForm<CreateApplicationBodyGit>({
+    shouldUnregister: true,
+    defaultValues: {
       git_branch: "main",
       git_repository: "",
-      ports_exposes: "80",
+      ports_exposes: "3000",
       build_pack: BuildPack.nixpacks,
-      environment_uuid,
-      server_uuid,
-      project_uuid,
+      base_directory: "/",
+      docker_compose_location: "/docker-compose.yaml",
+      publish_directory: "/dist",
+      is_static: false,
     },
   });
 
@@ -47,7 +165,12 @@ export default function CreatePublicRepositoryApplication() {
   const handleCreateApplication = (data: CreateApplicationBodyGit) => {
     toast.promise(
       mutateAsync({
-        body: data,
+        body: {
+          ...data,
+          environment_uuid,
+          server_uuid,
+          project_uuid,
+        },
         type: CoolifyApplications.PUBLIC_REPOSITORY,
       }),
       {
@@ -61,19 +184,21 @@ export default function CreatePublicRepositoryApplication() {
           });
           return "Application created successfully";
         },
-        error: () => {
+        error: (err) => {
+          console.info(err);
           return "Failed to create application";
         },
       }
     );
   };
 
-  // TODO: Reflect Coolify UI
   return (
     <ScrollView
       className="p-4"
-      contentContainerClassName="gap-4 flex-1 justify-center"
-      style={{ marginTop: -headerHeight }}
+      contentContainerClassName="gap-4 flex-1"
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
+      automaticallyAdjustKeyboardInsets
     >
       <Controller
         control={control}
@@ -90,71 +215,110 @@ export default function CreatePublicRepositoryApplication() {
           field: { onChange, onBlur, value },
           fieldState: { error },
         }) => (
-          <View>
-            <Text>Repository URL</Text>
-            <Input onChangeText={onChange} onBlur={onBlur} value={value} />
+          <View className="gap-1">
+            <InfoDialog
+              label="Repository URL (https://)"
+              description={
+                <View className="gap-3">
+                  <Text className="text-base font-semibold text-amber-400">
+                    Examples
+                  </Text>
+
+                  <View>
+                    <Text className="text-sm text-muted-foreground">
+                      For Public repositories, use{" "}
+                      <Text className="text-amber-400">https://</Text>
+                    </Text>
+                    <Text className="text-sm text-muted-foreground">
+                      For Private repositories, use{" "}
+                      <Text className="text-amber-400">git@</Text>
+                    </Text>
+                  </View>
+
+                  <View className="gap-2">
+                    <Text className="text-sm text-muted-foreground">
+                      * https://github.com/coollabsio/coolify-examples
+                      <Text className="text-amber-400">{" main "}</Text>
+                      branch will be selected
+                    </Text>
+
+                    <Text className="text-sm text-muted-foreground">
+                      *
+                      https://github.com/coollabsio/coolify-examples/tree/nodejs-fastify
+                      <Text className="text-amber-400">
+                        {" nodejs-fastify "}
+                      </Text>
+                      branch will be selected
+                    </Text>
+
+                    <Text className="text-sm text-muted-foreground">
+                      * https://gitea.com/sedlav/expressjs.git
+                      <Text className="text-amber-400">{" main "}</Text>
+                      branch will be selected
+                    </Text>
+
+                    <Text className="text-sm text-muted-foreground">
+                      * https://gitlab.com/andrasbacsai/nodejs-example.git
+                      <Text className="text-amber-400">{" main "}</Text>
+                      branch will be selected
+                    </Text>
+                  </View>
+                </View>
+              }
+            />
+            <Input
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              autoCapitalize="none"
+              autoComplete="off"
+              autoCorrect={false}
+              autoFocus
+              keyboardType="url"
+            />
             {error && <Text className="text-red-500">{error.message}</Text>}
           </View>
         )}
       />
+
+      <Text className="text-muted-foreground">
+        For example application deployments, checkout{" "}
+        <Link
+          href="https://github.com/coollabsio/coolify-examples/"
+          className="underline text-foreground"
+        >
+          Coolify Examples
+        </Link>
+        .
+      </Text>
 
       <Controller
         control={control}
         name="git_branch"
-        rules={{ required: "Branch is required" }}
-        render={({
-          field: { onChange, onBlur, value },
-          fieldState: { error },
-        }) => (
-          <View>
-            <Text>Branch</Text>
-            <Input onChangeText={onChange} onBlur={onBlur} value={value} />
-            {error && <Text className="text-red-500">{error.message}</Text>}
-          </View>
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="build_pack"
-        render={({ field: { onChange, value } }) => (
-          <View>
-            <Text>Build Pack</Text>
-            <BuildPackSelect
-              value={value ?? BuildPack.nixpacks}
-              onChange={onChange}
+        render={({ field: { onChange, onBlur, value, disabled } }) => (
+          <View className="gap-1">
+            <InfoDialog
+              label="Branch"
+              description="The default branch is main."
+            />
+            <Input
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              editable={!disabled}
+              autoCapitalize="none"
+              autoComplete="off"
             />
           </View>
         )}
       />
 
-      {/* TODO: Implement ports exposes from update application */}
-      <Controller
-        control={control}
-        name="ports_exposes"
-        rules={{
-          required: "Ports Exposes is required",
-          pattern: {
-            value: /^(\d+)(,\d+)*$/,
-            message:
-              "Invalid ports exposes. Use comma separated numbers (e.g. 80,443)",
-          },
-        }}
-        render={({
-          field: { onChange, onBlur, value },
-          fieldState: { error },
-        }) => (
-          <View>
-            <Text>Ports Exposes</Text>
-            <Input onChangeText={onChange} onBlur={onBlur} value={value} />
-            {error && <Text className="text-red-500">{error.message}</Text>}
-          </View>
-        )}
-      />
+      <BuildPackController control={control} />
 
       <Button
         onPress={handleSubmit(handleCreateApplication)}
         loading={isPending}
+        disabled={!isValid}
       >
         <Text>Create</Text>
       </Button>

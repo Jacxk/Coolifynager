@@ -12,6 +12,33 @@ import DockerComposeSection from "./build/DockerComposeSection";
 import NixpacksPublishDirectorySection from "./build/NixpacksPublishDirectorySection";
 import NixpacksSection from "./build/NixpacksSection";
 
+export function BaseDirectoryController({
+  control,
+}: {
+  control: Control<any>;
+}) {
+  return (
+    <Controller
+      control={control}
+      name="base_directory"
+      render={({ field: { onChange, value, onBlur } }) => (
+        <View className="gap-1">
+          <InfoDialog
+            label="Base Directory"
+            description="Directory to use as root. Useful for monorepos."
+          />
+          <Input
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            autoCapitalize="none"
+          />
+        </View>
+      )}
+    />
+  );
+}
+
 export default function BuildSection({
   control,
 }: {
@@ -31,24 +58,7 @@ export default function BuildSection({
       {buildPack === BuildPack.nixpacks && (
         <NixpacksSection control={control} />
       )}
-      <View className="gap-1">
-        <InfoDialog
-          label="Base Directory"
-          description="Directory to use as root. Useful for monorepos."
-        />
-        <Controller
-          control={control}
-          name="base_directory"
-          render={({ field: { onChange, value, onBlur } }) => (
-            <Input
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              autoCapitalize="none"
-            />
-          )}
-        />
-      </View>
+      <BaseDirectoryController control={control} />
       {buildPack === BuildPack.nixpacks && (
         <NixpacksPublishDirectorySection control={control} />
       )}

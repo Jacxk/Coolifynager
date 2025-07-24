@@ -39,33 +39,44 @@ const buildPackLabel = (type?: string) =>
     ? "Dockerfile"
     : "Docker Compose";
 
-export function BuildPackSelect({
-  value,
-  onChange,
+export function BuildPackSelectController({
+  control,
 }: {
-  value: BuildPack;
-  onChange: (value: BuildPack) => void;
+  control: Control<any>;
 }) {
   return (
-    <Select
-      value={{
-        value: value,
-        label: buildPackLabel(value),
-      }}
-      onValueChange={(option) => onChange(option?.value as BuildPack)}
-    >
-      <SelectTrigger>
-        <SelectValue
-          placeholder="Select a build pack"
-          className="text-foreground"
-        />
-      </SelectTrigger>
-      <SelectContent>
-        {Object.values(BuildPack).map((value) => (
-          <SelectItem key={value} value={value} label={buildPackLabel(value)} />
-        ))}
-      </SelectContent>
-    </Select>
+    <Controller
+      control={control}
+      name="build_pack"
+      render={({ field: { onChange, value } }) => (
+        <View className="gap-1">
+          <Text className="text-muted-foreground">Build Pack</Text>
+          <Select
+            value={{
+              value: value,
+              label: buildPackLabel(value),
+            }}
+            onValueChange={(option) => onChange(option?.value as BuildPack)}
+          >
+            <SelectTrigger>
+              <SelectValue
+                placeholder="Select a build pack"
+                className="text-foreground"
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.values(BuildPack).map((value) => (
+                <SelectItem
+                  key={value}
+                  value={value}
+                  label={buildPackLabel(value)}
+                />
+              ))}
+            </SelectContent>
+          </Select>
+        </View>
+      )}
+    />
   );
 }
 
@@ -88,19 +99,7 @@ export default function GeneralSection({
   return (
     <View className="gap-2">
       <H3>General</H3>
-      <View className="flex-1 gap-1">
-        <Text className="text-muted-foreground">Build Pack</Text>
-        <Controller
-          control={control}
-          name="build_pack"
-          render={({ field: { onChange, value } }) => (
-            <BuildPackSelect
-              value={value ?? BuildPack.nixpacks}
-              onChange={onChange}
-            />
-          )}
-        />
-      </View>
+      <BuildPackSelectController control={control} />
 
       {buildPack === BuildPack.static && (
         <>
