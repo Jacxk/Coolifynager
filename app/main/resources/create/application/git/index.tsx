@@ -1,4 +1,3 @@
-import { createApplication } from "@/api/application";
 import { getPrivateKeys } from "@/api/private-keys";
 import {
   BuildPack,
@@ -24,13 +23,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Link, router, useLocalSearchParams } from "expo-router";
+import { useCreateApplication } from "@/hooks/useCreateApplication";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Control, Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { toast } from "sonner-native";
 
 function BuildPackController({
   control,
@@ -251,42 +250,14 @@ export default function CreateGitRepositoryApplication() {
     },
   });
 
-  const { mutateAsync, isPending } = useMutation(
-    createApplication<
-      CoolifyApplications.PUBLIC_REPOSITORY,
-      CreateApplicationBodyGit
-    >()
+  const { handleCreateApplication, isPending } = useCreateApplication(
+    CoolifyApplications.PUBLIC_REPOSITORY,
+    {
+      environment_uuid,
+      server_uuid,
+      project_uuid,
+    }
   );
-
-  const handleCreateApplication = (data: CreateApplicationBodyGit) => {
-    toast.promise(
-      mutateAsync({
-        body: {
-          ...data,
-          environment_uuid,
-          server_uuid,
-          project_uuid,
-        },
-        type: CoolifyApplications.PUBLIC_REPOSITORY,
-      }),
-      {
-        loading: "Creating application...",
-        success: (data) => {
-          router.dismissTo({
-            pathname: "/main/applications/[uuid]/(tabs)",
-            params: {
-              uuid: data.uuid,
-            },
-          });
-          return "Application created successfully";
-        },
-        error: (err) => {
-          console.info(err);
-          return "Failed to create application";
-        },
-      }
-    );
-  };
 
   return (
     <ScrollView

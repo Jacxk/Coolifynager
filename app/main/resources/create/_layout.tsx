@@ -12,6 +12,10 @@ export default function CreateResourceLayout() {
         name="application/git/private-app"
         options={{ title: "Private - GitHub App" }}
       />
+      <Stack.Screen
+        name="application/docker/docker-image"
+        options={{ title: "New Application - Docker Image" }}
+      />
     </Stack>
   );
 }
