@@ -3,7 +3,7 @@ import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import {
   CoolifyDatabases,
-  CreateDatabaseBodyBase,
+  CreateDatabaseBody,
   Database,
   UpdateDatabaseBody,
 } from "./types/database.types";
@@ -135,7 +135,7 @@ export const createDatabase = (
     UseMutationOptions<
       ResourceCreateResponse,
       Error,
-      { body: CreateDatabaseBodyBase; type: CoolifyDatabases }
+      { body: CreateDatabaseBody; type: CoolifyDatabases }
     >,
     "mutationKey" | "mutationFn"
   >
@@ -146,7 +146,7 @@ export const createDatabase = (
     body,
     type,
   }: {
-    body: CreateDatabaseBodyBase;
+    body: CreateDatabaseBody;
     type: CoolifyDatabases;
   }) => {
     return coolifyFetch<ResourceCreateResponse>(`/databases/${type}`, {

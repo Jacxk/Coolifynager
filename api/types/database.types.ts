@@ -148,7 +148,7 @@ export const CoolifyDatabaseMetadataList: CoolifyResourceMetadata[] = [
   },
 ];
 
-export type CreateDatabaseBodyBase = {
+export type CreateDatabaseBody = {
   server_uuid: string;
   project_uuid: string;
   environment_uuid: string;
@@ -162,7 +162,7 @@ export type CreateDatabaseBodyBase = {
   destination_uuid?: string;
 };
 
-export type CreatePostgresqlDatabaseBody = CreateDatabaseBodyBase & {
+export type CreatePostgresqlDatabaseBody = CreateDatabaseBody & {
   postgres_user: string;
   postgres_password: string;
   postgres_db: string;
@@ -171,7 +171,7 @@ export type CreatePostgresqlDatabaseBody = CreateDatabaseBodyBase & {
   postgres_conf: string;
 };
 
-export type CreateMysqlDatabaseBody = CreateDatabaseBodyBase & {
+export type CreateMysqlDatabaseBody = CreateDatabaseBody & {
   mysql_root_password: string;
   mysql_password: string;
   mysql_user: string;
@@ -179,7 +179,7 @@ export type CreateMysqlDatabaseBody = CreateDatabaseBodyBase & {
   mysql_conf: string;
 };
 
-export type CreateMariadbDatabaseBody = CreateDatabaseBodyBase & {
+export type CreateMariadbDatabaseBody = CreateDatabaseBody & {
   mariadb_conf: string;
   mariadb_root_password: string;
   mariadb_user: string;
