@@ -1,4 +1,5 @@
 import { createApplication } from "@/api/application";
+import { getPrivateKeys } from "@/api/private-keys";
 import {
   BuildPack,
   CoolifyApplications,
@@ -15,9 +16,17 @@ import {
   CheckboxLabel,
 } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { Control, Controller, useForm, useWatch } from "react-hook-form";
 import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -130,12 +139,98 @@ function BuildPackControllerDynamic({
   }
 }
 
-export default function CreatePublicRepositoryApplication() {
-  const { environment_uuid, server_uuid, project_uuid } = useLocalSearchParams<{
-    environment_uuid: string;
-    server_uuid: string;
-    project_uuid: string;
-  }>();
+function PrivateKeySection({
+  control,
+  enabled,
+}: {
+  control: Control<CreateApplicationBodyGit>;
+  enabled: boolean;
+}) {
+  const [isPrivateRepo, setIsPrivateRepo] = useState(enabled);
+  useQuery(getPrivateKeys());
+
+  return (
+    <View className="gap-1">
+      <Checkbox checked={isPrivateRepo} onCheckedChange={setIsPrivateRepo}>
+        <CheckboxLabel>Is this a private repository?</CheckboxLabel>
+        <CheckboxIcon />
+      </Checkbox>
+      {isPrivateRepo && <PrivateKeyController control={control} />}
+    </View>
+  );
+}
+
+function PrivateKeyController({
+  control,
+}: {
+  control: Control<CreateApplicationBodyGit>;
+}) {
+  const { data: privateKeys, isLoading } = useQuery(getPrivateKeys());
+
+  if (isLoading) {
+    return (
+      <Text className="text-muted-foreground">Loading private keys...</Text>
+    );
+  }
+
+  if (!privateKeys) {
+    return (
+      <Text className="text-muted-foreground">
+        No private keys found, please create a private key first.
+      </Text>
+    );
+  }
+
+  const gitRelatedPrivateKeys = privateKeys?.filter(
+    (key) => key.is_git_related
+  );
+
+  return (
+    <Controller
+      control={control}
+      name="private_key_uuid"
+      rules={{
+        required: "Private key is required",
+      }}
+      render={({ field: { onChange } }) => (
+        <View className="gap-1">
+          <InfoDialog
+            label="Private Key"
+            description="The private key to use for the application."
+          />
+          <Select onValueChange={(val) => onChange(val)}>
+            <SelectTrigger>
+              <SelectValue
+                className="text-foreground"
+                placeholder="Select a private key"
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {gitRelatedPrivateKeys?.map((privateKey) => (
+                <SelectItem
+                  key={privateKey.uuid}
+                  value={privateKey.uuid}
+                  label={privateKey.name}
+                >
+                  {privateKey.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </View>
+      )}
+    />
+  );
+}
+
+export default function CreateGitRepositoryApplication() {
+  const { environment_uuid, server_uuid, project_uuid, type } =
+    useLocalSearchParams<{
+      environment_uuid: string;
+      server_uuid: string;
+      project_uuid: string;
+      type: CoolifyApplications;
+    }>();
 
   const {
     control,
@@ -152,6 +247,7 @@ export default function CreatePublicRepositoryApplication() {
       docker_compose_location: "/docker-compose.yaml",
       publish_directory: "/dist",
       is_static: false,
+      private_key_uuid: "",
     },
   });
 
@@ -200,6 +296,10 @@ export default function CreatePublicRepositoryApplication() {
       keyboardDismissMode="on-drag"
       automaticallyAdjustKeyboardInsets
     >
+      <PrivateKeySection
+        control={control}
+        enabled={type === CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY}
+      />
       <Controller
         control={control}
         name="git_repository"
@@ -273,14 +373,12 @@ export default function CreatePublicRepositoryApplication() {
               autoCapitalize="none"
               autoComplete="off"
               autoCorrect={false}
-              autoFocus
               keyboardType="url"
             />
             {error && <Text className="text-red-500">{error.message}</Text>}
           </View>
         )}
       />
-
       <Text className="text-muted-foreground">
         For example application deployments, checkout{" "}
         <Link
@@ -291,7 +389,6 @@ export default function CreatePublicRepositoryApplication() {
         </Link>
         .
       </Text>
-
       <Controller
         control={control}
         name="git_branch"
@@ -312,9 +409,7 @@ export default function CreatePublicRepositoryApplication() {
           </View>
         )}
       />
-
       <BuildPackController control={control} />
-
       <Button
         onPress={handleSubmit(handleCreateApplication)}
         loading={isPending}

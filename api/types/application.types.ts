@@ -255,16 +255,12 @@ export type CreateApplicationBodyGit = CreateApplicationBody & {
   publish_directory?: string;
   docker_compose_location?: string;
   base_directory?: string;
+  private_key_uuid?: string;
 };
 
 export type CreateApplicationBodyGitPrivateApp = CreateApplicationBodyGit & {
   ports_exposes: string;
   github_app_uuid: string;
-};
-
-export type CreateApplicationBodyGitPrivateKey = CreateApplicationBodyGit & {
-  ports_exposes: string;
-  private_key_uuid: string;
 };
 
 export type CreateApplicationBodyDockerfile = CreateApplicationBody & {

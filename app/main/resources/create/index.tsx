@@ -212,27 +212,22 @@ export default function CreateResource() {
     selectedResource: CoolifyResourceMetadata
   ) => {
     const type = selectedResource.type as CoolifyApplications;
-    if (type === CoolifyApplications.PUBLIC_REPOSITORY) {
+    if (
+      type === CoolifyApplications.PUBLIC_REPOSITORY ||
+      type === CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY
+    ) {
       router.push({
-        pathname: "/main/resources/create/application/git/public",
+        pathname: "/main/resources/create/application/git",
         params: {
           environment_uuid: selectedEnvironment.uuid,
           server_uuid: server?.uuid,
           project_uuid,
+          type,
         },
       });
     } else if (type === CoolifyApplications.PRIVATE_REPOSITORY_GITHUB) {
       router.push({
         pathname: "/main/resources/create/application/git/private-app",
-        params: {
-          environment_uuid: selectedEnvironment.uuid,
-          server_uuid: server?.uuid,
-          project_uuid,
-        },
-      });
-    } else if (type === CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY) {
-      router.push({
-        pathname: "/main/resources/create/application/git/private-key",
         params: {
           environment_uuid: selectedEnvironment.uuid,
           server_uuid: server?.uuid,

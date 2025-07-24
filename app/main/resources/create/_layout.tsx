@@ -5,16 +5,12 @@ export default function CreateResourceLayout() {
     <Stack screenOptions={{ headerShown: true }}>
       <Stack.Screen name="index" options={{ title: "New Resource" }} />
       <Stack.Screen
-        name="application/git/public"
-        options={{ title: "Public Repository" }}
+        name="application/git/index"
+        options={{ title: "New Application - Git" }}
       />
       <Stack.Screen
         name="application/git/private-app"
         options={{ title: "Private - GitHub App" }}
-      />
-      <Stack.Screen
-        name="application/git/private-key"
-        options={{ title: "Private - Deploy Key" }}
       />
     </Stack>
   );
