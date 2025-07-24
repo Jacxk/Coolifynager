@@ -217,7 +217,7 @@ export const createApplication = <
   ...options,
   mutationKey: ["applications", "create"],
   mutationFn: async ({ body, type }: { body: B; type: T }) => {
-    return coolifyFetch<ResourceCreateResponse>(
+    const res = await coolifyFetch<ResourceCreateResponse>(
       `/applications${CreateApplicationUrl[type]}`,
       {
         method: "POST",
@@ -225,5 +225,9 @@ export const createApplication = <
         body,
       }
     );
+
+    queryClient.prefetchQuery(getApplication(res.uuid));
+
+    return res;
   },
 });
