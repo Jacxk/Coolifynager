@@ -27,7 +27,8 @@ export const getDatabases = (
     data.forEach((database) => {
       queryClient.setQueryData(["databases", database.uuid], database);
     });
-    return data;
+
+    return queryClient.getQueryData<Database[]>(["databases"]) ?? data;
   },
 });
 
@@ -40,7 +41,17 @@ export const getDatabase = (
 ) => ({
   ...options,
   queryKey: ["databases", uuid],
-  queryFn: () => coolifyFetch<Database>(`/databases/${uuid}`),
+  queryFn: async () => {
+    const data = await coolifyFetch<Database>(`/databases/${uuid}`);
+    queryClient.setQueryData(["databases"], (old: Database[]) => {
+      const index = old.findIndex((db) => db.uuid === data.uuid);
+      if (index === -1) {
+        return [...old, data];
+      }
+      return old;
+    });
+    return data;
+  },
 });
 
 export const startDatabase = (

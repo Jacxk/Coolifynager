@@ -22,7 +22,7 @@ export default function DatabasesIndex() {
       </View>
     );
   }
-  console.log(data.length);
+
   return (
     <SafeView className="p-0">
       <FlatList
