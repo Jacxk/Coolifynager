@@ -240,11 +240,13 @@ export const CoolifyApplicationMetadataList: CoolifyResourceMetadata[] = [
   },
 ];
 
-export type CreateApplicationBody = {
+export type CreateApplicationBodyRequired = {
   environment_uuid: string;
   server_uuid: string;
   project_uuid: string;
 };
+
+export type CreateApplicationBody = {};
 
 export type CreateApplicationBodyGit = CreateApplicationBody & {
   ports_exposes: string;
@@ -259,7 +261,6 @@ export type CreateApplicationBodyGit = CreateApplicationBody & {
 };
 
 export type CreateApplicationBodyGitPrivateApp = CreateApplicationBodyGit & {
-  ports_exposes: string;
   github_app_uuid: string;
 };
 

@@ -243,6 +243,15 @@ export default function CreateResource() {
           project_uuid,
         },
       });
+    } else if (type === CoolifyApplications.DOCKERFILE) {
+      router.push({
+        pathname: "/main/resources/create/application/docker/docker-file",
+        params: {
+          environment_uuid: selectedEnvironment.uuid,
+          server_uuid: server?.uuid,
+          project_uuid,
+        },
+      });
     }
   };
 

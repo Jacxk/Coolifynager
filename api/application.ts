@@ -7,7 +7,7 @@ import {
   ApplicationEnv,
   ApplicationLogs,
   CoolifyApplications,
-  CreateApplicationBody,
+  CreateApplicationBodyRequired,
   CreateApplicationEnvBody,
   CreateApplicationEnvResponse,
   CreateApplicationUrl,
@@ -207,7 +207,7 @@ export const updateApplication = (
 
 export const createApplication = <
   T extends CoolifyApplications,
-  B extends CreateApplicationBody
+  B extends CreateApplicationBodyRequired
 >(
   options?: Omit<
     UseMutationOptions<ResourceCreateResponse, Error, { body: B; type: T }>,
