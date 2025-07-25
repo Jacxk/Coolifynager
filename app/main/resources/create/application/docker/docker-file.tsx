@@ -7,7 +7,6 @@ import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateApplication } from "@/hooks/useCreateApplication";
 import { Buffer } from "buffer";
-import { useLocalSearchParams } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -15,11 +14,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function DockerFile() {
   const insets = useSafeAreaInsets();
-  const { environment_uuid, server_uuid, project_uuid } = useLocalSearchParams<{
-    environment_uuid: string;
-    server_uuid: string;
-    project_uuid: string;
-  }>();
 
   const {
     control,
@@ -33,12 +27,7 @@ export default function DockerFile() {
 
   const { handleCreateApplication, isPending } =
     useCreateApplication<CreateApplicationBodyDockerfile>(
-      CoolifyApplications.DOCKERFILE,
-      {
-        environment_uuid,
-        server_uuid,
-        project_uuid,
-      }
+      CoolifyApplications.DOCKERFILE
     );
 
   const handleCreate = (data: CreateApplicationBodyDockerfile) => {

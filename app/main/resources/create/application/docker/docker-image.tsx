@@ -7,18 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useCreateApplication } from "@/hooks/useCreateApplication";
-import { useLocalSearchParams } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
 export default function DockerImage() {
-  const { environment_uuid, server_uuid, project_uuid } = useLocalSearchParams<{
-    environment_uuid: string;
-    server_uuid: string;
-    project_uuid: string;
-  }>();
-
   const {
     control,
     handleSubmit,
@@ -32,12 +25,7 @@ export default function DockerImage() {
   });
 
   const { handleCreateApplication, isPending } = useCreateApplication(
-    CoolifyApplications.DOCKER_IMAGE,
-    {
-      environment_uuid,
-      server_uuid,
-      project_uuid,
-    }
+    CoolifyApplications.DOCKER_IMAGE
   );
 
   return (

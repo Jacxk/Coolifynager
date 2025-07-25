@@ -1,14 +1,12 @@
 import {
   CoolifyApplications,
   CreateApplicationBodyDockerCompose,
-  CreateApplicationBodyRequired,
 } from "@/api/types/application.types";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateApplication } from "@/hooks/useCreateApplication";
 import { Buffer } from "buffer";
-import { useLocalSearchParams } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -16,8 +14,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function DockerFile() {
   const insets = useSafeAreaInsets();
-  const { environment_uuid, server_uuid, project_uuid } =
-    useLocalSearchParams<CreateApplicationBodyRequired>();
 
   const {
     control,
@@ -32,11 +28,6 @@ export default function DockerFile() {
   const { handleCreateApplication, isPending } =
     useCreateApplication<CreateApplicationBodyDockerCompose>(
       CoolifyApplications.DOCKER_COMPOSE_EMPTY,
-      {
-        environment_uuid,
-        server_uuid,
-        project_uuid,
-      },
       "services"
     );
 

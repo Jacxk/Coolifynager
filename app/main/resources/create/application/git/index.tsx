@@ -223,13 +223,7 @@ function PrivateKeyController({
 }
 
 export default function CreateGitRepositoryApplication() {
-  const { environment_uuid, server_uuid, project_uuid, type } =
-    useLocalSearchParams<{
-      environment_uuid: string;
-      server_uuid: string;
-      project_uuid: string;
-      type: CoolifyApplications;
-    }>();
+  const { type } = useLocalSearchParams<{ type: CoolifyApplications }>();
 
   const {
     control,
@@ -251,12 +245,7 @@ export default function CreateGitRepositoryApplication() {
   });
 
   const { handleCreateApplication, isPending } = useCreateApplication(
-    CoolifyApplications.PUBLIC_REPOSITORY,
-    {
-      environment_uuid,
-      server_uuid,
-      project_uuid,
-    }
+    CoolifyApplications.PUBLIC_REPOSITORY
   );
 
   return (
