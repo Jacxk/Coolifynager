@@ -1,3 +1,4 @@
+import { CoolifyDatabaseType } from "@/api/types/database.types";
 import InfoDialog from "@/components/InfoDialog";
 import ReadOnlyText from "@/components/ReadOnlyText";
 import { Input, PasswordInput } from "@/components/ui/input";
@@ -5,16 +6,39 @@ import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { View } from "react-native";
 
+const databaseTypeToLabel = (type: CoolifyDatabaseType) => {
+  switch (type) {
+    case CoolifyDatabaseType.POSTGRESQL:
+      return "PostgreSQL";
+    case CoolifyDatabaseType.MYSQL:
+      return "MySQL";
+    case CoolifyDatabaseType.MARIADB:
+      return "MariaDB";
+    case CoolifyDatabaseType.MONGODB:
+      return "MongoDB";
+    case CoolifyDatabaseType.REDIS:
+      return "Redis";
+    case CoolifyDatabaseType.DRAGONFLY:
+      return "DragonFly";
+    case CoolifyDatabaseType.KEYDB:
+      return "KeyDB";
+    case CoolifyDatabaseType.CLICKHOUSE:
+      return "ClickHouse";
+  }
+};
+
 export default function NetworkSection({
   ports_mappings,
   internal_db_url,
   external_db_url,
   is_public,
+  database_type,
 }: {
   ports_mappings: string | null;
   internal_db_url: string | null;
   external_db_url: string | null;
   is_public: boolean;
+  database_type: CoolifyDatabaseType;
 }) {
   return (
     <View className="gap-2">
@@ -46,8 +70,8 @@ export default function NetworkSection({
       </View>
       <View className="flex-1 gap-1">
         <InfoDialog
-          label="Postgres URL (internal)"
-          title="Postgres URL (internal)"
+          label={`${databaseTypeToLabel(database_type)} URL (internal)`}
+          title={`${databaseTypeToLabel(database_type)} URL (internal)`}
           description="If you change the user/password/port, this could be different.
           This is with the default values."
         />
@@ -56,8 +80,8 @@ export default function NetworkSection({
       {is_public && (
         <View className="flex-1 gap-1">
           <InfoDialog
-            label="Postgres URL (external)"
-            title="Postgres URL (external)"
+            label={`${databaseTypeToLabel(database_type)} URL (external)`}
+            title={`${databaseTypeToLabel(database_type)} URL (external)`}
             description="If you change the user/password/port, this could be different.
             This is with the default values."
           />

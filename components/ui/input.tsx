@@ -14,11 +14,11 @@ function Input({
   return (
     <TextInput
       className={cn(
-        "h-12 w-full rounded-md border border-input bg-background px-3 text-[1.1rem] text-foreground",
+        "h-12 w-full rounded-md border border-input bg-background px-3 text-[1.1rem] text-foreground placeholder:text-muted",
         { "opacity-50": props.editable === false },
         className
       )}
-      placeholderClassName={cn("text-muted-foreground", placeholderClassName)}
+      placeholderClassName={cn("text-muted", placeholderClassName)}
       {...props}
     />
   );

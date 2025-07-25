@@ -1,4 +1,12 @@
-import { UpdateDatabaseBody } from "@/api/types/database.types";
+import {
+  Database,
+  isMariaDBDatabase,
+  isMongoDBDatabase,
+  isMySQLDatabase,
+  isPostgreSQLDatabase,
+  isRedisDatabase,
+  UpdateDatabaseBody,
+} from "@/api/types/database.types";
 import {
   Checkbox,
   CheckboxIcon,
@@ -6,15 +14,21 @@ import {
 } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { Textarea } from "@/components/ui/textarea";
 import { H3 } from "@/components/ui/typography";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
+import { MariaDBConfiguration } from "./general/MariaDbDetails";
+import { MongoDbConfiguration } from "./general/MongoDbDetails";
+import { MysqlConfiguration } from "./general/MysqlDetails";
+import { PostgresConfiguration } from "./general/PostgressDetails";
+import { RedisConfiguration } from "./general/RedisDetails";
 
 export default function ProxySection({
   control,
+  database,
 }: {
   control: Control<UpdateDatabaseBody>;
+  database: Database;
 }) {
   return (
     <View className="gap-2">
@@ -38,28 +52,23 @@ export default function ProxySection({
             <Input
               keyboardType="number-pad"
               placeholder="5432"
-              value={value?.toString() ?? ""}
+              value={value?.toString()}
               onChangeText={(text) => onChange(Number(text))}
             />
           )}
         />
       </View>
-      <View className="flex-1 gap-1">
-        <Text className="text-muted-foreground">
-          Custom PostgreSQL Configuration
-        </Text>
-        <Controller
-          control={control}
-          name="postgres_conf"
-          render={({ field: { value, onChange } }) => (
-            <Textarea
-              className="h-40"
-              value={value ?? ""}
-              onChangeText={onChange}
-            />
-          )}
-        />
-      </View>
+      {isPostgreSQLDatabase(database) && (
+        <PostgresConfiguration control={control} />
+      )}
+      {isMongoDBDatabase(database) && (
+        <MongoDbConfiguration control={control} />
+      )}
+      {isMariaDBDatabase(database) && (
+        <MariaDBConfiguration control={control} />
+      )}
+      {isMySQLDatabase(database) && <MysqlConfiguration control={control} />}
+      {isRedisDatabase(database) && <RedisConfiguration control={control} />}
     </View>
   );
 }

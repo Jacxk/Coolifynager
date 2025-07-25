@@ -1,4 +1,4 @@
-import { SSLMode } from "@/api/types/database.types";
+import { CoolifyDatabaseType, SSLMode } from "@/api/types/database.types";
 import InfoDialog from "@/components/InfoDialog";
 import ReadOnlyText from "@/components/ReadOnlyText";
 import {
@@ -14,9 +14,11 @@ import { View } from "react-native";
 export default function SslConfigurationSection({
   enable_ssl,
   ssl_mode,
+  database_type,
 }: {
   enable_ssl: boolean;
   ssl_mode: SSLMode;
+  database_type: CoolifyDatabaseType;
 }) {
   const sslMode =
     ssl_mode + (ssl_mode === SSLMode.ALLOW ? " (insecure)" : " (secure)");
@@ -42,20 +44,22 @@ export default function SslConfigurationSection({
           <CheckboxIcon />
         </Checkbox>
       </View>
-      <View className="flex-1 gap-1">
-        <InfoDialog
-          label="SSL Mode"
-          description={
-            <View className="gap-2">
-              <Text className="text-muted-foreground">
-                Database should be stopped to change this settings.
-              </Text>
-              <ReadOnlyText />
-            </View>
-          }
-        />
-        <Input value={sslMode} editable={false} />
-      </View>
+      {database_type === CoolifyDatabaseType.POSTGRESQL && (
+        <View className="flex-1 gap-1">
+          <InfoDialog
+            label="SSL Mode"
+            description={
+              <View className="gap-2">
+                <Text className="text-muted-foreground">
+                  Database should be stopped to change this settings.
+                </Text>
+                <ReadOnlyText />
+              </View>
+            }
+          />
+          <Input value={sslMode} editable={false} />
+        </View>
+      )}
     </View>
   );
 }

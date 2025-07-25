@@ -1,20 +1,42 @@
-import { UpdateDatabaseBody } from "@/api/types/database.types";
+import { UpdatePostgreSQLDatabaseBody } from "@/api/types/database.types";
 import InfoDialog from "@/components/InfoDialog";
-import ReadOnlyText from "@/components/ReadOnlyText";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { openBrowserAsync } from "expo-web-browser";
+import { Textarea } from "@/components/ui/textarea";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
+
+export function PostgresConfiguration({
+  control,
+}: {
+  control: Control<UpdatePostgreSQLDatabaseBody>;
+}) {
+  return (
+    <View className="flex-1 gap-1">
+      <Text className="text-muted-foreground">
+        Custom PostgreSQL Configuration
+      </Text>
+      <Controller
+        control={control}
+        name="postgres_conf"
+        render={({ field: { value, onChange } }) => (
+          <Textarea
+            className="h-40"
+            value={value ?? ""}
+            onChangeText={onChange}
+          />
+        )}
+      />
+    </View>
+  );
+}
 
 export default function PostgressDetails({
   control,
   errors,
-  custom_docker_run_options,
 }: {
-  control: Control<UpdateDatabaseBody>;
-  errors: FieldErrors<UpdateDatabaseBody>;
-  custom_docker_run_options: string | null;
+  control: Control<UpdatePostgreSQLDatabaseBody>;
+  errors: FieldErrors<UpdatePostgreSQLDatabaseBody>;
 }) {
   return (
     <>
@@ -122,42 +144,6 @@ export default function PostgressDetails({
               value={value ?? ""}
             />
           )}
-        />
-      </View>
-
-      <View className="flex-1 gap-1">
-        <InfoDialog
-          label="Custom Docker Options"
-          description={
-            <View className="gap-2">
-              <Text className="text-muted-foreground">
-                You can add custom docker run options that will be used when
-                your container is started. Note: Not all options are supported,
-                as they could mess up Coolify's automation and could cause bad
-                experience for users.
-              </Text>
-              <Text className="text-muted-foreground">
-                Check the{" "}
-                <Text
-                  onPress={() =>
-                    openBrowserAsync(
-                      "https://coolify.io/docs/knowledge-base/docker/custom-commands"
-                    )
-                  }
-                  className="underline"
-                >
-                  docs
-                </Text>
-                .
-              </Text>
-              <ReadOnlyText />
-            </View>
-          }
-        />
-        <Input
-          placeholder="--cap-add SYS_ADMIN --device=/dev/fuse --security-opt apparmor:unconfined --ulimit nofile=1024:1024 --tmpfs /run:rw,noexec,nosuid,size=65536k"
-          value={custom_docker_run_options ?? ""}
-          editable={false}
         />
       </View>
     </>

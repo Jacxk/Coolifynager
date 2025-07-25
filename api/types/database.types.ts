@@ -14,8 +14,9 @@ export type InitScript = {
   content: string;
 };
 
-export type Database = ResourceBase & {
-  database_type: string;
+// Base database properties that all databases share
+export type DatabaseBase = ResourceBase & {
+  database_type: CoolifyDatabaseType;
   enable_ssl: boolean;
   external_db_url: string | null;
   image: string;
@@ -24,18 +25,118 @@ export type Database = ResourceBase & {
   is_include_timestamps: boolean;
   is_log_drain_enabled: boolean;
   is_public: boolean;
+  public_port: number | null;
+  ssl_mode: SSLMode;
+  started_at: string;
+};
+
+// PostgreSQL specific properties
+export type PostgreSQLDatabase = DatabaseBase & {
+  database_type: CoolifyDatabaseType.POSTGRESQL;
   postgres_conf: string | null;
   postgres_db: string;
   postgres_host_auth_method: string | null;
   postgres_initdb_args: string | null;
   postgres_password: string;
   postgres_user: string;
-  public_port: number | null;
-  ssl_mode: SSLMode;
-  started_at: string;
 };
 
-export type UpdateDatabaseBody = Partial<{
+// MySQL specific properties
+export type MySQLDatabase = DatabaseBase & {
+  database_type: CoolifyDatabaseType.MYSQL;
+  mysql_root_password: string;
+  mysql_password: string;
+  mysql_user: string;
+  mysql_database: string;
+  mysql_conf: string;
+};
+
+// MariaDB specific properties
+export type MariaDBDatabase = DatabaseBase & {
+  database_type: CoolifyDatabaseType.MARIADB;
+  mariadb_conf: string;
+  mariadb_root_password: string;
+  mariadb_user: string;
+  mariadb_password: string;
+  mariadb_database: string;
+};
+
+// MongoDB specific properties
+export type MongoDBDatabase = DatabaseBase & {
+  database_type: CoolifyDatabaseType.MONGODB;
+  mongo_conf: string;
+  mongo_initdb_root_username: string;
+  mongo_initdb_root_password: string;
+  mongo_initdb_database: string;
+};
+
+// Redis specific properties
+export type RedisDatabase = DatabaseBase & {
+  database_type: CoolifyDatabaseType.REDIS;
+  redis_password: string;
+  redis_conf: string;
+};
+
+// DragonFly specific properties
+export type DragonFlyDatabase = DatabaseBase & {
+  database_type: CoolifyDatabaseType.DRAGONFLY;
+  dragonfly_password: string;
+};
+
+// KeyDB specific properties
+export type KeyDBDatabase = DatabaseBase & {
+  database_type: CoolifyDatabaseType.KEYDB;
+  keydb_password: string;
+  keydb_conf: string;
+};
+
+// ClickHouse specific properties
+export type ClickHouseDatabase = DatabaseBase & {
+  database_type: CoolifyDatabaseType.CLICKHOUSE;
+  clickhouse_admin_user: string;
+  clickhouse_admin_password: string;
+};
+
+// Union type for all database types
+export type Database =
+  | PostgreSQLDatabase
+  | MySQLDatabase
+  | MariaDBDatabase
+  | MongoDBDatabase
+  | RedisDatabase
+  | DragonFlyDatabase
+  | KeyDBDatabase
+  | ClickHouseDatabase;
+
+// Type guards for each database type
+export const isPostgreSQLDatabase = (db: Database): db is PostgreSQLDatabase =>
+  db.database_type === CoolifyDatabaseType.POSTGRESQL;
+
+export const isMySQLDatabase = (db: Database): db is MySQLDatabase =>
+  db.database_type === CoolifyDatabaseType.MYSQL;
+
+export const isMariaDBDatabase = (db: Database): db is MariaDBDatabase =>
+  db.database_type === CoolifyDatabaseType.MARIADB;
+
+export const isMongoDBDatabase = (db: Database): db is MongoDBDatabase =>
+  db.database_type === CoolifyDatabaseType.MONGODB;
+
+export const isRedisDatabase = (db: Database): db is RedisDatabase =>
+  db.database_type === CoolifyDatabaseType.REDIS;
+
+export const isDragonFlyDatabase = (db: Database): db is DragonFlyDatabase =>
+  db.database_type === CoolifyDatabaseType.DRAGONFLY;
+
+export const isKeyDBDatabase = (db: Database): db is KeyDBDatabase =>
+  db.database_type === CoolifyDatabaseType.KEYDB ||
+  "keydb_password" in db ||
+  "keydb_conf" in db;
+
+export const isClickHouseDatabase = (db: Database): db is ClickHouseDatabase =>
+  db.database_type === CoolifyDatabaseType.CLICKHOUSE;
+
+// Base update properties that all databases share
+export type UpdateDatabaseBaseBody = Partial<{
   name: string;
   description: string | null;
   image: string;
@@ -49,34 +150,85 @@ export type UpdateDatabaseBody = Partial<{
   limits_cpus: string;
   limits_cpuset: string | null;
   limits_cpu_shares: number;
-  postgres_user: string;
-  postgres_password: string;
-  postgres_db: string;
-  postgres_initdb_args: string | null;
-  postgres_host_auth_method: string | null;
-  postgres_conf: string | null;
-  clickhouse_admin_user: string;
-  clickhouse_admin_password: string;
-  dragonfly_password: string;
-  redis_password: string;
-  redis_conf: string;
-  keydb_password: string;
-  keydb_conf: string;
-  mariadb_conf: string;
-  mariadb_root_password: string;
-  mariadb_user: string;
-  mariadb_password: string;
-  mariadb_database: string;
-  mongo_conf: string;
-  mongo_initdb_root_username: string;
-  mongo_initdb_root_password: string;
-  mongo_initdb_database: string;
-  mysql_root_password: string;
-  mysql_password: string;
-  mysql_user: string;
-  mysql_database: string;
-  mysql_conf: string;
 }>;
+
+// PostgreSQL specific update properties
+export type UpdatePostgreSQLDatabaseBody = UpdateDatabaseBaseBody &
+  Partial<{
+    postgres_user: string;
+    postgres_password: string;
+    postgres_db: string;
+    postgres_initdb_args: string | null;
+    postgres_host_auth_method: string | null;
+    postgres_conf: string | null;
+  }>;
+
+// MySQL specific update properties
+export type UpdateMySQLDatabaseBody = UpdateDatabaseBaseBody &
+  Partial<{
+    mysql_root_password: string;
+    mysql_password: string;
+    mysql_user: string;
+    mysql_database: string;
+    mysql_conf: string;
+  }>;
+
+// MariaDB specific update properties
+export type UpdateMariaDBDatabaseBody = UpdateDatabaseBaseBody &
+  Partial<{
+    mariadb_conf: string;
+    mariadb_root_password: string;
+    mariadb_user: string;
+    mariadb_password: string;
+    mariadb_database: string;
+  }>;
+
+// MongoDB specific update properties
+export type UpdateMongoDBDatabaseBody = UpdateDatabaseBaseBody &
+  Partial<{
+    mongo_conf: string;
+    mongo_initdb_root_username: string;
+    mongo_initdb_root_password: string;
+    mongo_initdb_database: string;
+  }>;
+
+// Redis specific update properties
+export type UpdateRedisDatabaseBody = UpdateDatabaseBaseBody &
+  Partial<{
+    redis_password: string;
+    redis_conf: string;
+  }>;
+
+// DragonFly specific update properties
+export type UpdateDragonFlyDatabaseBody = UpdateDatabaseBaseBody &
+  Partial<{
+    dragonfly_password: string;
+  }>;
+
+// KeyDB specific update properties
+export type UpdateKeyDBDatabaseBody = UpdateDatabaseBaseBody &
+  Partial<{
+    keydb_password: string;
+    keydb_conf: string;
+  }>;
+
+// ClickHouse specific update properties
+export type UpdateClickHouseDatabaseBody = UpdateDatabaseBaseBody &
+  Partial<{
+    clickhouse_admin_user: string;
+    clickhouse_admin_password: string;
+  }>;
+
+// Union type for all database update bodies
+export type UpdateDatabaseBody =
+  | UpdatePostgreSQLDatabaseBody
+  | UpdateMySQLDatabaseBody
+  | UpdateMariaDBDatabaseBody
+  | UpdateMongoDBDatabaseBody
+  | UpdateRedisDatabaseBody
+  | UpdateDragonFlyDatabaseBody
+  | UpdateKeyDBDatabaseBody
+  | UpdateClickHouseDatabaseBody;
 
 export enum CoolifyDatabases {
   POSTGRESQL = "postgresql",
@@ -87,6 +239,17 @@ export enum CoolifyDatabases {
   DRAGONFLY = "dragonfly",
   KEYDB = "keydb",
   CLICKHOUSE = "clickhouse",
+}
+
+export enum CoolifyDatabaseType {
+  POSTGRESQL = "standalone-postgresql",
+  MYSQL = "standalone-mysql",
+  MARIADB = "standalone-mariadb",
+  MONGODB = "standalone-mongodb",
+  REDIS = "standalone-redis",
+  DRAGONFLY = "standalone-dragonfly",
+  KEYDB = "standalone-keydb",
+  CLICKHOUSE = "standalone-clickhouse",
 }
 
 export const CoolifyDatabaseMetadataList: CoolifyResourceMetadata[] = [
@@ -185,28 +348,4 @@ export type CreateMariadbDatabaseBody = CreateDatabaseBody & {
   mariadb_user: string;
   mariadb_password: string;
   mariadb_database: string;
-};
-
-export type CreateMongodbDatabaseBody = {
-  mongo_conf: string;
-  mongo_initdb_root_username: string;
-};
-
-export type CreateRedisDatabaseBody = {
-  redis_password: string;
-  redis_conf: string;
-};
-
-export type CreateDragonflyDatabaseBody = {
-  dragonfly_password: string;
-};
-
-export type CreateKeydbDatabaseBody = {
-  keydb_password: string;
-  keydb_conf: string;
-};
-
-export type CreateClickhouseDatabaseBody = {
-  clickhouse_admin_user: string;
-  clickhouse_admin_password: string;
 };
