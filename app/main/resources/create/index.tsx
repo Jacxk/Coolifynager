@@ -208,59 +208,47 @@ export default function CreateResource() {
     );
   };
 
+  const navigateToCreatePage = (
+    path:
+      | "git"
+      | "git/private-app"
+      | "docker/docker-image"
+      | "docker/docker-file"
+      | "docker/docker-compose",
+    type?: CoolifyApplications
+  ) => {
+    router.push({
+      pathname: `/main/resources/create/application/${path}`,
+      params: {
+        environment_uuid: selectedEnvironment.uuid,
+        server_uuid: server?.uuid,
+        project_uuid,
+        type,
+      },
+    });
+  };
+
   const handleCreateApplication = (
     selectedResource: CoolifyResourceMetadata
   ) => {
     const type = selectedResource.type as CoolifyApplications;
-    if (
-      type === CoolifyApplications.PUBLIC_REPOSITORY ||
-      type === CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY
-    ) {
-      router.push({
-        pathname: "/main/resources/create/application/git",
-        params: {
-          environment_uuid: selectedEnvironment.uuid,
-          server_uuid: server?.uuid,
-          project_uuid,
-          type,
-        },
-      });
-    } else if (type === CoolifyApplications.PRIVATE_REPOSITORY_GITHUB) {
-      router.push({
-        pathname: "/main/resources/create/application/git/private-app",
-        params: {
-          environment_uuid: selectedEnvironment.uuid,
-          server_uuid: server?.uuid,
-          project_uuid,
-        },
-      });
-    } else if (type === CoolifyApplications.DOCKER_IMAGE) {
-      router.push({
-        pathname: "/main/resources/create/application/docker/docker-image",
-        params: {
-          environment_uuid: selectedEnvironment.uuid,
-          server_uuid: server?.uuid,
-          project_uuid,
-        },
-      });
-    } else if (type === CoolifyApplications.DOCKERFILE) {
-      router.push({
-        pathname: "/main/resources/create/application/docker/docker-file",
-        params: {
-          environment_uuid: selectedEnvironment.uuid,
-          server_uuid: server?.uuid,
-          project_uuid,
-        },
-      });
-    } else if (type === CoolifyApplications.DOCKER_COMPOSE_EMPTY) {
-      router.push({
-        pathname: "/main/resources/create/application/docker/docker-compose",
-        params: {
-          environment_uuid: selectedEnvironment.uuid,
-          server_uuid: server?.uuid,
-          project_uuid,
-        },
-      });
+    switch (type) {
+      case CoolifyApplications.PUBLIC_REPOSITORY:
+      case CoolifyApplications.PRIVATE_REPOSITORY_DEPLOY_KEY:
+        navigateToCreatePage("git", type);
+        break;
+      case CoolifyApplications.PRIVATE_REPOSITORY_GITHUB:
+        navigateToCreatePage("git/private-app", type);
+        break;
+      case CoolifyApplications.DOCKER_IMAGE:
+        navigateToCreatePage("docker/docker-image", type);
+        break;
+      case CoolifyApplications.DOCKERFILE:
+        navigateToCreatePage("docker/docker-file", type);
+        break;
+      case CoolifyApplications.DOCKER_COMPOSE_EMPTY:
+        navigateToCreatePage("docker/docker-compose", type);
+        break;
     }
   };
 
