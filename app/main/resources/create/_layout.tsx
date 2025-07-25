@@ -20,6 +20,10 @@ export default function CreateResourceLayout() {
         name="application/docker/docker-file"
         options={{ title: "New Application - Dockerfile" }}
       />
+      <Stack.Screen
+        name="application/docker/docker-compose"
+        options={{ title: "New Application - Docker Compose" }}
+      />
     </Stack>
   );
 }

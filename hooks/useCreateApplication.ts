@@ -10,7 +10,8 @@ import { toast } from "sonner-native";
 
 export const useCreateApplication = <B extends CreateApplicationBody>(
   type: CoolifyApplications,
-  requiredParams: CreateApplicationBodyRequired
+  requiredParams: CreateApplicationBodyRequired,
+  routerPath?: "applications" | "services" | "databases"
 ) => {
   const { mutateAsync, ...rest } = useMutation(
     createApplication<CoolifyApplications, B & CreateApplicationBodyRequired>()
@@ -29,7 +30,7 @@ export const useCreateApplication = <B extends CreateApplicationBody>(
         loading: "Creating application...",
         success: (data) => {
           router.dismissTo({
-            pathname: "/main/applications/[uuid]/(tabs)",
+            pathname: `/main/${routerPath ?? "applications"}/[uuid]/(tabs)`,
             params: {
               uuid: data.uuid,
             },
