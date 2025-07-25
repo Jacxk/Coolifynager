@@ -1,6 +1,7 @@
 import { getProject } from "@/api/projects";
 import { getResources } from "@/api/resources";
-import { ResourceType } from "@/api/types/resources.types";
+import { CoolifyDatabaseType } from "@/api/types/database.types";
+import { Resource, ResourceType } from "@/api/types/resources.types";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { ChevronUp } from "@/components/icons/ChevronUp";
 import { SafeView } from "@/components/SafeView";
@@ -12,6 +13,12 @@ import { useQuery } from "@tanstack/react-query";
 import { LinkProps, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { RefreshControl, SectionList, View } from "react-native";
+
+const isDatabase = (resource: Resource) => {
+  return Object.values(CoolifyDatabaseType).includes(
+    resource.type as CoolifyDatabaseType
+  );
+};
 
 export default function Project() {
   const navigation = useNavigation();
@@ -69,9 +76,7 @@ export default function Project() {
   const applications = filteredResources.filter(
     (res) => res.type === "application"
   );
-  const databases = filteredResources.filter((res) =>
-    res.name.includes("database")
-  );
+  const databases = filteredResources.filter(isDatabase);
   const services = filteredResources.filter((res) => res.type === "service");
 
   const sections = [

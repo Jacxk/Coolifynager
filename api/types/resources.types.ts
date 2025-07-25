@@ -1,5 +1,5 @@
 import { CoolifyApplications } from "./application.types";
-import { CoolifyDatabases } from "./database.types";
+import { CoolifyDatabases, CoolifyDatabaseType } from "./database.types";
 import { SingleServer } from "./server.types";
 import { CoolifyServices } from "./services.types";
 
@@ -41,8 +41,8 @@ export type ResourceBase = {
 };
 
 export type ResourceFromListType =
+  | CoolifyDatabaseType
   | "application"
-  | "standalone-postgresql"
   | "service";
 
 export type Resource = ResourceBase & {
