@@ -2,34 +2,8 @@ import { UpdateMariaDBDatabaseBody } from "@/api/types/database.types";
 import InfoDialog from "@/components/InfoDialog";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { Textarea } from "@/components/ui/textarea";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
-
-export function MariaDBConfiguration({
-  control,
-}: {
-  control: Control<UpdateMariaDBDatabaseBody>;
-}) {
-  return (
-    <View className="flex-1 gap-1">
-      <Text className="text-muted-foreground">
-        Custom MariaDB Configuration
-      </Text>
-      <Controller
-        control={control}
-        name="mariadb_conf"
-        render={({ field: { value, onChange } }) => (
-          <Textarea
-            className="h-40"
-            value={value ?? ""}
-            onChangeText={onChange}
-          />
-        )}
-      />
-    </View>
-  );
-}
 
 export default function MariaDbDetails({
   control,

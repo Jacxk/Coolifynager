@@ -1,12 +1,4 @@
-import {
-  Database,
-  isMariaDBDatabase,
-  isMongoDBDatabase,
-  isMySQLDatabase,
-  isPostgreSQLDatabase,
-  isRedisDatabase,
-  UpdateDatabaseBody,
-} from "@/api/types/database.types";
+import { Database, UpdateDatabaseBody } from "@/api/types/database.types";
 import {
   Checkbox,
   CheckboxIcon,
@@ -17,11 +9,7 @@ import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
-import { MariaDBConfiguration } from "./general/MariaDbDetails";
-import { MongoDbConfiguration } from "./general/MongoDbDetails";
-import { MysqlConfiguration } from "./general/MysqlDetails";
-import { PostgresConfiguration } from "./general/PostgressDetails";
-import { RedisConfiguration } from "./general/RedisDetails";
+import DBCustomConfiguration from "./DBCustomConfiguration";
 
 export default function ProxySection({
   control,
@@ -58,17 +46,7 @@ export default function ProxySection({
           )}
         />
       </View>
-      {isPostgreSQLDatabase(database) && (
-        <PostgresConfiguration control={control} />
-      )}
-      {isMongoDBDatabase(database) && (
-        <MongoDbConfiguration control={control} />
-      )}
-      {isMariaDBDatabase(database) && (
-        <MariaDBConfiguration control={control} />
-      )}
-      {isMySQLDatabase(database) && <MysqlConfiguration control={control} />}
-      {isRedisDatabase(database) && <RedisConfiguration control={control} />}
+      <DBCustomConfiguration control={control} type={database.database_type} />
     </View>
   );
 }
