@@ -246,6 +246,7 @@ export const SwipeableCard = React.forwardRef<
     const panGesture = Gesture.Pan()
       .enabled(enabled && !isDismissed)
       .shouldCancelWhenOutside(false)
+      .activeOffsetX([-10, 10])
       .onBegin(() => {
         if (isDismissing.value || isDismissed) return;
         startX.value = translationX.value;
