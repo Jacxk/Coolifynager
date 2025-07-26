@@ -1,10 +1,13 @@
 import { getProjects } from "@/api/projects";
+import { queryClient } from "@/app/_layout";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
 import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
+import { SwipeGesture } from "@/components/ui/swipe-card";
 import { Text } from "@/components/ui/text";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useQuery } from "@tanstack/react-query";
+import { Trash } from "lucide-react-native";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
 
@@ -33,16 +36,28 @@ export default function ProjectsIndex() {
         data={data}
         keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => (
-          <ResourceCard
-            uuid={item.uuid}
-            title={item.name}
-            description={item.description}
-            type="project"
-            href={{
-              pathname: "/main/projects/[uuid]",
-              params: { uuid: item.uuid, name: item.name },
-            }}
-          />
+          <SwipeGesture
+            rightContentClassName="rounded-r-lg bg-red-400 dark:bg-red-500"
+            rightContent={<Trash />}
+            onSwipeRight={() =>
+              // TESTING
+              queryClient.setQueryData(
+                ["projects"],
+                data.filter((d) => d.uuid !== item.uuid)
+              )
+            }
+          >
+            <ResourceCard
+              uuid={item.uuid}
+              title={item.name}
+              description={item.description}
+              type="project"
+              href={{
+                pathname: "/main/projects/[uuid]",
+                params: { uuid: item.uuid, name: item.name },
+              }}
+            />
+          </SwipeGesture>
         )}
         ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
         refreshing={isRefreshing}
