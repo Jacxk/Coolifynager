@@ -103,6 +103,7 @@ function ResourceEditingForm<T extends ResourceBase>({
 
   const handleCancel = () => {
     reset();
+    setIsEditingDetails(false);
   };
 
   return (
