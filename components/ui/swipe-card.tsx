@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import * as Haptics from "expo-haptics";
 import * as React from "react";
 import { useImperativeHandle } from "react";
-import { View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Extrapolation,
@@ -10,11 +10,11 @@ import Animated, {
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withSpring,
+  withTiming,
   type WithSpringConfig,
 } from "react-native-reanimated";
-
-const OPEN_OFFSET = 20;
 
 export type SwipeableCardHaptics = "left" | "right" | "none" | "both";
 
@@ -87,6 +87,35 @@ export type SwipeableCardProps = {
    * @default true
    */
   closeOnSwipe?: boolean;
+  /**
+   * If `true`, the card will animate off-screen and fade out on a successful left swipe.
+   * The `onSwipeLeft` callback is fired before the animation starts.
+   * @default true
+   */
+  dismissOnSwipeLeft?: boolean;
+  /**
+   * If `true`, the card will animate off-screen and fade out on a successful right swipe.
+   * The `onSwipeRight` callback is fired before the animation starts.
+   * @default false
+   */
+  dismissOnSwipeRight?: boolean;
+  /**
+   * Callback fired after the dismiss animation is complete.
+   * This is where you should remove the item from your state.
+   */
+  onDismiss?: () => void;
+  /**
+   * Width offset for left content positioning behind the container.
+   * Helps with rounded corner appearance.
+   * @default 20
+   */
+  leftWidthOffset?: number;
+  /**
+   * Width offset for right content positioning behind the container.
+   * Helps with rounded corner appearance.
+   * @default 20
+   */
+  rightWidthOffset?: number;
 };
 
 /**
@@ -119,18 +148,28 @@ export const SwipeableCard = React.forwardRef<
       onSwipeEnd,
       enabled = true,
       closeOnSwipe = true,
+      dismissOnSwipeLeft = false,
+      dismissOnSwipeRight = false,
+      onDismiss,
+      leftWidthOffset = 20,
+      rightWidthOffset = 20,
     },
     ref
   ) => {
+    const { width: screenWidth } = useWindowDimensions();
+
     // Animation values
     const translationX = useSharedValue(0);
-    const width = useSharedValue(0);
-    const opacity = useSharedValue(0);
-    const opacityActive = useSharedValue(0);
+    const startX = useSharedValue(0);
+    const cardOpacity = useSharedValue(1);
+    const sideContentWidth = useSharedValue(0);
+    const sideContentOpacity = useSharedValue(0);
 
     // State tracking
     const isGestureActive = useSharedValue(false);
     const isThresholdMet = useSharedValue(false);
+    const isDismissing = useSharedValue(false);
+    const [isDismissed, setIsDismissed] = React.useState(false);
 
     // Helper functions for haptics
     const shouldTriggerHaptic = (direction: "left" | "right") => {
@@ -156,12 +195,13 @@ export const SwipeableCard = React.forwardRef<
       }
     };
 
-    const resetValues = () => {
+    const resetValues = (spring = true) => {
       "worklet";
-      opacityActive.value = withSpring(0, animationConfig);
-      translationX.value = withSpring(0, animationConfig);
-      width.value = withSpring(0, animationConfig);
-      opacity.value = withSpring(0, animationConfig);
+      const config = spring ? withSpring : withTiming;
+      translationX.value = config(0, animationConfig);
+      sideContentWidth.value = config(0, animationConfig);
+      sideContentOpacity.value = config(0, animationConfig);
+      cardOpacity.value = config(1, animationConfig);
       isThresholdMet.value = false;
     };
 
@@ -172,17 +212,19 @@ export const SwipeableCard = React.forwardRef<
       },
       openLeft: () => {
         if (!leftContent) return;
-        const openValue = threshold + OPEN_OFFSET;
+        const openValue = threshold + leftWidthOffset;
         translationX.value = withSpring(openValue, animationConfig);
-        width.value = withSpring(openValue, animationConfig);
-        opacityActive.value = 1;
+        sideContentWidth.value = withSpring(openValue, animationConfig);
+        sideContentOpacity.value = 1;
+        cardOpacity.value = 1;
       },
       openRight: () => {
         if (!rightContent) return;
-        const openValue = -(threshold + OPEN_OFFSET);
+        const openValue = -(threshold + rightWidthOffset);
         translationX.value = withSpring(openValue, animationConfig);
-        width.value = withSpring(openValue, animationConfig);
-        opacityActive.value = 1;
+        sideContentWidth.value = withSpring(openValue, animationConfig);
+        sideContentOpacity.value = 1;
+        cardOpacity.value = 1;
       },
     }));
 
@@ -196,44 +238,48 @@ export const SwipeableCard = React.forwardRef<
     };
 
     const panGesture = Gesture.Pan()
-      .enabled(enabled)
+      .enabled(enabled && !isDismissed)
       .shouldCancelWhenOutside(false)
       .onBegin(() => {
+        if (isDismissing.value || isDismissed) return;
+        startX.value = translationX.value;
         isGestureActive.value = false;
         if (onSwipeStart) {
           runOnJS(onSwipeStart)();
         }
       })
       .onUpdate((event) => {
-        translationX.value = getConstrainedTranslation(event.translationX);
+        if (isDismissing.value || isDismissed) return;
+        translationX.value = getConstrainedTranslation(
+          startX.value + event.translationX
+        );
+
+        sideContentWidth.value = translationX.value;
 
         // Update opacity based on translation
-        opacity.value = interpolate(
-          Math.abs(event.translationX),
-          [0, 100],
-          [0, 0.2],
-          Extrapolation.CLAMP
-        );
+        const absTranslation = Math.abs(translationX.value);
+        if (absTranslation >= threshold) {
+          sideContentOpacity.value = 1;
+        } else {
+          sideContentOpacity.value = interpolate(
+            absTranslation,
+            [0, threshold / 2],
+            [0, 0.5],
+            Extrapolation.CLAMP
+          );
+        }
 
         // Handle threshold detection
         const isSwipeRight = translationX.value > threshold;
         const isSwipeLeft = translationX.value < -threshold;
 
-        if (isSwipeRight) {
+        if (isSwipeRight || isSwipeLeft) {
           if (!isThresholdMet.value) {
             isThresholdMet.value = true;
-            runOnJS(triggerThresholdHaptic)("right");
-            if (onThresholdMet) runOnJS(onThresholdMet)("right");
+            const direction = isSwipeRight ? "right" : "left";
+            runOnJS(triggerThresholdHaptic)(direction);
+            if (onThresholdMet) runOnJS(onThresholdMet)(direction);
           }
-          opacityActive.value = 1;
-          isGestureActive.value = true;
-        } else if (isSwipeLeft) {
-          if (!isThresholdMet.value) {
-            isThresholdMet.value = true;
-            runOnJS(triggerThresholdHaptic)("left");
-            if (onThresholdMet) runOnJS(onThresholdMet)("left");
-          }
-          opacityActive.value = 1;
           isGestureActive.value = true;
         } else {
           // Check if we're going back below threshold after having met it
@@ -242,28 +288,60 @@ export const SwipeableCard = React.forwardRef<
             const cancelDirection = translationX.value > 0 ? "right" : "left";
             runOnJS(triggerCancelHaptic)(cancelDirection);
           }
-          opacityActive.value = 0;
           isGestureActive.value = false;
           isThresholdMet.value = false;
         }
-
-        // Update width for side content
-        width.value = event.translationX;
       })
       .onEnd(() => {
+        if (isDismissing.value || isDismissed) return;
+
         const isSwipeRight = translationX.value > threshold;
         const isSwipeLeft = translationX.value < -threshold;
 
-        if (isSwipeRight) {
-          runOnJS(triggerSuccessHaptic)();
-          if (onSwipeRight) runOnJS(onSwipeRight)();
-        } else if (isSwipeLeft) {
-          runOnJS(triggerSuccessHaptic)();
-          if (onSwipeLeft) runOnJS(onSwipeLeft)();
-        }
+        const shouldDismiss =
+          (isSwipeRight && dismissOnSwipeRight) ||
+          (isSwipeLeft && dismissOnSwipeLeft);
 
-        if (closeOnSwipe) {
-          resetValues();
+        if (shouldDismiss) {
+          isDismissing.value = true;
+          runOnJS(triggerSuccessHaptic)();
+
+          // Fire the primary callback immediately
+          if (isSwipeRight && onSwipeRight) runOnJS(onSwipeRight)();
+          if (isSwipeLeft && onSwipeLeft) runOnJS(onSwipeLeft)();
+
+          const toValue = isSwipeRight ? screenWidth * 1.2 : -screenWidth * 1.2;
+
+          translationX.value = withTiming(toValue, { duration: 250 });
+          sideContentWidth.value = withTiming(toValue, { duration: 250 });
+          cardOpacity.value = withTiming(0, { duration: 200 }, (finished) => {
+            if (finished) {
+              if (onDismiss) runOnJS(onDismiss)();
+              runOnJS(setIsDismissed)(true);
+            }
+          });
+          // Delay opacity fade until translation is nearly complete
+          sideContentOpacity.value = withDelay(
+            180,
+            withTiming(0, { duration: 300 })
+          );
+        } else {
+          if (isSwipeRight || isSwipeLeft) {
+            // Only trigger success haptics if threshold was met
+            if (isThresholdMet.value) {
+              runOnJS(triggerSuccessHaptic)();
+            }
+
+            if (isSwipeRight && onSwipeRight) {
+              runOnJS(onSwipeRight)();
+            } else if (isSwipeLeft && onSwipeLeft) {
+              runOnJS(onSwipeLeft)();
+            }
+          }
+
+          if (closeOnSwipe) {
+            resetValues();
+          }
         }
 
         if (onSwipeEnd) {
@@ -274,16 +352,17 @@ export const SwipeableCard = React.forwardRef<
     // Animated styles
     const animatedStyle = useAnimatedStyle(() => ({
       transform: [{ translateX: translationX.value }],
+      opacity: cardOpacity.value,
     }));
 
     const leftStyle = useAnimatedStyle(() => ({
-      width: Math.max(0, width.value),
-      opacity: Math.max(opacity.value, opacityActive.value),
+      width: Math.max(0, sideContentWidth.value + leftWidthOffset),
+      opacity: sideContentOpacity.value,
     }));
 
     const rightStyle = useAnimatedStyle(() => ({
-      width: Math.max(0, -width.value),
-      opacity: Math.max(opacity.value, opacityActive.value),
+      width: Math.max(0, -sideContentWidth.value + rightWidthOffset),
+      opacity: sideContentOpacity.value,
     }));
 
     return (
