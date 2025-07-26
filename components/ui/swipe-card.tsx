@@ -18,6 +18,11 @@ import Animated, {
 
 export type SwipeableCardHaptics = "left" | "right" | "none" | "both";
 
+export enum SwipeDirection {
+  Left = "left",
+  Right = "right",
+}
+
 /**
  * Imperative API for the SwipeableCard component.
  */
@@ -67,7 +72,7 @@ export type SwipeableCardProps = {
    */
   threshold?: number;
   /** Callback fired when the swipe threshold is first met. */
-  onThresholdMet?: (direction: "left" | "right") => void;
+  onThresholdMet?: (direction: SwipeDirection) => void;
   /**
    * Reanimated spring animation configuration for the return-to-center animation.
    * @default { damping: 20, stiffness: 100 }
@@ -102,8 +107,9 @@ export type SwipeableCardProps = {
   /**
    * Callback fired after the dismiss animation is complete.
    * This is where you should remove the item from your state.
+   * @param direction The direction the card was dismissed to
    */
-  onDismiss?: () => void;
+  onDismiss?: (direction: SwipeDirection) => void;
   /**
    * Width offset for left content positioning behind the container.
    * Helps with rounded corner appearance.
@@ -172,18 +178,18 @@ export const SwipeableCard = React.forwardRef<
     const [isDismissed, setIsDismissed] = React.useState(false);
 
     // Helper functions for haptics
-    const shouldTriggerHaptic = (direction: "left" | "right") => {
+    const shouldTriggerHaptic = (direction: SwipeDirection) => {
       "worklet";
       return haptics === "both" || haptics === direction;
     };
 
-    const triggerThresholdHaptic = (direction: "left" | "right") => {
+    const triggerThresholdHaptic = (direction: SwipeDirection) => {
       if (shouldTriggerHaptic(direction)) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
     };
 
-    const triggerCancelHaptic = (direction: "left" | "right") => {
+    const triggerCancelHaptic = (direction: SwipeDirection) => {
       if (shouldTriggerHaptic(direction)) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
@@ -276,7 +282,9 @@ export const SwipeableCard = React.forwardRef<
         if (isSwipeRight || isSwipeLeft) {
           if (!isThresholdMet.value) {
             isThresholdMet.value = true;
-            const direction = isSwipeRight ? "right" : "left";
+            const direction = isSwipeRight
+              ? SwipeDirection.Right
+              : SwipeDirection.Left;
             runOnJS(triggerThresholdHaptic)(direction);
             if (onThresholdMet) runOnJS(onThresholdMet)(direction);
           }
@@ -285,7 +293,10 @@ export const SwipeableCard = React.forwardRef<
           // Check if we're going back below threshold after having met it
           if (isThresholdMet.value) {
             // Determine which direction was cancelled based on current translation
-            const cancelDirection = translationX.value > 0 ? "right" : "left";
+            const cancelDirection =
+              translationX.value > 0
+                ? SwipeDirection.Right
+                : SwipeDirection.Left;
             runOnJS(triggerCancelHaptic)(cancelDirection);
           }
           isGestureActive.value = false;
@@ -310,20 +321,23 @@ export const SwipeableCard = React.forwardRef<
           if (isSwipeRight && onSwipeRight) runOnJS(onSwipeRight)();
           if (isSwipeLeft && onSwipeLeft) runOnJS(onSwipeLeft)();
 
+          const dismissDirection = isSwipeRight
+            ? SwipeDirection.Right
+            : SwipeDirection.Left;
           const toValue = isSwipeRight ? screenWidth * 1.2 : -screenWidth * 1.2;
 
           translationX.value = withTiming(toValue, { duration: 250 });
           sideContentWidth.value = withTiming(toValue, { duration: 250 });
-          cardOpacity.value = withTiming(0, { duration: 200 }, (finished) => {
-            if (finished) {
-              if (onDismiss) runOnJS(onDismiss)();
-              runOnJS(setIsDismissed)(true);
-            }
-          });
+          cardOpacity.value = withTiming(0, { duration: 200 });
           // Delay opacity fade until translation is nearly complete
           sideContentOpacity.value = withDelay(
             180,
-            withTiming(0, { duration: 300 })
+            withTiming(0, { duration: 300 }, (finished) => {
+              if (finished) {
+                if (onDismiss) runOnJS(onDismiss)(dismissDirection);
+                runOnJS(setIsDismissed)(true);
+              }
+            })
           );
         } else {
           if (isSwipeRight || isSwipeLeft) {
