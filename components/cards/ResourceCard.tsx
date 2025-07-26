@@ -1,8 +1,9 @@
 import { ResourceType } from "@/api/types/resources.types";
 import { useFavorites } from "@/context/FavoritesContext";
-import { Link, LinkProps } from "expo-router";
+import { LinkProps, router } from "expo-router";
 import React from "react";
 import { Pressable } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { HealthIndicator } from "../HealthIndicator";
 import { Star } from "../icons/Star";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -31,8 +32,14 @@ export function ResourceCard({
   const { isFavorite, toggleFavorite } = useFavorites();
   const isServerRunning = serverStatus === "running";
 
+  const cardTap = Gesture.Tap()
+    .runOnJS(true)
+    .onStart(() => {
+      router.push(href);
+    });
+
   return (
-    <Link href={href}>
+    <GestureDetector gesture={cardTap}>
       <Card className="relative flex flex-row justify-between">
         <CardHeader className="flex-1">
           <CardTitle>{title}</CardTitle>
@@ -63,6 +70,6 @@ export function ResourceCard({
           </Pressable>
         )}
       </Card>
-    </Link>
+    </GestureDetector>
   );
 }
