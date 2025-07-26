@@ -1,8 +1,10 @@
 import { ResourceType } from "@/api/types/resources.types";
 import { useFavorites } from "@/context/FavoritesContext";
-import { Link, LinkProps } from "expo-router";
+import { LinkProps, router } from "expo-router";
 import React from "react";
-import { Pressable } from "react-native";
+import { View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { runOnJS } from "react-native-reanimated";
 import { HealthIndicator } from "../HealthIndicator";
 import { Star } from "../icons/Star";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -31,8 +33,19 @@ export function ResourceCard({
   const { isFavorite, toggleFavorite } = useFavorites();
   const isServerRunning = serverStatus === "running";
 
+  const starTap = Gesture.Tap()
+    .hitSlop(8)
+    .shouldCancelWhenOutside(true)
+    .onStart(() => {
+      runOnJS(toggleFavorite)({ uuid, type });
+    });
+  const cardTap = Gesture.Tap()
+    .shouldCancelWhenOutside(true)
+    .requireExternalGestureToFail(starTap)
+    .onStart(() => runOnJS(router.navigate)(href));
+
   return (
-    <Link href={href}>
+    <GestureDetector gesture={cardTap}>
       <Card className="relative flex flex-row justify-between">
         <CardHeader className="flex-1">
           <CardTitle>{title}</CardTitle>
@@ -50,19 +63,17 @@ export function ResourceCard({
           />
         )}
         {!hideFavorite && (
-          <Pressable
-            className="p-4"
-            onPress={() => toggleFavorite({ uuid, type })}
-            hitSlop={8}
-          >
-            <Star
-              className={
-                isFavorite(uuid) ? "text-yellow-500" : "text-foreground"
-              }
-            />
-          </Pressable>
+          <View className="p-4">
+            <GestureDetector gesture={starTap}>
+              <Star
+                className={
+                  isFavorite(uuid) ? "text-yellow-500" : "text-foreground"
+                }
+              />
+            </GestureDetector>
+          </View>
         )}
       </Card>
-    </Link>
+    </GestureDetector>
   );
 }
