@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import * as Haptics from "expo-haptics";
 import * as React from "react";
 import { useImperativeHandle } from "react";
-import { useWindowDimensions, View } from "react-native";
+import { View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Extrapolation,
@@ -174,7 +174,7 @@ export const SwipeableCard = React.forwardRef<
     },
     ref
   ) => {
-    const { width: screenWidth } = useWindowDimensions();
+    const [containerWidth, setContainerWidth] = React.useState(0);
 
     // Animation values
     const translationX = useSharedValue(0);
@@ -341,7 +341,7 @@ export const SwipeableCard = React.forwardRef<
           const dismissDirection = isSwipeRight
             ? SwipeDirection.Right
             : SwipeDirection.Left;
-          const toValue = isSwipeRight ? screenWidth * 1.2 : -screenWidth * 1.2;
+          const toValue = isSwipeRight ? containerWidth : -containerWidth;
 
           translationX.value = withTiming(toValue, { duration: 250 });
           sideContentWidth.value = withTiming(toValue, { duration: 250 });
@@ -398,7 +398,12 @@ export const SwipeableCard = React.forwardRef<
 
     return (
       <GestureDetector gesture={panGesture}>
-        <View className="relative">
+        <View
+          className="relative"
+          onLayout={(event) =>
+            setContainerWidth(event.nativeEvent.layout.width)
+          }
+        >
           {/* Left content (revealed when swiping right) */}
           <Animated.View
             className={cn(
