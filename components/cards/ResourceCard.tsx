@@ -2,7 +2,7 @@ import { ResourceType } from "@/api/types/resources.types";
 import { useFavorites } from "@/context/FavoritesContext";
 import { LinkProps, router } from "expo-router";
 import React from "react";
-import { Pressable } from "react-native";
+import { View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { HealthIndicator } from "../HealthIndicator";
 import { Star } from "../icons/Star";
@@ -38,8 +38,15 @@ export function ResourceCard({
       router.push(href);
     });
 
+  const starTap = Gesture.Tap()
+    .hitSlop(8)
+    .runOnJS(true)
+    .onStart(() => {
+      toggleFavorite({ uuid, type });
+    });
+
   return (
-    <GestureDetector gesture={cardTap}>
+    <GestureDetector gesture={Gesture.Exclusive(cardTap, starTap)}>
       <Card className="relative flex flex-row justify-between">
         <CardHeader className="flex-1">
           <CardTitle>{title}</CardTitle>
@@ -57,17 +64,15 @@ export function ResourceCard({
           />
         )}
         {!hideFavorite && (
-          <Pressable
-            className="p-4"
-            onPress={() => toggleFavorite({ uuid, type })}
-            hitSlop={8}
-          >
-            <Star
-              className={
-                isFavorite(uuid) ? "text-yellow-500" : "text-foreground"
-              }
-            />
-          </Pressable>
+          <GestureDetector gesture={starTap}>
+            <View className="p-4">
+              <Star
+                className={
+                  isFavorite(uuid) ? "text-yellow-500" : "text-foreground"
+                }
+              />
+            </View>
+          </GestureDetector>
         )}
       </Card>
     </GestureDetector>
