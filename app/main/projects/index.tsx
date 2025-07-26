@@ -19,12 +19,20 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
 
   const isUndo = useRef(false);
   const position = useRef(0);
+  const toastId = useRef<string | number | null>(null);
+  const deletionTimeout = useRef<number | null>(null);
 
-  const handleDismiss = () => {
-    if (!isUndo.current) {
-      mutate();
-      isUndo.current = false;
+  const scheduleDeletion = () => {
+    if (deletionTimeout.current) {
+      clearTimeout(deletionTimeout.current);
     }
+
+    deletionTimeout.current = setTimeout(() => {
+      if (!isUndo.current) {
+        mutate();
+      }
+      isUndo.current = false;
+    }, 5000);
   };
 
   return (
@@ -37,6 +45,8 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
         const project = queryClient.getQueryData<Project>(["projects", uuid]);
 
         if (!project) return;
+
+        isUndo.current = false;
 
         queryClient.setQueryData(["projects"], (data: ProjectBase[]) => {
           const index = data.findIndex((d) => d.uuid === project.uuid);
@@ -51,26 +61,44 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
           exact: true,
         });
 
-        toast.success("Project deleted", {
+        toastId.current = toast.success("Project deleted", {
           id: project.uuid,
           action: {
             label: "Undo",
             onClick: () => {
               isUndo.current = true;
+
+              if (deletionTimeout.current) {
+                clearTimeout(deletionTimeout.current);
+                deletionTimeout.current = null;
+              }
+
               queryClient.setQueryData(["projects"], (data: ProjectBase[]) => {
+                const existingIndex = data.findIndex(
+                  (d) => d.uuid === project.uuid
+                );
+                if (existingIndex !== -1) {
+                  return data;
+                }
+
                 const newData = [...data];
                 newData.splice(position.current, 0, project);
                 return newData;
               });
+
               queryClient.setQueryData<Project>(
                 ["projects", project.uuid],
                 project
               );
-              toast.dismiss(project.uuid);
+
+              if (toastId.current) {
+                toast.dismiss(toastId.current);
+              }
             },
           },
-          onAutoClose: handleDismiss,
         });
+
+        scheduleDeletion();
       }}
     >
       <ResourceCard
