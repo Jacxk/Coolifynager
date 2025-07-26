@@ -53,6 +53,16 @@ export type SwipeableCardProps = {
   /** Content to display when swiping left (revealed from the right). */
   rightContent?: React.ReactNode;
   /**
+   * Content to display when left threshold is met.
+   * Shows when threshold is reached, hides when returning to original state.
+   */
+  leftThresholdContent?: React.ReactNode;
+  /**
+   * Content to display when right threshold is met.
+   * Shows when threshold is reached, hides when returning to original state.
+   */
+  rightThresholdContent?: React.ReactNode;
+  /**
    * Haptic feedback mode for swipe gestures.
    * - "left": Haptic on left swipe.
    * - "right": Haptic on right swipe.
@@ -142,6 +152,8 @@ export const SwipeableCard = React.forwardRef<
       onSwipeRight,
       leftContent,
       rightContent,
+      leftThresholdContent,
+      rightThresholdContent,
       leftContentClassName,
       rightContentClassName,
       className,
@@ -174,6 +186,7 @@ export const SwipeableCard = React.forwardRef<
     // State tracking
     const isGestureActive = useSharedValue(false);
     const isThresholdMet = useSharedValue(false);
+    const [isThresholdMetState, setIsThresholdMetState] = React.useState(false);
     const isDismissing = useSharedValue(false);
     const [isDismissed, setIsDismissed] = React.useState(false);
 
@@ -209,6 +222,7 @@ export const SwipeableCard = React.forwardRef<
       sideContentOpacity.value = config(0, animationConfig);
       cardOpacity.value = config(1, animationConfig);
       isThresholdMet.value = false;
+      runOnJS(setIsThresholdMetState)(false);
     };
 
     // Expose imperative handles
@@ -283,6 +297,7 @@ export const SwipeableCard = React.forwardRef<
         if (isSwipeRight || isSwipeLeft) {
           if (!isThresholdMet.value) {
             isThresholdMet.value = true;
+            runOnJS(setIsThresholdMetState)(true);
             const direction = isSwipeRight
               ? SwipeDirection.Right
               : SwipeDirection.Left;
@@ -302,6 +317,7 @@ export const SwipeableCard = React.forwardRef<
           }
           isGestureActive.value = false;
           isThresholdMet.value = false;
+          runOnJS(setIsThresholdMetState)(false);
         }
       })
       .onEnd(() => {
@@ -391,7 +407,9 @@ export const SwipeableCard = React.forwardRef<
             )}
             style={[leftStyle]}
           >
-            {leftContent}
+            {isThresholdMetState && leftThresholdContent
+              ? leftThresholdContent
+              : leftContent}
           </Animated.View>
 
           {/* Right content (revealed when swiping left) */}
@@ -402,7 +420,9 @@ export const SwipeableCard = React.forwardRef<
             )}
             style={[rightStyle]}
           >
-            {rightContent}
+            {isThresholdMetState && rightThresholdContent
+              ? rightThresholdContent
+              : rightContent}
           </Animated.View>
 
           {/* Main card content */}
