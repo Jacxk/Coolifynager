@@ -1,7 +1,8 @@
 import { queryClient } from "@/app/_layout";
-import { UseQueryOptions } from "@tanstack/react-query";
+import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
-import { PartialProject, Project } from "./types/project.types";
+import { PartialProject, Project, ProjectBase } from "./types/project.types";
+import { ResourceActionResponse } from "./types/resources.types";
 
 type QueryKey = string | number;
 
@@ -43,6 +44,32 @@ export const createProject = () => ({
     });
 
     queryClient.prefetchQuery(getProject(response.uuid));
+    return response;
+  },
+});
+
+export const deleteProject = (
+  uuid: string,
+  options?: Omit<
+    UseMutationOptions<ResourceActionResponse, Error, void>,
+    "mutationKey" | "mutationFn"
+  >
+) => ({
+  ...options,
+  mutationKey: ["projects", "delete", uuid],
+  mutationFn: async () => {
+    const response = await coolifyFetch<ResourceActionResponse>(
+      `/projects/${uuid}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    queryClient.removeQueries({ queryKey: ["projects", uuid], exact: true });
+    queryClient.setQueryData(["projects"], (data: ProjectBase[]) =>
+      data.filter((d) => d.uuid !== uuid)
+    );
+
     return response;
   },
 });
