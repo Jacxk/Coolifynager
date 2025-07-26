@@ -29,6 +29,7 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
 
   return (
     <SwipeableCard
+      threshold={70}
       rightContentClassName="rounded-r-lg bg-red-400 dark:bg-red-500 -ml-4"
       rightContent={<Trash color="black" />}
       dismissOnSwipeLeft
