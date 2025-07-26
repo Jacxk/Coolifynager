@@ -20,3 +20,15 @@ export function groupBy<T, K extends keyof any>(
     return acc;
   }, {} as Record<K, T[]>);
 }
+
+export function getDirtyData<T>(
+  data: T,
+  dirtyFields: Record<string, boolean>
+): Partial<T> {
+  return Object.keys(dirtyFields).reduce((acc, key) => {
+    if (dirtyFields[key]) {
+      acc[key as keyof T] = data[key as keyof T];
+    }
+    return acc;
+  }, {} as Partial<T>);
+}
