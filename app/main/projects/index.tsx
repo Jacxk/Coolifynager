@@ -1,5 +1,5 @@
 import { deleteProject, getProjects } from "@/api/projects";
-import { ProjectBase } from "@/api/types/project.types";
+import { Project, ProjectBase } from "@/api/types/project.types";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
 import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
@@ -13,9 +13,9 @@ import { View } from "react-native";
 import Animated, { LinearTransition } from "react-native-reanimated";
 import { toast } from "sonner-native";
 
-const ProjectCard = (item: ProjectBase) => {
+const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation(deleteProject(item.uuid));
+  const { mutate } = useMutation(deleteProject(uuid));
 
   const isUndo = useRef(false);
   const position = useRef(0);
@@ -33,8 +33,12 @@ const ProjectCard = (item: ProjectBase) => {
       rightContent={<Trash color="black" />}
       dismissOnSwipeLeft
       onDismiss={() => {
+        const project = queryClient.getQueryData<Project>(["projects", uuid]);
+
+        if (!project) return;
+
         queryClient.setQueryData(["projects"], (data: ProjectBase[]) => {
-          const index = data.findIndex((d) => d.uuid === item.uuid);
+          const index = data.findIndex((d) => d.uuid === project.uuid);
           const newData = [...data];
           newData.splice(index, 1);
           position.current = index;
@@ -42,23 +46,26 @@ const ProjectCard = (item: ProjectBase) => {
         });
 
         queryClient.removeQueries({
-          queryKey: ["projects", item.uuid],
+          queryKey: ["projects", project.uuid],
           exact: true,
         });
 
         toast.success("Project deleted", {
-          id: item.uuid,
+          id: project.uuid,
           action: {
             label: "Undo",
             onClick: () => {
               isUndo.current = true;
               queryClient.setQueryData(["projects"], (data: ProjectBase[]) => {
                 const newData = [...data];
-                newData.splice(position.current, 0, item);
+                newData.splice(position.current, 0, project);
                 return newData;
               });
-              queryClient.setQueryData(["projects", item.uuid], item);
-              toast.dismiss(item.uuid);
+              queryClient.setQueryData<Project>(
+                ["projects", project.uuid],
+                project
+              );
+              toast.dismiss(project.uuid);
             },
           },
           onAutoClose: handleDismiss,
@@ -66,13 +73,13 @@ const ProjectCard = (item: ProjectBase) => {
       }}
     >
       <ResourceCard
-        uuid={item.uuid}
-        title={item.name}
-        description={item.description}
+        uuid={uuid}
+        title={name}
+        description={description}
         type="project"
         href={{
           pathname: "/main/projects/[uuid]",
-          params: { uuid: item.uuid, name: item.name },
+          params: { uuid, name },
         }}
       />
     </SwipeableCard>
