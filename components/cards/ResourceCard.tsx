@@ -4,6 +4,7 @@ import { LinkProps, router } from "expo-router";
 import React from "react";
 import { View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { runOnJS } from "react-native-reanimated";
 import { HealthIndicator } from "../HealthIndicator";
 import { Star } from "../icons/Star";
 import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -32,21 +33,19 @@ export function ResourceCard({
   const { isFavorite, toggleFavorite } = useFavorites();
   const isServerRunning = serverStatus === "running";
 
-  const cardTap = Gesture.Tap()
-    .runOnJS(true)
-    .onStart(() => {
-      router.push(href);
-    });
-
   const starTap = Gesture.Tap()
     .hitSlop(8)
-    .runOnJS(true)
+    .shouldCancelWhenOutside(true)
     .onStart(() => {
-      toggleFavorite({ uuid, type });
+      runOnJS(toggleFavorite)({ uuid, type });
     });
+  const cardTap = Gesture.Tap()
+    .shouldCancelWhenOutside(true)
+    .requireExternalGestureToFail(starTap)
+    .onStart(() => runOnJS(router.navigate)(href));
 
   return (
-    <GestureDetector gesture={Gesture.Exclusive(cardTap, starTap)}>
+    <GestureDetector gesture={cardTap}>
       <Card className="relative flex flex-row justify-between">
         <CardHeader className="flex-1">
           <CardTitle>{title}</CardTitle>
@@ -64,15 +63,15 @@ export function ResourceCard({
           />
         )}
         {!hideFavorite && (
-          <GestureDetector gesture={starTap}>
-            <View className="p-4">
+          <View className="p-4">
+            <GestureDetector gesture={starTap}>
               <Star
                 className={
                   isFavorite(uuid) ? "text-yellow-500" : "text-foreground"
                 }
               />
-            </View>
-          </GestureDetector>
+            </GestureDetector>
+          </View>
         )}
       </Card>
     </GestureDetector>
