@@ -10,6 +10,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 import { groupBy } from "@/lib/utils";
 import { useQueries, UseQueryOptions } from "@tanstack/react-query";
 import { LinkProps } from "expo-router";
+import { useEffect } from "react";
 import { View } from "react-native";
 import { ResourceCard } from "./cards/ResourceCard";
 import { SkeletonCard } from "./skeletons/SkeletonCard";
@@ -70,10 +71,14 @@ type ResourceData = {
   type: ResourceType;
 };
 
-export function FavoritesList() {
+export function FavoritesList({
+  onFinishLoading,
+}: {
+  onFinishLoading: () => void;
+}) {
   const { favorites } = useFavorites();
 
-  const { data, pending } = useQueries({
+  const { data, pending, fetched } = useQueries({
     queries: favorites.map((favorite) => {
       switch (favorite.type) {
         case "application":
@@ -130,9 +135,14 @@ export function FavoritesList() {
           } as ResourceData;
         }),
         pending: results.some((result) => result.isPending),
+        fetched: results.every((result) => result.isFetched),
       };
     },
   });
+
+  useEffect(() => {
+    if (fetched) onFinishLoading();
+  }, [fetched, onFinishLoading]);
 
   if (favorites.length === 0) {
     return (
