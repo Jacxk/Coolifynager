@@ -1,75 +1,115 @@
 import { queryClient } from "@/app/_layout";
-import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import { PartialProject, Project, ProjectBase } from "./types/project.types";
 import { ResourceActionResponse } from "./types/resources.types";
 
-type QueryKey = string | number;
+// Query keys
+export const ProjectKeys = {
+  all: ["projects"],
+  queries: {
+    all: () => ProjectKeys.all,
+    single: (uuid: string) => [...ProjectKeys.all, uuid],
+  },
+  mutations: {
+    create: () => [...ProjectKeys.all, "create"],
+    delete: (uuid: string) => [...ProjectKeys.queries.single(uuid), "delete"],
+  },
+};
 
-export const getProjects = (
-  options?: Omit<
-    UseQueryOptions<PartialProject[], Error, PartialProject[], QueryKey[]>,
-    "queryKey" | "queryFn"
-  >
-) => ({
-  ...options,
-  queryKey: ["projects"],
-  queryFn: async () => {
-    const data = await coolifyFetch<PartialProject[]>("/projects");
-    data.forEach((project) => {
-      queryClient.prefetchQuery(getProject(project.uuid));
+// Fetch functions
+export const getProjects = async () => {
+  const data = await coolifyFetch<PartialProject[]>("/projects");
+  data.forEach((project) => {
+    queryClient.prefetchQuery({
+      queryKey: ProjectKeys.queries.single(project.uuid),
+      queryFn: () => getProject(project.uuid),
     });
-    return data;
-  },
-});
+  });
+  return data;
+};
 
-export const getProject = (
+export const getProject = async (uuid: string) => {
+  return coolifyFetch<Project>(`/projects/${uuid}`);
+};
+
+export const createProject = async (data: PartialProject) => {
+  const response = await coolifyFetch<Project>("/projects", {
+    method: "POST",
+    body: data,
+  });
+
+  queryClient.prefetchQuery({
+    queryKey: ProjectKeys.queries.single(response.uuid),
+    queryFn: () => getProject(response.uuid),
+  });
+  return response;
+};
+
+export const deleteProject = async (uuid: string) => {
+  const response = await coolifyFetch<ResourceActionResponse>(
+    `/projects/${uuid}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  queryClient.removeQueries({
+    queryKey: ProjectKeys.queries.single(uuid),
+    exact: true,
+  });
+  queryClient.setQueryData(ProjectKeys.all, (data: ProjectBase[]) =>
+    data.filter((d) => d.uuid !== uuid)
+  );
+
+  return response;
+};
+
+// Query hooks
+export const useProjects = (
+  options?: Omit<UseQueryOptions<PartialProject[], Error>, "queryKey">
+) => {
+  return useQuery({
+    queryKey: ProjectKeys.queries.all(),
+    queryFn: getProjects,
+    ...options,
+  });
+};
+
+export const useProject = (
   uuid: string,
-  options?: Omit<
-    UseQueryOptions<Project, Error, Project, QueryKey[]>,
-    "queryKey" | "queryFn"
-  >
-) => ({
-  ...options,
-  queryKey: ["projects", uuid],
-  queryFn: () => coolifyFetch<Project>(`/projects/${uuid}`),
-});
+  options?: Omit<UseQueryOptions<Project, Error>, "queryKey">
+) => {
+  return useQuery({
+    queryKey: ProjectKeys.queries.single(uuid),
+    queryFn: () => getProject(uuid),
+    ...options,
+  });
+};
 
-export const createProject = () => ({
-  mutationKey: ["projects", "create"],
-  mutationFn: async (data: PartialProject) => {
-    const response = await coolifyFetch<Project>("/projects", {
-      method: "POST",
-      body: data,
-    });
+// Mutation hooks
+export const useCreateProject = (
+  options?: UseMutationOptions<Project, Error, PartialProject>
+) => {
+  return useMutation({
+    mutationKey: ProjectKeys.mutations.create(),
+    mutationFn: (data: PartialProject) => createProject(data),
+    ...options,
+  });
+};
 
-    queryClient.prefetchQuery(getProject(response.uuid));
-    return response;
-  },
-});
-
-export const deleteProject = (
+export const useDeleteProject = (
   uuid: string,
-  options?: Omit<
-    UseMutationOptions<ResourceActionResponse, Error, void>,
-    "mutationKey" | "mutationFn"
-  >
-) => ({
-  ...options,
-  mutationKey: ["projects", "delete", uuid],
-  mutationFn: async () => {
-    const response = await coolifyFetch<ResourceActionResponse>(
-      `/projects/${uuid}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    queryClient.removeQueries({ queryKey: ["projects", uuid], exact: true });
-    queryClient.setQueryData(["projects"], (data: ProjectBase[]) =>
-      data.filter((d) => d.uuid !== uuid)
-    );
-
-    return response;
-  },
-});
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => {
+  return useMutation({
+    mutationKey: ProjectKeys.mutations.delete(uuid),
+    mutationFn: () => deleteProject(uuid),
+    ...options,
+  });
+};

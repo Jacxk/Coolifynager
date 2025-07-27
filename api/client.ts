@@ -1,5 +1,7 @@
+import { queryClient } from "@/app/_layout";
 import { Secrets } from "@/constants/Secrets";
 import * as SecureStore from "expo-secure-store";
+import { ResourceBase } from "./types/resources.types";
 
 export async function coolifyFetch<T>(
   endpoint: string,
@@ -48,4 +50,31 @@ export async function coolifyFetch<T>(
   }
 
   return await response.json();
+}
+
+export function optimisticUpdateMany<T extends Partial<ResourceBase>>(
+  queryKey: string[],
+  data: T
+) {
+  queryClient.setQueryData(queryKey, (old: T[] | undefined) => {
+    if (!old) return [data];
+
+    const index = old.findIndex((resource) => resource.uuid === data.uuid);
+    if (index === -1) {
+      // Add new item if it doesn't exist
+      return [...old, data];
+    } else {
+      // Update existing item
+      return old.map((resource) =>
+        resource.uuid === data.uuid ? { ...resource, ...data } : resource
+      );
+    }
+  });
+}
+
+export function optimisticUpdate<T>(queryKey: string[], data: T) {
+  queryClient.setQueryData(queryKey, (old: T | undefined) => {
+    if (!old) return data;
+    return { ...old, ...data };
+  });
 }

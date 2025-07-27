@@ -1,6 +1,11 @@
 import { queryClient } from "@/app/_layout";
-import { UseMutationOptions, UseQueryOptions } from "@tanstack/react-query";
-import { coolifyFetch } from "./client";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
+import { coolifyFetch, optimisticUpdate, optimisticUpdateMany } from "./client";
 import {
   CoolifyDatabases,
   CreateDatabaseBody,
@@ -12,158 +17,212 @@ import {
   ResourceCreateResponse,
 } from "./types/resources.types";
 
-type QueryKey = string | number;
-
-export const getDatabases = (
-  options?: Omit<
-    UseQueryOptions<Database[], Error, Database[], QueryKey[]>,
-    "queryKey" | "queryFn"
-  >
-) => ({
-  ...options,
-  queryKey: ["databases"],
-  queryFn: async () => {
-    const data = await coolifyFetch<Database[]>("/databases");
-    data.forEach((database) => {
-      queryClient.setQueryData(["databases", database.uuid], database);
-    });
-
-    return queryClient.getQueryData<Database[]>(["databases"]) ?? data;
-  },
-});
-
-export const getDatabase = (
-  uuid: string,
-  options?: Omit<
-    UseQueryOptions<Database, Error, Database, QueryKey[]>,
-    "queryKey" | "queryFn"
-  >
-) => ({
-  ...options,
-  queryKey: ["databases", uuid],
-  queryFn: async () => {
-    const data = await coolifyFetch<Database>(`/databases/${uuid}`);
-    queryClient.setQueryData(["databases"], (old: Database[]) => {
-      const index = old.findIndex((db) => db.uuid === data.uuid);
-      if (index === -1) {
-        return [...old, data];
-      }
-      return old;
-    });
-    return data;
-  },
-});
-
-export const startDatabase = (
-  uuid: string,
-  options?: Omit<
-    UseMutationOptions<ResourceActionResponse, Error, void>,
-    "mutationKey" | "mutationFn"
-  >
-) => ({
-  ...options,
-  mutationKey: ["databases", "start", uuid],
-  mutationFn: async () => {
-    return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/start`, {
-      method: "POST",
-    });
-  },
-});
-
-export const stopDatabase = (
-  uuid: string,
-  options?: Omit<
-    UseMutationOptions<ResourceActionResponse, Error, void>,
-    "mutationKey" | "mutationFn"
-  >
-) => ({
-  ...options,
-  mutationKey: ["databases", "stop", uuid],
-  mutationFn: async () => {
-    return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/stop`, {
-      method: "POST",
-    });
-  },
-});
-
-export const restartDatabase = (
-  uuid: string,
-  options?: Omit<
-    UseMutationOptions<ResourceActionResponse, Error, void>,
-    "mutationKey" | "mutationFn"
-  >
-) => ({
-  ...options,
-  mutationKey: ["databases", "restart", uuid],
-  mutationFn: async () => {
-    return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/restart`, {
-      method: "POST",
-    });
-  },
-});
-
 type DatabaseLogs = {
   logs: string;
 };
 
-// TODO: Implement logs fetching (api is not implemented yet)
-export const getDatabaseLogs = (
-  uuid: string,
-  lines = 100,
-  options?: Omit<
-    UseQueryOptions<DatabaseLogs, Error, DatabaseLogs, QueryKey[]>,
-    "queryKey" | "queryFn"
-  >
-) => ({
-  ...options,
-  queryKey: ["databases", "logs", uuid, lines],
-  queryFn: () =>
-    coolifyFetch<DatabaseLogs>(`/databases/${uuid}/logs?lines=${lines}`),
-});
-
-export const updateDatabase = (
-  uuid: string,
-  options?: Omit<
-    UseMutationOptions<ResourceActionResponse, Error, UpdateDatabaseBody>,
-    "mutationKey" | "mutationFn"
-  >
-) => ({
-  ...options,
-  mutationKey: ["databases", "update", uuid],
-  mutationFn: (data: UpdateDatabaseBody) => {
-    queryClient.setQueryData(["databases", uuid], data);
-
-    return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: data,
-    });
+// Query keys
+export const DatabaseKeys = {
+  all: ["databases"],
+  queries: {
+    all: () => DatabaseKeys.all,
+    single: (uuid: string) => [...DatabaseKeys.all, uuid],
+    logs: (uuid: string, lines: number) => [
+      ...DatabaseKeys.queries.single(uuid),
+      "logs",
+      lines,
+    ],
   },
-});
+  mutations: {
+    create: () => [...DatabaseKeys.all, "create"],
+    start: (uuid: string) => [...DatabaseKeys.queries.single(uuid), "start"],
+    stop: (uuid: string) => [...DatabaseKeys.queries.single(uuid), "stop"],
+    restart: (uuid: string) => [
+      ...DatabaseKeys.queries.single(uuid),
+      "restart",
+    ],
+    update: (uuid: string) => [...DatabaseKeys.queries.single(uuid), "update"],
+  },
+};
 
-export const createDatabase = (
-  options?: Omit<
-    UseMutationOptions<
-      ResourceCreateResponse,
-      Error,
-      { body: CreateDatabaseBody; type: CoolifyDatabases }
-    >,
-    "mutationKey" | "mutationFn"
-  >
-) => ({
-  ...options,
-  mutationKey: ["databases", "create"],
-  mutationFn: async ({
-    body,
-    type,
-  }: {
-    body: CreateDatabaseBody;
-    type: CoolifyDatabases;
-  }) => {
-    return coolifyFetch<ResourceCreateResponse>(`/databases/${type}`, {
+// Fetch functions
+export const getDatabases = async () => {
+  const data = await coolifyFetch<Database[]>("/databases");
+  // Set individual database cache entries
+  data.forEach((database) => {
+    queryClient.setQueryData(
+      DatabaseKeys.queries.single(database.uuid),
+      database
+    );
+  });
+
+  return data;
+};
+
+export const getDatabase = async (uuid: string) => {
+  const data = await coolifyFetch<Database>(`/databases/${uuid}`);
+  // Update the databases list cache with the new database
+  optimisticUpdateMany(DatabaseKeys.all, data);
+  return data;
+};
+
+export const getDatabaseLogs = async (uuid: string, lines = 100) => {
+  return coolifyFetch<DatabaseLogs>(`/databases/${uuid}/logs?lines=${lines}`);
+};
+
+export const startDatabase = async (uuid: string) => {
+  return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/start`, {
+    method: "POST",
+  });
+};
+
+export const stopDatabase = async (uuid: string) => {
+  return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/stop`, {
+    method: "POST",
+  });
+};
+
+export const restartDatabase = async (uuid: string) => {
+  return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}/restart`, {
+    method: "POST",
+  });
+};
+
+export const updateDatabase = async (
+  uuid: string,
+  data: UpdateDatabaseBody
+) => {
+  // Update individual database cache
+  optimisticUpdate(DatabaseKeys.queries.single(uuid), data);
+
+  // Update databases list cache
+  optimisticUpdateMany(DatabaseKeys.all, { ...data, uuid });
+
+  return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: data,
+  });
+};
+
+export const createDatabase = async (
+  body: CreateDatabaseBody,
+  type: CoolifyDatabases
+) => {
+  const response = await coolifyFetch<ResourceCreateResponse>(
+    `/databases/${type}`,
+    {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
-    });
-  },
-});
+    }
+  );
+
+  // Invalidate the databases list cache to refetch with the new database
+  queryClient.invalidateQueries({ queryKey: DatabaseKeys.all });
+
+  return response;
+};
+
+// Query hooks
+export const useDatabases = (
+  options?: Omit<UseQueryOptions<Database[], Error>, "queryKey">
+) => {
+  return useQuery({
+    queryKey: DatabaseKeys.all,
+    queryFn: getDatabases,
+    ...options,
+  });
+};
+
+export const useDatabase = (
+  uuid: string,
+  options?: Omit<UseQueryOptions<Database, Error>, "queryKey">
+) => {
+  return useQuery({
+    queryKey: DatabaseKeys.queries.single(uuid),
+    queryFn: () => getDatabase(uuid),
+    ...options,
+  });
+};
+
+export const useDatabaseLogs = (
+  uuid: string,
+  lines = 100,
+  options?: Omit<UseQueryOptions<DatabaseLogs, Error>, "queryKey">
+) => {
+  return useQuery({
+    queryKey: DatabaseKeys.queries.logs(uuid, lines),
+    queryFn: () => getDatabaseLogs(uuid, lines),
+    ...options,
+  });
+};
+
+// Mutation hooks
+export const useStartDatabase = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => {
+  return useMutation({
+    mutationKey: DatabaseKeys.mutations.start(uuid),
+    mutationFn: () => startDatabase(uuid),
+    ...options,
+  });
+};
+
+export const useStopDatabase = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => {
+  return useMutation({
+    mutationKey: DatabaseKeys.mutations.stop(uuid),
+    mutationFn: () => stopDatabase(uuid),
+    ...options,
+  });
+};
+
+export const useRestartDatabase = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => {
+  return useMutation({
+    mutationKey: DatabaseKeys.mutations.restart(uuid),
+    mutationFn: () => restartDatabase(uuid),
+    ...options,
+  });
+};
+
+export const useUpdateDatabase = (
+  uuid: string,
+  options?: UseMutationOptions<
+    ResourceActionResponse,
+    Error,
+    UpdateDatabaseBody
+  >
+) => {
+  return useMutation({
+    mutationKey: DatabaseKeys.mutations.update(uuid),
+    mutationFn: (data: UpdateDatabaseBody) => updateDatabase(uuid, data),
+    ...options,
+  });
+};
+
+export const useCreateDatabase = (
+  options?: UseMutationOptions<
+    ResourceCreateResponse,
+    Error,
+    { body: CreateDatabaseBody; type: CoolifyDatabases }
+  >
+) => {
+  return useMutation({
+    mutationKey: DatabaseKeys.mutations.create(),
+    mutationFn: ({
+      body,
+      type,
+    }: {
+      body: CreateDatabaseBody;
+      type: CoolifyDatabases;
+    }) => createDatabase(body, type),
+    ...options,
+  });
+};
