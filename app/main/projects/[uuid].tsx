@@ -1,5 +1,5 @@
-import { getProject } from "@/api/projects";
-import { getResources } from "@/api/resources";
+import { useProject } from "@/api/projects";
+import { useResources } from "@/api/resources";
 import { CoolifyDatabaseType } from "@/api/types/database.types";
 import { Resource, ResourceType } from "@/api/types/resources.types";
 import { ResourceCard } from "@/components/cards/ResourceCard";
@@ -9,7 +9,6 @@ import { ProjectSkeleton } from "@/components/skeletons/ProjectSkeleton";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
-import { useQuery } from "@tanstack/react-query";
 import { LinkProps, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useState } from "react";
 import { RefreshControl, SectionList, View } from "react-native";
@@ -28,12 +27,12 @@ export default function Project() {
     data: project,
     isPending: projectPending,
     refetch: refetchProject,
-  } = useQuery(getProject(uuid));
+  } = useProject(uuid);
   const {
     data: resources,
     isPending: resourcesPending,
     refetch: refetchResources,
-  } = useQuery(getResources());
+  } = useResources();
 
   const [refreshing, setRefreshing] = useState(false);
 

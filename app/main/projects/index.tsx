@@ -1,4 +1,4 @@
-import { deleteProject, getProjects } from "@/api/projects";
+import { ProjectKeys, useDeleteProject, useProjects } from "@/api/projects";
 import { Project, ProjectBase } from "@/api/types/project.types";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
@@ -6,7 +6,7 @@ import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
 import { SwipeableCard } from "@/components/ui/swipe-card";
 import { Text } from "@/components/ui/text";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { View } from "react-native";
@@ -15,7 +15,7 @@ import { toast } from "sonner-native";
 
 const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation(deleteProject(uuid));
+  const { mutate } = useDeleteProject(uuid);
 
   const isUndo = useRef(false);
   const position = useRef(0);
@@ -57,7 +57,7 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
         });
 
         queryClient.removeQueries({
-          queryKey: ["projects", project.uuid],
+          queryKey: ProjectKeys.queries.single(project.uuid),
           exact: true,
         });
 
@@ -73,21 +73,24 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
                 deletionTimeout.current = null;
               }
 
-              queryClient.setQueryData(["projects"], (data: ProjectBase[]) => {
-                const existingIndex = data.findIndex(
-                  (d) => d.uuid === project.uuid
-                );
-                if (existingIndex !== -1) {
-                  return data;
-                }
+              queryClient.setQueryData(
+                ProjectKeys.queries.all(),
+                (data: ProjectBase[]) => {
+                  const existingIndex = data.findIndex(
+                    (d) => d.uuid === project.uuid
+                  );
+                  if (existingIndex !== -1) {
+                    return data;
+                  }
 
-                const newData = [...data];
-                newData.splice(position.current, 0, project);
-                return newData;
-              });
+                  const newData = [...data];
+                  newData.splice(position.current, 0, project);
+                  return newData;
+                }
+              );
 
               queryClient.setQueryData<Project>(
-                ["projects", project.uuid],
+                ProjectKeys.queries.single(project.uuid),
                 project
               );
 
@@ -116,7 +119,7 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
 };
 
 export default function ProjectsIndex() {
-  const { data, isPending, refetch } = useQuery(getProjects());
+  const { data, isPending, refetch } = useProjects();
   const [isRefreshing, setIsRefreshing] = useState(false);
   useRefreshOnFocus(refetch);
 

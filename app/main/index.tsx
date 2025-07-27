@@ -1,11 +1,11 @@
-import { getApplications } from "@/api/application";
-import { getDatabases } from "@/api/databases";
-import { getDeployments } from "@/api/deployments";
-import { getProjects } from "@/api/projects";
-import { getResources } from "@/api/resources";
-import { getServers } from "@/api/servers";
-import { getServices } from "@/api/services";
-import { getTeams } from "@/api/teams";
+import { useApplications } from "@/api/application";
+import { useDatabases } from "@/api/databases";
+import { useDeployments } from "@/api/deployments";
+import { useProjects } from "@/api/projects";
+import { useResources } from "@/api/resources";
+import { useServers } from "@/api/servers";
+import { useServices } from "@/api/services";
+import { useTeams } from "@/api/teams";
 import { DeploymentCard } from "@/components/cards/DeploymentCard";
 import { FavoritesList } from "@/components/FavoritesList";
 import { Database } from "@/components/icons/Database";
@@ -21,7 +21,7 @@ import {
 import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
 import { useIsFocused } from "@react-navigation/native";
-import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useRef, useState } from "react";
@@ -61,20 +61,18 @@ export default function MainIndex() {
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fallbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { data: deployments } = useQuery(
-    getDeployments({
-      refetchInterval: 20000,
-      enabled: isFocused,
-    })
-  );
+  const { data: deployments } = useDeployments({
+    refetchInterval: 20000,
+    enabled: isFocused,
+  });
 
-  useQuery(getProjects());
-  useQuery(getApplications());
-  useQuery(getServices());
-  useQuery(getDatabases());
-  useQuery(getServers());
-  useQuery(getTeams());
-  useQuery(getResources());
+  useProjects();
+  useApplications();
+  useServices();
+  useDatabases();
+  useServers();
+  useTeams();
+  useResources();
 
   useEffect(() => {
     if (isReady) return;

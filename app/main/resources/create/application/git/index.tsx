@@ -1,4 +1,4 @@
-import { getPrivateKeys } from "@/api/private-keys";
+import { usePrivateKeys } from "@/api/private-keys";
 import {
   BuildPack,
   CoolifyApplications,
@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { useCreateApplication } from "@/hooks/useCreateApplication";
-import { useQuery } from "@tanstack/react-query";
 import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Control, Controller, useForm, useWatch } from "react-hook-form";
@@ -146,7 +145,7 @@ function PrivateKeySection({
   enabled: boolean;
 }) {
   const [isPrivateRepo, setIsPrivateRepo] = useState(enabled);
-  useQuery(getPrivateKeys());
+  const { data: privateKeys, isLoading } = usePrivateKeys();
 
   return (
     <View className="gap-1">
@@ -164,7 +163,7 @@ function PrivateKeyController({
 }: {
   control: Control<CreateApplicationBodyGit>;
 }) {
-  const { data: privateKeys, isLoading } = useQuery(getPrivateKeys());
+  const { data: privateKeys, isLoading } = usePrivateKeys();
 
   if (isLoading) {
     return (

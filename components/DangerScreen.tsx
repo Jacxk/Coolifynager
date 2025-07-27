@@ -1,4 +1,4 @@
-import { deleteService } from "@/api/services";
+import { useDeleteService } from "@/api/services";
 import { ResourceType } from "@/api/types/resources.types";
 import {
   Checkbox,
@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/checkbox";
 import { Text } from "@/components/ui/text";
 import { useFavorites } from "@/context/FavoritesContext";
-import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
@@ -41,7 +40,7 @@ export default function DangerScreen({
   const [deleteConfigFiles, setDeleteConfigFiles] = useState(true);
   const [runDockerCleanup, setRunDockerCleanup] = useState(true);
 
-  const { mutateAsync: deleteResource } = useMutation(deleteService(uuid));
+  const { mutateAsync: deleteResource } = useDeleteService(uuid);
 
   const onDelete = () => {
     const runDeletion = async () => {

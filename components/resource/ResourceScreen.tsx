@@ -2,12 +2,11 @@ import { ApplicationActionResponse } from "@/api/types/application.types";
 import {
   ResourceActionResponse,
   ResourceBase,
-  ResourceHttpError,
 } from "@/api/types/resources.types";
 import { EditingProvider, useEditing } from "@/context/EditingContext";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useIsFocused } from "@react-navigation/native";
-import { useMutation, useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { UseQueryOptions } from "@tanstack/react-query";
 import { Redirect, router, Stack } from "expo-router";
 import { Info } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
@@ -26,35 +25,31 @@ import { Text } from "../ui/text";
 import { H1 } from "../ui/typography";
 import { ResourceActions } from "./ResourceActions";
 
-type QueryKey = string | number;
-
-type QueryObject<T> = {
-  queryKey: readonly unknown[];
-  queryFn: () => Promise<T>;
-  [key: string]: any; // Allow all React Query options
+// Hook types for different resource types
+type UseResourceHook<T> = (
+  uuid: string,
+  options?: Omit<UseQueryOptions<T, Error>, "queryKey">
+) => {
+  data: T | undefined;
+  isPending: boolean;
+  refetch: () => Promise<any>;
 };
 
-type MutationObject = {
-  mutationKey: readonly unknown[];
-  mutationFn: (...args: any[]) => Promise<any>;
-};
+type UseStartHook = (uuid: string, options?: any) => any;
+type UseStopHook = (uuid: string, options?: any) => any;
+type UseRestartHook = (uuid: string, options?: any) => any;
+type UseUpdateHook = (uuid: string, options?: any) => any;
 
 export type ResourceScreenProps<T extends ResourceBase = ResourceBase> = {
   uuid: string;
   isDeploying: boolean;
   children: (data: T) => React.ReactNode;
   isApplication: boolean;
-  getResource: (
-    uuid: string,
-    options?: Omit<
-      UseQueryOptions<T, Error, T, QueryKey[]>,
-      "queryKey" | "queryFn"
-    >
-  ) => QueryObject<T>;
-  startResource: (uuid: string) => MutationObject;
-  stopResource: (uuid: string) => MutationObject;
-  restartResource: (uuid: string) => MutationObject;
-  updateResource: (uuid: string) => MutationObject;
+  useResource: UseResourceHook<T>;
+  useStartResource: UseStartHook;
+  useStopResource: UseStopHook;
+  useRestartResource: UseRestartHook;
+  useUpdateResource: UseUpdateHook;
 };
 
 function extractDomains<T extends ResourceBase>(data: T): string[] {
@@ -224,31 +219,29 @@ function ServerStatusWarning({ serverStatus }: { serverStatus: string }) {
 function useResourceMutations(
   uuid: string,
   isApplication: boolean,
-  startResource: (uuid: string) => MutationObject,
-  stopResource: (uuid: string) => MutationObject,
-  restartResource: (uuid: string) => MutationObject,
-  updateResource: (uuid: string) => MutationObject,
+  useStartResource: UseStartHook,
+  useStopResource: UseStopHook,
+  useRestartResource: UseRestartHook,
+  useUpdateResource: UseUpdateHook,
   refetch: () => void
 ) {
   const { setIsEditingDetails, setIsEditing } = useEditing();
 
-  const startMutation = useMutation({
-    ...startResource(uuid),
+  const startMutation = useStartResource(uuid, {
     onError: (error: Error) => {
       toast.error(error.message || "Failed to deploy resource");
     },
   });
 
-  const stopMutation = useMutation(stopResource(uuid));
+  const stopMutation = useStopResource(uuid);
 
-  const restartMutation = useMutation({
-    ...restartResource(uuid),
+  const restartMutation = useRestartResource(uuid, {
     onError: (error: Error) => {
       toast.error(error.message || "Failed to restart resource");
     },
   });
 
-  const updateDetailsMutation = useMutation(updateResource(uuid));
+  const updateDetailsMutation = useUpdateResource(uuid);
 
   const handleDeploy = () => {
     if (isApplication) {
@@ -329,10 +322,8 @@ function useResourceMutations(
           refetch();
           return "Details updated successfully!";
         },
-        error: (err: unknown) => {
-          return (
-            (err as ResourceHttpError).message ?? "Failed to save changes."
-          );
+        error: (error: unknown) => {
+          return (error as Error).message || "Failed to update details";
         },
       }
     );
@@ -351,11 +342,11 @@ function useResourceMutations(
 }
 
 function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
-  getResource,
-  startResource,
-  stopResource,
-  restartResource,
-  updateResource,
+  useResource,
+  useStartResource,
+  useStopResource,
+  useRestartResource,
+  useUpdateResource,
   uuid,
   children,
   isDeploying,
@@ -370,12 +361,10 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
   const scrollViewRef = useRef<ScrollView>(null);
   const insideHeaderRef = useRef<View>(null);
 
-  const { data, isPending, refetch } = useQuery<T>(
-    getResource(uuid, {
-      refetchInterval: 20000,
-      enabled: isFocused && !isEditing,
-    })
-  );
+  const { data, isPending, refetch } = useResource(uuid, {
+    refetchInterval: 20000,
+    enabled: isFocused && !isEditing,
+  });
 
   const {
     stopMutation,
@@ -387,10 +376,10 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
   } = useResourceMutations(
     uuid,
     isApplication,
-    startResource,
-    stopResource,
-    restartResource,
-    updateResource,
+    useStartResource,
+    useStopResource,
+    useRestartResource,
+    useUpdateResource,
     refetch
   );
 

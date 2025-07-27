@@ -1,4 +1,4 @@
-import { updateDatabase } from "@/api/databases";
+import { useUpdateDatabase } from "@/api/databases";
 import {
   CoolifyDatabaseType,
   Database,
@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useEditing } from "@/context/EditingContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
-import { useMutation } from "@tanstack/react-query";
 import { openBrowserAsync } from "expo-web-browser";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -124,9 +123,10 @@ export default function UpdateDatabase({ data }: { data: Database }) {
     handleSubmit,
     formState: { errors, dirtyFields },
   } = useForm<UpdateDatabaseBody>({
+    shouldUnregister: true,
     values: getInitialValues(data),
   });
-  const { mutateAsync: saveChanges } = useMutation(updateDatabase(data.uuid));
+  const { mutateAsync: saveChanges } = useUpdateDatabase(data.uuid);
 
   const handleSave = (formData: UpdateDatabaseBody) => {
     // Handle database-specific data processing

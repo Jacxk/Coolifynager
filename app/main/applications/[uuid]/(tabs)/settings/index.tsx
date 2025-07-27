@@ -1,10 +1,9 @@
-import { getApplicationEnvs } from "@/api/application";
+import { useApplicationEnvs } from "@/api/application";
 import { ChevronRight } from "@/components/icons/ChevronRight";
 import { Code } from "@/components/icons/Code";
 import { TriangleAlert } from "@/components/icons/TriangleAlert";
 import { Text } from "@/components/ui/text";
 import { useIsFocused } from "@react-navigation/native";
-import { useQuery } from "@tanstack/react-query";
 import { Link, useGlobalSearchParams } from "expo-router";
 import { FlatList, View } from "react-native";
 
@@ -34,7 +33,7 @@ export default function ApplicationSettingsIndex() {
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
   const isFocused = useIsFocused();
 
-  useQuery(getApplicationEnvs(uuid, { enabled: isFocused }));
+  useApplicationEnvs(uuid, { enabled: isFocused });
 
   const data = [
     {
