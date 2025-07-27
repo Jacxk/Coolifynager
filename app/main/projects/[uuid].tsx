@@ -10,7 +10,7 @@ import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { LinkProps, useLocalSearchParams, useNavigation } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { RefreshControl, SectionList, View } from "react-native";
 
 const isDatabase = (resource: Resource) => {
@@ -36,24 +36,26 @@ export default function Project() {
 
   const [refreshing, setRefreshing] = useState(false);
 
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     await refetchProject();
     await refetchResources();
-  };
+  }, [refetchProject, refetchResources]);
 
-  useRefreshOnFocus(refetch);
-
-  const onRefresh = async () => {
+  const onRefresh = () => {
     setRefreshing(true);
     refetch().finally(() => setRefreshing(false));
   };
 
+  useRefreshOnFocus(refetch);
   useEffect(() => {
-    navigation.setParams({
-      environments:
-        project?.environments.map((env) => `${env.uuid}:${env.name}`) || [],
-    } as any);
-  }, [project]);
+    if (project?.environments) {
+      navigation.setParams({
+        environments: project.environments.map(
+          (env) => `${env.uuid}:${env.name}`
+        ),
+      } as any);
+    }
+  }, [project, navigation]);
 
   if (projectPending || resourcesPending) {
     return <ProjectSkeleton />;
@@ -67,22 +69,43 @@ export default function Project() {
     );
   }
 
-  const projectEnvironmentIds = project.environments.map((env) => env.id);
-  const filteredResources = resources.filter((resource) =>
-    projectEnvironmentIds.includes(resource.environment_id)
+  const projectEnvironmentIds = useMemo(
+    () => project.environments.map((env) => env.id),
+    [project.environments]
   );
 
-  const applications = filteredResources.filter(
-    (res) => res.type === "application"
+  const filteredResources = useMemo(
+    () =>
+      resources.filter((resource) =>
+        projectEnvironmentIds.includes(resource.environment_id)
+      ),
+    [resources, projectEnvironmentIds]
   );
-  const databases = filteredResources.filter(isDatabase);
-  const services = filteredResources.filter((res) => res.type === "service");
 
-  const sections = [
-    { title: "Applications", data: applications },
-    { title: "Databases", data: databases },
-    { title: "Services", data: services },
-  ].filter((section) => section.data.length > 0);
+  const applications = useMemo(
+    () => filteredResources.filter((res) => res.type === "application"),
+    [filteredResources]
+  );
+
+  const databases = useMemo(
+    () => filteredResources.filter(isDatabase),
+    [filteredResources]
+  );
+
+  const services = useMemo(
+    () => filteredResources.filter((res) => res.type === "service"),
+    [filteredResources]
+  );
+
+  const sections = useMemo(
+    () =>
+      [
+        { title: "Applications", data: applications },
+        { title: "Databases", data: databases },
+        { title: "Services", data: services },
+      ].filter((section) => section.data.length > 0),
+    [applications, databases, services]
+  );
 
   if (sections.length === 0) {
     return (
