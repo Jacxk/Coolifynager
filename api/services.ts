@@ -2,6 +2,7 @@ import { queryClient } from "@/app/_layout";
 import {
   useMutation,
   UseMutationOptions,
+  UseMutationResult,
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
@@ -16,6 +17,35 @@ import {
   Service,
   UpdateServiceBody,
 } from "./types/services.types";
+
+// Hook return types
+export type UseStartService = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => UseMutationResult<ResourceActionResponse, Error, void>;
+
+export type UseStopService = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => UseMutationResult<ResourceActionResponse, Error, void>;
+
+export type UseRestartService = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => UseMutationResult<ResourceActionResponse, Error, void>;
+
+export type UseUpdateService = (
+  uuid: string,
+  options?: UseMutationOptions<
+    ResourceActionResponse,
+    Error,
+    Partial<UpdateServiceBody>
+  >
+) => UseMutationResult<
+  ResourceActionResponse,
+  Error,
+  Partial<UpdateServiceBody>
+>;
 
 type ServiceLogs = {
   logs: string;
@@ -167,10 +197,7 @@ export const useServiceLogs = (
 };
 
 // Mutation hooks
-export const useStartService = (
-  uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
-) => {
+export const useStartService: UseStartService = (uuid: string, options) => {
   return useMutation({
     mutationKey: ServiceKeys.mutations.start(uuid),
     mutationFn: () => startService(uuid),
@@ -178,10 +205,7 @@ export const useStartService = (
   });
 };
 
-export const useStopService = (
-  uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
-) => {
+export const useStopService: UseStopService = (uuid: string, options) => {
   return useMutation({
     mutationKey: ServiceKeys.mutations.stop(uuid),
     mutationFn: () => stopService(uuid),
@@ -189,10 +213,7 @@ export const useStopService = (
   });
 };
 
-export const useRestartService = (
-  uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
-) => {
+export const useRestartService: UseRestartService = (uuid: string, options) => {
   return useMutation({
     mutationKey: ServiceKeys.mutations.restart(uuid),
     mutationFn: () => restartService(uuid),
@@ -200,14 +221,7 @@ export const useRestartService = (
   });
 };
 
-export const useUpdateService = (
-  uuid: string,
-  options?: UseMutationOptions<
-    ResourceActionResponse,
-    Error,
-    Partial<UpdateServiceBody>
-  >
-) => {
+export const useUpdateService: UseUpdateService = (uuid: string, options) => {
   return useMutation({
     mutationKey: ServiceKeys.mutations.update(uuid),
     mutationFn: (data: UpdateServiceBody) => updateService(uuid, data),

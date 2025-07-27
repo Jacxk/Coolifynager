@@ -2,6 +2,7 @@ import { queryClient } from "@/app/_layout";
 import {
   useMutation,
   UseMutationOptions,
+  UseMutationResult,
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
@@ -22,6 +23,39 @@ import {
   ResourceActionResponse,
   ResourceCreateResponse,
 } from "./types/resources.types";
+
+// Hook return types
+export type UseStartApplication = (
+  uuid: string,
+  options?: UseMutationOptions<
+    ApplicationActionResponse,
+    Error,
+    { force?: boolean; instant_deploy?: boolean }
+  >
+) => UseMutationResult<
+  ApplicationActionResponse,
+  Error,
+  { force?: boolean; instant_deploy?: boolean }
+>;
+
+export type UseStopApplication = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => UseMutationResult<ResourceActionResponse, Error, void>;
+
+export type UseRestartApplication = (
+  uuid: string,
+  options?: UseMutationOptions<ApplicationActionResponse, Error, void>
+) => UseMutationResult<ApplicationActionResponse, Error, void>;
+
+export type UseUpdateApplication = (
+  uuid: string,
+  options?: UseMutationOptions<
+    ResourceActionResponse,
+    Error,
+    UpdateApplicationBody
+  >
+) => UseMutationResult<ResourceActionResponse, Error, UpdateApplicationBody>;
 
 // Query keys
 export const ApplicationKeys = {
@@ -246,13 +280,9 @@ export const useCreateApplicationEnv = (
   });
 };
 
-export const useStartApplication = (
+export const useStartApplication: UseStartApplication = (
   uuid: string,
-  options?: UseMutationOptions<
-    ApplicationActionResponse,
-    Error,
-    { force?: boolean; instant_deploy?: boolean }
-  >
+  options
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.start(uuid),
@@ -267,9 +297,9 @@ export const useStartApplication = (
   });
 };
 
-export const useStopApplication = (
+export const useStopApplication: UseStopApplication = (
   uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+  options
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.stop(uuid),
@@ -278,9 +308,9 @@ export const useStopApplication = (
   });
 };
 
-export const useRestartApplication = (
+export const useRestartApplication: UseRestartApplication = (
   uuid: string,
-  options?: UseMutationOptions<ApplicationActionResponse, Error, void>
+  options
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.restart(uuid),
@@ -289,13 +319,9 @@ export const useRestartApplication = (
   });
 };
 
-export const useUpdateApplication = (
+export const useUpdateApplication: UseUpdateApplication = (
   uuid: string,
-  options?: UseMutationOptions<
-    ResourceActionResponse,
-    Error,
-    UpdateApplicationBody
-  >
+  options
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.update(uuid),

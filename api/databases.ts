@@ -2,6 +2,7 @@ import { queryClient } from "@/app/_layout";
 import {
   useMutation,
   UseMutationOptions,
+  UseMutationResult,
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
@@ -16,6 +17,31 @@ import {
   ResourceActionResponse,
   ResourceCreateResponse,
 } from "./types/resources.types";
+
+// Hook return types
+export type UseStartDatabase = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => UseMutationResult<ResourceActionResponse, Error, void>;
+
+export type UseStopDatabase = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => UseMutationResult<ResourceActionResponse, Error, void>;
+
+export type UseRestartDatabase = (
+  uuid: string,
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+) => UseMutationResult<ResourceActionResponse, Error, void>;
+
+export type UseUpdateDatabase = (
+  uuid: string,
+  options?: UseMutationOptions<
+    ResourceActionResponse,
+    Error,
+    UpdateDatabaseBody
+  >
+) => UseMutationResult<ResourceActionResponse, Error, UpdateDatabaseBody>;
 
 type DatabaseLogs = {
   logs: string;
@@ -119,7 +145,7 @@ export const createDatabase = async (
   );
 
   // Invalidate the databases list cache to refetch with the new database
-  queryClient.invalidateQueries({ queryKey: DatabaseKeys.all });
+  queryClient.invalidateQueries({ queryKey: DatabaseKeys.queries.all() });
 
   return response;
 };
@@ -129,7 +155,7 @@ export const useDatabases = (
   options?: Omit<UseQueryOptions<Database[], Error>, "queryKey">
 ) => {
   return useQuery({
-    queryKey: DatabaseKeys.all,
+    queryKey: DatabaseKeys.queries.all(),
     queryFn: getDatabases,
     ...options,
   });
@@ -159,10 +185,7 @@ export const useDatabaseLogs = (
 };
 
 // Mutation hooks
-export const useStartDatabase = (
-  uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
-) => {
+export const useStartDatabase: UseStartDatabase = (uuid: string, options) => {
   return useMutation({
     mutationKey: DatabaseKeys.mutations.start(uuid),
     mutationFn: () => startDatabase(uuid),
@@ -170,10 +193,7 @@ export const useStartDatabase = (
   });
 };
 
-export const useStopDatabase = (
-  uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
-) => {
+export const useStopDatabase: UseStopDatabase = (uuid: string, options) => {
   return useMutation({
     mutationKey: DatabaseKeys.mutations.stop(uuid),
     mutationFn: () => stopDatabase(uuid),
@@ -181,9 +201,9 @@ export const useStopDatabase = (
   });
 };
 
-export const useRestartDatabase = (
+export const useRestartDatabase: UseRestartDatabase = (
   uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+  options
 ) => {
   return useMutation({
     mutationKey: DatabaseKeys.mutations.restart(uuid),
@@ -192,14 +212,7 @@ export const useRestartDatabase = (
   });
 };
 
-export const useUpdateDatabase = (
-  uuid: string,
-  options?: UseMutationOptions<
-    ResourceActionResponse,
-    Error,
-    UpdateDatabaseBody
-  >
-) => {
+export const useUpdateDatabase: UseUpdateDatabase = (uuid: string, options) => {
   return useMutation({
     mutationKey: DatabaseKeys.mutations.update(uuid),
     mutationFn: (data: UpdateDatabaseBody) => updateDatabase(uuid, data),
