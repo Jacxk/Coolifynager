@@ -44,7 +44,7 @@ export const getResources = async () => {
 // Query hooks
 export const useResources = (options?: UseQueryOptions<Resource[], Error>) => {
   return useQuery({
-    queryKey: ResourceKeys.all,
+    queryKey: ResourceKeys.queries.all(),
     queryFn: getResources,
     ...options,
   });

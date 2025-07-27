@@ -88,7 +88,7 @@ export const getDatabases = async () => {
 export const getDatabase = async (uuid: string) => {
   const data = await coolifyFetch<Database>(`/databases/${uuid}`);
   // Update the databases list cache with the new database
-  optimisticUpdateMany(DatabaseKeys.all, data);
+  optimisticUpdateMany(DatabaseKeys.queries.all(), data);
   return data;
 };
 
@@ -122,7 +122,7 @@ export const updateDatabase = async (
   optimisticUpdate(DatabaseKeys.queries.single(uuid), data);
 
   // Update databases list cache
-  optimisticUpdateMany(DatabaseKeys.all, { ...data, uuid });
+  optimisticUpdateMany(DatabaseKeys.queries.all(), { ...data, uuid });
 
   return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}`, {
     method: "PATCH",

@@ -85,7 +85,7 @@ export const getServices = async () => {
 export const getService = async (uuid: string) => {
   const data = await coolifyFetch<Service>(`/services/${uuid}`);
   // Update the services list cache with the new service
-  optimisticUpdateMany(ServiceKeys.all, data);
+  optimisticUpdateMany(ServiceKeys.queries.all(), data);
   return data;
 };
 
@@ -116,7 +116,7 @@ export const updateService = async (uuid: string, data: UpdateServiceBody) => {
   optimisticUpdate(ServiceKeys.queries.single(uuid), data);
 
   // Update services list cache
-  optimisticUpdateMany(ServiceKeys.all, { ...data, uuid });
+  optimisticUpdateMany(ServiceKeys.queries.all(), { ...data, uuid });
 
   throw new Error("Not implemented");
   // TODO: Uncomment this when the API is updated

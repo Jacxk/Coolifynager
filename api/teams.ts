@@ -25,7 +25,7 @@ export const useTeams = (
   options?: Omit<UseQueryOptions<Team[], Error>, "queryKey">
 ) => {
   return useQuery({
-    queryKey: TeamKeys.all,
+    queryKey: TeamKeys.queries.all(),
     queryFn: getTeams,
     ...options,
   });

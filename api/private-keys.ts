@@ -25,7 +25,7 @@ export const usePrivateKeys = (
   options?: Omit<UseQueryOptions<PrivateKey[], Error>, "queryKey">
 ) => {
   return useQuery({
-    queryKey: PrivateKeyKeys.all,
+    queryKey: PrivateKeyKeys.queries.all(),
     queryFn: getPrivateKeys,
     ...options,
   });

@@ -106,7 +106,7 @@ export const getApplications = async () => {
 export const getApplication = async (uuid: string) => {
   const data = await coolifyFetch<Application>(`/applications/${uuid}`);
   // Update the applications list cache with the new application
-  optimisticUpdateMany(ApplicationKeys.all, data);
+  optimisticUpdateMany(ApplicationKeys.queries.all(), data);
   return data;
 };
 
@@ -185,7 +185,7 @@ export const updateApplication = async (
   optimisticUpdate(ApplicationKeys.queries.single(uuid), body);
 
   // Update applications list cache
-  optimisticUpdateMany(ApplicationKeys.all, { ...body, uuid });
+  optimisticUpdateMany(ApplicationKeys.queries.all(), { ...body, uuid });
 
   return coolifyFetch<ResourceActionResponse>(`/applications/${uuid}`, {
     method: "PATCH",

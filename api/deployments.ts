@@ -96,7 +96,7 @@ export const useDeployments = (
   options?: Omit<UseQueryOptions<Deployment[], Error>, "queryKey">
 ) => {
   return useQuery({
-    queryKey: DeploymentKeys.all,
+    queryKey: DeploymentKeys.queries.all(),
     queryFn: getDeployments,
     ...options,
   });

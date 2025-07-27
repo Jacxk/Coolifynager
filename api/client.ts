@@ -53,7 +53,7 @@ export async function coolifyFetch<T>(
 }
 
 export function optimisticUpdateMany<T extends Partial<ResourceBase>>(
-  queryKey: string[],
+  queryKey: (string | number)[],
   data: T
 ) {
   queryClient.setQueryData(queryKey, (old: T[] | undefined) => {
@@ -72,7 +72,7 @@ export function optimisticUpdateMany<T extends Partial<ResourceBase>>(
   });
 }
 
-export function optimisticUpdate<T>(queryKey: string[], data: T) {
+export function optimisticUpdate<T>(queryKey: (string | number)[], data: T) {
   queryClient.setQueryData(queryKey, (old: T | undefined) => {
     if (!old) return data;
     return { ...old, ...data };
