@@ -38,8 +38,8 @@ export const getResources = async () => {
   data.forEach((resource) => {
     const key = getQueryKeyFromType(resource.type);
 
+    optimisticUpdateMany(key, resource);
     optimisticUpdate([...key, resource.uuid], resource);
-    optimisticUpdateMany(DatabaseKeys.queries.all(), resource);
   });
   return data;
 };

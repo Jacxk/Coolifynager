@@ -76,13 +76,11 @@ export const getDatabases = async () => {
   const data = await coolifyFetch<Database[]>("/databases");
   // Set individual database cache entries
   data.forEach((database) => {
-    queryClient.setQueryData(
-      DatabaseKeys.queries.single(database.uuid),
-      database
-    );
+    optimisticUpdateMany(DatabaseKeys.queries.all(), database);
+    optimisticUpdate(DatabaseKeys.queries.single(database.uuid), database);
   });
 
-  return data;
+  return queryClient.getQueryData(DatabaseKeys.queries.all()) as Database[];
 };
 
 export const getDatabase = async (uuid: string) => {
