@@ -2,7 +2,7 @@ import type { Deployment } from "@/api/types/deployments.types";
 import { cn } from "@/lib/utils";
 import { StatusText } from "@/utils/status";
 import { Link } from "expo-router";
-import moment from "moment";
+import { differenceInSeconds, formatDistanceToNow, parseISO } from "date-fns";
 import { View } from "react-native";
 import { Badge } from "../ui/badge";
 import {
@@ -23,16 +23,16 @@ export function DeploymentCard({
   uuid = "never",
   deployment,
 }: DeploymentCardProps) {
-  const start = moment(deployment.created_at);
-  const end = moment(deployment.finished_at);
+  const start = parseISO(deployment.created_at);
+  const end = deployment.finished_at ? parseISO(deployment.finished_at) : new Date();
 
-  const duration = moment.duration(end.diff(start));
-  const minutes = String(duration.minutes()).padStart(2, "0");
-  const seconds = String(duration.seconds()).padStart(2, "0");
+  const durationSeconds = differenceInSeconds(end, start);
+  const minutes = Math.floor(durationSeconds / 60);
+  const seconds = durationSeconds % 60;
 
-  const runningFor = moment.duration(moment().diff(start));
-  const runningForMinutes = String(runningFor.minutes()).padStart(2, "0");
-  const runningForSeconds = String(runningFor.seconds()).padStart(2, "0");
+  const runningForSeconds = differenceInSeconds(new Date(), start);
+  const runningForMinutes = Math.floor(runningForSeconds / 60);
+  const runningForSecondsRemaining = runningForSeconds % 60;
 
   return (
     <Link
@@ -69,18 +69,18 @@ export function DeploymentCard({
             <Text>{deployment.commit.substring(0, 7)}</Text>
           </View>
           <View className="flex flex-row justify-between items-center">
-            {!isNaN(Number(minutes)) && (
+            {!isNaN(minutes) && (
               <View className="flex flex-row">
                 <Text className="font-semibold">Duration: </Text>
                 <Text>
-                  {minutes}m {seconds}s
+                  {String(minutes).padStart(2, "0")}m {String(seconds).padStart(2, "0")}s
                 </Text>
               </View>
             )}
 
             {deployment.finished_at && (
               <Text>
-                {moment.utc(deployment.finished_at).local().fromNow()}
+                {formatDistanceToNow(parseISO(deployment.finished_at), { addSuffix: true })}
               </Text>
             )}
 
@@ -88,7 +88,7 @@ export function DeploymentCard({
               <View className="flex flex-row">
                 <Text className="font-semibold">Running for: </Text>
                 <Text>
-                  {runningForMinutes}m {runningForSeconds}s
+                  {String(runningForMinutes).padStart(2, "0")}m {String(runningForSecondsRemaining).padStart(2, "0")}s
                 </Text>
               </View>
             )}

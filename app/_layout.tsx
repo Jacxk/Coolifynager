@@ -13,7 +13,7 @@ import { PortalHost } from "@rn-primitives/portal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, memo } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Toaster } from "sonner-native";
@@ -27,14 +27,28 @@ const DARK_THEME: Theme = {
   colors: NAV_THEME.dark,
 };
 
-export const queryClient = new QueryClient();
+// Optimized QueryClient configuration for better performance
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      retry: 1,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
 
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from "expo-router";
 
-export default function RootLayout() {
+const RootLayout = memo(function RootLayout() {
   const hasMounted = useRef(false);
   const { isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
@@ -68,4 +82,6 @@ export default function RootLayout() {
       </QueryClientProvider>
     </ThemeProvider>
   );
-}
+});
+
+export default RootLayout;

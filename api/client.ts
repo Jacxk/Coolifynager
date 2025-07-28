@@ -33,11 +33,6 @@ export async function coolifyFetch<T>(
     ...(body ? { body: JSON.stringify(body) } : {}),
   };
 
-  if (process.env.NODE_ENV === "development") {
-    const delay = Math.random() * 1000 + 1000;
-    await new Promise((resolve) => setTimeout(resolve, delay));
-  }
-
   const response = await fetch(url, fetchOptions);
 
   if (response.status >= 400) {
