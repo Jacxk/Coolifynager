@@ -21,9 +21,7 @@ export default function Database() {
   return (
     <ResourceScreen
       uuid={uuid}
-      isDeploying={false}
-      isApplication={false}
-      useResource={useDatabase}
+      type="database"
       useStartResource={useStartDatabase}
       useStopResource={useStopDatabase}
       useRestartResource={useRestartDatabase}

@@ -6,6 +6,7 @@ import {
   useStopService,
   useUpdateService,
 } from "@/api/services";
+import { Service as ServiceType } from "@/api/types/services.types";
 import ResourceScreen from "@/components/resource/ResourceScreen";
 import UpdateService from "@/components/resource/service/UpdateService";
 import { useLocalSearchParams } from "expo-router";
@@ -20,15 +21,13 @@ export default function Service() {
   return (
     <ResourceScreen
       uuid={uuid}
-      isDeploying={false}
-      isApplication={false}
-      useResource={useService}
+      type="service"
       useStartResource={useStartService}
       useStopResource={useStopService}
       useRestartResource={useRestartService}
       useUpdateResource={useUpdateService}
     >
-      {(data) => <UpdateService data={data as any} />}
+      {(data) => <UpdateService data={data as ServiceType} />}
     </ResourceScreen>
   );
 }

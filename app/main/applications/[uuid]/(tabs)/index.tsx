@@ -10,6 +10,7 @@ import {
   useApplicationDeployments,
   useLatestApplicationDeployment,
 } from "@/api/deployments";
+import { Application as ApplicationType } from "@/api/types/application.types";
 import UpdateApplication from "@/components/resource/application/update/UpdateApplication";
 import ResourceScreen from "@/components/resource/ResourceScreen";
 import { useIsFocused } from "@react-navigation/native";
@@ -59,14 +60,13 @@ export default function Application() {
     <ResourceScreen
       uuid={uuid}
       isDeploying={isDeploying}
-      isApplication={true}
-      useResource={useApplication}
+      type="application"
       useStartResource={useStartApplication}
       useStopResource={useStopApplication}
       useRestartResource={useRestartApplication}
       useUpdateResource={useUpdateApplication}
     >
-      {(data) => <UpdateApplication data={data as any} />}
+      {(data) => <UpdateApplication data={data as ApplicationType} />}
     </ResourceScreen>
   );
 }

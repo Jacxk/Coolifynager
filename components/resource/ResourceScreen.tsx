@@ -1,12 +1,21 @@
-import { ApplicationActionResponse } from "@/api/types/application.types";
+import { useResource } from "@/api/resources";
+import {
+  Application,
+  ApplicationActionResponse,
+} from "@/api/types/application.types";
+import { Database } from "@/api/types/database.types";
+import { Project } from "@/api/types/project.types";
 import {
   ResourceActionResponse,
-  ResourceBase,
+  ResourceDestination,
+  ResourceType,
 } from "@/api/types/resources.types";
+import { SingleServer } from "@/api/types/server.types";
+import { Service } from "@/api/types/services.types";
+import { Team } from "@/api/types/teams.types";
 import { EditingProvider, useEditing } from "@/context/EditingContext";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useIsFocused } from "@react-navigation/native";
-import { UseQueryOptions } from "@tanstack/react-query";
 import { Redirect, router, Stack } from "expo-router";
 import { Info } from "lucide-react-native";
 import { useMemo, useRef, useState } from "react";
@@ -25,34 +34,32 @@ import { Text } from "../ui/text";
 import { H1 } from "../ui/typography";
 import { ResourceActions } from "./ResourceActions";
 
-// Hook types for different resource types
-type UseResourceHook<T> = (
-  uuid: string,
-  options?: Omit<UseQueryOptions<T, Error>, "queryKey">
-) => {
-  data: T | undefined;
-  isPending: boolean;
-  refetch: () => Promise<any>;
-};
-
 type UseStartHook = (uuid: string, options?: any) => any;
 type UseStopHook = (uuid: string, options?: any) => any;
 type UseRestartHook = (uuid: string, options?: any) => any;
 type UseUpdateHook = (uuid: string, options?: any) => any;
 
-export type ResourceScreenProps<T extends ResourceBase = ResourceBase> = {
+// Union type for all possible resource types
+type ResourceData =
+  | Application
+  | Database
+  | Service
+  | Project
+  | SingleServer
+  | Team;
+
+export type ResourceScreenProps = {
   uuid: string;
-  isDeploying: boolean;
-  children: (data: T) => React.ReactNode;
-  isApplication: boolean;
-  useResource: UseResourceHook<T>;
+  type: ResourceType;
+  isDeploying?: boolean;
+  children: (data: ResourceData) => React.ReactNode;
   useStartResource: UseStartHook;
   useStopResource: UseStopHook;
   useRestartResource: UseRestartHook;
   useUpdateResource: UseUpdateHook;
 };
 
-function extractDomains<T extends ResourceBase>(data: T): string[] {
+function extractDomains(data: ResourceData): string[] {
   if (!data) return [];
 
   if ("fqdn" in data && data.fqdn) {
@@ -69,11 +76,11 @@ function extractDomains<T extends ResourceBase>(data: T): string[] {
   return [];
 }
 
-function ResourceEditingForm<T extends ResourceBase>({
+function ResourceEditingForm({
   data,
   onSubmitDetails,
 }: {
-  data: T;
+  data: ResourceData;
   onSubmitDetails: (data: { name: string; description: string }) => void;
 }) {
   const { isEditingDetails, setIsEditingDetails } = useEditing();
@@ -101,6 +108,9 @@ function ResourceEditingForm<T extends ResourceBase>({
     setIsEditingDetails(false);
   };
 
+  // Check if data has status property (excludes Project type)
+  const hasStatus = "status" in data;
+
   return (
     <>
       <View className="flex flex-row justify-between items-center">
@@ -123,7 +133,7 @@ function ResourceEditingForm<T extends ResourceBase>({
             <Text className="text-red-500">Resource name is required.</Text>
           )}
         </View>
-        <HealthIndicator status={data.status} />
+        {hasStatus && <HealthIndicator status={data.status} />}
       </View>
       <Controller
         control={control}
@@ -151,12 +161,12 @@ function ResourceEditingForm<T extends ResourceBase>({
   );
 }
 
-function ResourceInfo<T extends ResourceBase>({
+function ResourceInfo({
   data,
   insideHeaderRef,
   onSubmitDetails,
 }: {
-  data: T;
+  data: ResourceData;
   insideHeaderRef: React.RefObject<View | null>;
   onSubmitDetails: (data: { name: string; description: string }) => void;
 }) {
@@ -171,14 +181,17 @@ function ResourceInfo<T extends ResourceBase>({
   return <ResourceDisplay data={data} insideHeaderRef={insideHeaderRef} />;
 }
 
-function ResourceDisplay<T extends ResourceBase>({
+function ResourceDisplay({
   data,
   insideHeaderRef,
 }: {
-  data: T;
+  data: ResourceData;
   insideHeaderRef: React.RefObject<View | null>;
 }) {
   const { setIsEditingDetails } = useEditing();
+
+  // Check if data has status property (excludes Project type)
+  const hasStatus = "status" in data;
 
   return (
     <>
@@ -196,7 +209,7 @@ function ResourceDisplay<T extends ResourceBase>({
             <Edit className="text-muted-foreground" />
           </Button>
         </View>
-        <HealthIndicator status={data.status} />
+        {hasStatus && <HealthIndicator status={data.status} />}
       </View>
       <Text className="text-muted-foreground">{data.description}</Text>
     </>
@@ -341,8 +354,7 @@ function useResourceMutations(
   };
 }
 
-function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
-  useResource,
+function ResourceScreenBase({
   useStartResource,
   useStopResource,
   useRestartResource,
@@ -350,8 +362,8 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
   uuid,
   children,
   isDeploying,
-  isApplication,
-}: ResourceScreenProps<T>) {
+  type,
+}: ResourceScreenProps) {
   const isFocused = useIsFocused();
   const { isEditing } = useEditing();
 
@@ -361,7 +373,7 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
   const scrollViewRef = useRef<ScrollView>(null);
   const insideHeaderRef = useRef<View>(null);
 
-  const { data, isPending, refetch } = useResource(uuid, {
+  const { data, isPending, refetch } = useResource(uuid, type, {
     refetchInterval: 20000,
     enabled: isFocused && !isEditing,
   });
@@ -375,7 +387,7 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
     submitDetails,
   } = useResourceMutations(
     uuid,
-    isApplication,
+    type === "application",
     useStartResource,
     useStopResource,
     useRestartResource,
@@ -399,10 +411,10 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
     refetch().finally(() => setIsRefreshing(false));
   };
 
-  useRefreshOnFocus(refetch);
+  useRefreshOnFocus(refetch as () => Promise<any>);
 
   const domains = useMemo<string[]>(
-    () => extractDomains(data || ({} as T)),
+    () => extractDomains(data || ({} as ResourceData)),
     [data]
   );
 
@@ -412,7 +424,17 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
 
   if (!data) return <Redirect href="/main" />;
 
-  const serverStatus = (data.destination ?? data).server.proxy.status;
+  // Check if data has destination property and server status
+  const hasDestination = "destination" in data && data.destination;
+  const hasServer = "server" in data && data.server;
+  const serverStatus = hasDestination
+    ? (data.destination as ResourceDestination).server?.proxy?.status
+    : hasServer
+    ? (data.server as SingleServer).proxy?.status
+    : "unknown";
+
+  // Check if data has status property for the header
+  const hasStatus = "status" in data;
 
   return (
     <>
@@ -421,7 +443,7 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
           header: () => (
             <AnimatedHeader
               name={data.name}
-              status={data.status}
+              status={hasStatus ? data.status : "unknown"}
               showTitle={showHeaderTitle}
               onHeaderClick={() => scrollViewRef.current?.scrollTo({ y: 0 })}
               leftComponent={
@@ -432,7 +454,9 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
               rightComponent={
                 <ResourceActions
                   resourceType="application"
-                  isRunning={data.status.startsWith("running")}
+                  isRunning={
+                    hasStatus ? data.status.startsWith("running") : false
+                  }
                   onStart={handleDeploy}
                   onRedeploy={handleDeploy}
                   onStop={handleStop}
@@ -440,7 +464,7 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
                   isDeploying={isDeploying}
                   stopDisabled={stopMutation.isPending}
                   restartDisabled={restartMutation.isPending}
-                  showDeploy={isApplication}
+                  showDeploy={type === "application"}
                 />
               }
             />
@@ -478,9 +502,7 @@ function ResourceScreenBase<T extends ResourceBase = ResourceBase>({
   );
 }
 
-export default function ResourceScreen<T extends ResourceBase = ResourceBase>(
-  props: ResourceScreenProps<T>
-) {
+export default function ResourceScreen(props: ResourceScreenProps) {
   return (
     <EditingProvider>
       <ResourceScreenBase {...props} />
