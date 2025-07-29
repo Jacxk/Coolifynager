@@ -27,6 +27,7 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
       clearTimeout(deletionTimeout.current);
     }
 
+    // Performs the hard delete
     deletionTimeout.current = setTimeout(() => {
       if (!isUndo.current) {
         mutate();
@@ -41,24 +42,24 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
       rightContentClassName="rounded-r-lg bg-red-400 dark:bg-red-500 -ml-4"
       rightContent={<Trash color="black" />}
       dismissOnSwipeLeft
-      onDismiss={() => {
-        const project = queryClient.getQueryData<Project>(["projects", uuid]);
+      onDismiss={async () => {
+        const queryKeyAll = ProjectKeys.queries.all();
+        const queryKeySingle = ProjectKeys.queries.single(uuid);
+        await queryClient.cancelQueries({ queryKey: queryKeyAll });
+
+        const project = queryClient.getQueryData<Project>(queryKeySingle);
 
         if (!project) return;
 
         isUndo.current = false;
 
-        queryClient.setQueryData(["projects"], (data: ProjectBase[]) => {
+        // Handles the optimistic update with undo
+        queryClient.setQueryData(queryKeyAll, (data: ProjectBase[]) => {
           const index = data.findIndex((d) => d.uuid === project.uuid);
           const newData = [...data];
           newData.splice(index, 1);
           position.current = index;
           return newData;
-        });
-
-        queryClient.removeQueries({
-          queryKey: ProjectKeys.queries.single(project.uuid),
-          exact: true,
         });
 
         toastId.current = toast.success("Project deleted", {
@@ -73,26 +74,22 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
                 deletionTimeout.current = null;
               }
 
-              queryClient.setQueryData(
-                ProjectKeys.queries.all(),
-                (data: ProjectBase[]) => {
-                  const existingIndex = data.findIndex(
-                    (d) => d.uuid === project.uuid
-                  );
-                  if (existingIndex !== -1) {
-                    return data;
-                  }
-
-                  const newData = [...data];
-                  newData.splice(position.current, 0, project);
-                  return newData;
+              // Handles the optimistic update with undo
+              queryClient.setQueryData(queryKeyAll, (data: ProjectBase[]) => {
+                const existingIndex = data.findIndex(
+                  (d) => d.uuid === project.uuid
+                );
+                if (existingIndex !== -1) {
+                  return data;
                 }
-              );
 
-              queryClient.setQueryData<Project>(
-                ProjectKeys.queries.single(project.uuid),
-                project
-              );
+                const newData = [...data];
+                newData.splice(position.current, 0, project);
+                return newData;
+              });
+
+              // Handles the optimistic update with undo
+              queryClient.setQueryData<Project>(queryKeySingle, project);
 
               if (toastId.current) {
                 toast.dismiss(toastId.current);

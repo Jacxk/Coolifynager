@@ -5,9 +5,16 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { coolifyFetch, optimisticUpdateInsertOneToMany } from "./client";
-import { PartialProject, Project } from "./types/project.types";
-import { ResourceActionResponse } from "./types/resources.types";
+import { coolifyFetch, onOptimisticUpdateError } from "./client";
+import {
+  PartialProject,
+  Project,
+  ProjectCreateBody,
+} from "./types/project.types";
+import {
+  ResourceActionResponse,
+  ResourceCreateResponse,
+} from "./types/resources.types";
 
 // Query keys
 export const ProjectKeys = {
@@ -38,35 +45,23 @@ export const getProject = async (uuid: string) => {
   return coolifyFetch<Project>(`/projects/${uuid}`);
 };
 
-export const createProject = async (data: PartialProject) => {
-  const response = await coolifyFetch<Project>("/projects", {
+export const createProject = async (data: ProjectCreateBody) => {
+  const res = await coolifyFetch<ResourceCreateResponse>("/projects", {
     method: "POST",
     body: data,
   });
 
   queryClient.prefetchQuery({
-    queryKey: ProjectKeys.queries.single(response.uuid),
-    queryFn: () =>
-      getProject(response.uuid).then((project) =>
-        optimisticUpdateInsertOneToMany(ProjectKeys.queries.all(), project)
-      ),
+    queryKey: ProjectKeys.queries.single(res.uuid),
+    queryFn: () => getProject(res.uuid),
   });
-  return response;
+  return res;
 };
 
 export const deleteProject = async (uuid: string) => {
-  const response = await coolifyFetch<ResourceActionResponse>(
-    `/projects/${uuid}`,
-    {
-      method: "DELETE",
-    }
-  );
-
-  queryClient.invalidateQueries({
-    queryKey: ProjectKeys.queries.all(),
+  return coolifyFetch<ResourceActionResponse>(`/projects/${uuid}`, {
+    method: "DELETE",
   });
-
-  return response;
 };
 
 // Query hooks
@@ -93,12 +88,18 @@ export const useProject = (
 
 // Mutation hooks
 export const useCreateProject = (
-  options?: UseMutationOptions<Project, Error, PartialProject>
+  options?: UseMutationOptions<ResourceCreateResponse, Error, ProjectCreateBody>
 ) => {
   return useMutation({
     mutationKey: ProjectKeys.mutations.create(),
-    mutationFn: (data: PartialProject) => createProject(data),
+    mutationFn: createProject,
     ...options,
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ProjectKeys.queries.all(),
+        exact: true,
+      });
+    },
   });
 };
 
@@ -110,5 +111,20 @@ export const useDeleteProject = (
     mutationKey: ProjectKeys.mutations.delete(uuid),
     mutationFn: () => deleteProject(uuid),
     ...options,
+    onMutate: async () => {
+      const queryKey = ProjectKeys.queries.single(uuid);
+      const previousData = queryClient.getQueryData<Project[]>(queryKey);
+
+      queryClient.setQueryData(queryKey, undefined);
+
+      return { previousData, queryKey };
+    },
+    onError: onOptimisticUpdateError,
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ProjectKeys.queries.all(),
+        exact: true,
+      });
+    },
   });
 };

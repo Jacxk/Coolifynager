@@ -1,5 +1,5 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { coolifyFetch } from "./client";
+import { coolifyFetch, optimisticUpdateOne } from "./client";
 import { PrivateKey } from "./types/private-keys.types";
 
 // Query keys
@@ -13,7 +13,11 @@ export const PrivateKeyKeys = {
 
 // Fetch functions
 export const getPrivateKeys = async () => {
-  return coolifyFetch<PrivateKey[]>("/security/keys");
+  const res = await coolifyFetch<PrivateKey[]>("/security/keys");
+  res.forEach((key) =>
+    optimisticUpdateOne(PrivateKeyKeys.queries.single(key.uuid), key)
+  );
+  return res;
 };
 
 export const getPrivateKey = async (uuid: string) => {
