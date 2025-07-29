@@ -8,6 +8,8 @@ import {
 } from "@tanstack/react-query";
 import {
   coolifyFetch,
+  onOptimisticUpdateError,
+  onOptimisticUpdateSettled,
   optimisticUpdateInsertOneToMany,
   optimisticUpdateOne,
 } from "./client";
@@ -76,6 +78,11 @@ export const DatabaseKeys = {
 };
 
 // Fetch functions
+/**
+ * This function sets the cache for the databases and returns the cache
+ * since not all databases are returned from the api. They can be get from
+ * getResources and the cache is filled from that.
+ */
 export const getDatabases = async () => {
   const data = await coolifyFetch<Database[]>("/databases");
   // Set individual database cache entries
@@ -120,12 +127,6 @@ export const updateDatabase = async (
   uuid: string,
   data: UpdateDatabaseBody
 ) => {
-  optimisticUpdateInsertOneToMany(DatabaseKeys.queries.all(), {
-    ...data,
-    uuid,
-  });
-  optimisticUpdateOne(DatabaseKeys.queries.single(uuid), data);
-
   return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -137,19 +138,18 @@ export const createDatabase = async (
   body: CreateDatabaseBody,
   type: CoolifyDatabases
 ) => {
-  const response = await coolifyFetch<ResourceCreateResponse>(
-    `/databases/${type}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body,
-    }
-  );
+  const res = await coolifyFetch<ResourceCreateResponse>(`/databases/${type}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  });
 
-  // Invalidate the databases list cache to refetch with the new database
-  queryClient.invalidateQueries({ queryKey: DatabaseKeys.queries.all() });
+  queryClient.prefetchQuery({
+    queryKey: DatabaseKeys.queries.single(res.uuid),
+    queryFn: () => getDatabase(res.uuid),
+  });
 
-  return response;
+  return res;
 };
 
 // Query hooks
@@ -219,6 +219,26 @@ export const useUpdateDatabase: UseUpdateDatabase = (uuid: string, options) => {
     mutationKey: DatabaseKeys.mutations.update(uuid),
     mutationFn: (data: UpdateDatabaseBody) => updateDatabase(uuid, data),
     ...options,
+    onMutate: async (data) => {
+      const update = await optimisticUpdateOne(
+        DatabaseKeys.queries.single(uuid),
+        data
+      );
+      const insert = await optimisticUpdateInsertOneToMany(
+        DatabaseKeys.queries.all(),
+        {
+          ...data,
+          uuid,
+        }
+      );
+      await options?.onMutate?.(data);
+      return { update, insert };
+    },
+    onError: (error, variables, context) => {
+      onOptimisticUpdateError(error, variables, context?.update);
+      onOptimisticUpdateError(error, variables, context?.insert);
+    },
+    onSettled: () => onOptimisticUpdateSettled(DatabaseKeys.queries.all())(),
   });
 };
 
@@ -239,5 +259,6 @@ export const useCreateDatabase = (
       type: CoolifyDatabases;
     }) => createDatabase(body, type),
     ...options,
+    onSettled: () => onOptimisticUpdateSettled(DatabaseKeys.queries.all())(),
   });
 };

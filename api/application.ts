@@ -360,10 +360,6 @@ export const useCreateApplication = <
     mutationFn: ({ body, type }: { body: B; type: T }) =>
       createApplication(body, type),
     ...options,
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ApplicationKeys.queries.all(),
-      });
-    },
+    onSettled: () => onOptimisticUpdateSettled(ApplicationKeys.queries.all())(),
   });
 };
