@@ -411,7 +411,7 @@ function ResourceScreenBase({
     refetch().finally(() => setIsRefreshing(false));
   };
 
-  useRefreshOnFocus(refetch as () => Promise<any>);
+  useRefreshOnFocus(refetch);
 
   const domains = useMemo<string[]>(
     () => extractDomains(data || ({} as ResourceData)),
