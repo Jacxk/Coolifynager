@@ -23,3 +23,8 @@ export type Project = ProjectBase & {
   updated_at: string;
   environments: ProjectEnvironment[];
 };
+
+export type ProjectCreateBody = {
+  name: string;
+  description: string;
+};

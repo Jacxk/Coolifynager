@@ -1,43 +1,88 @@
-import { queryClient } from "@/app/_layout";
-import { UseQueryOptions } from "@tanstack/react-query";
-import { coolifyFetch } from "./client";
-import { Database } from "./types/database.types";
-import { Resource, ResourceFromListType } from "./types/resources.types";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { ApplicationKeys, useApplication } from "./application";
+import {
+  coolifyFetch,
+  optimisticUpdateInsertOneToMany,
+  optimisticUpdateOne,
+} from "./client";
+import { DatabaseKeys, useDatabase } from "./databases";
+import { useProject } from "./projects";
+import { useServer } from "./servers";
+import { ServiceKeys, useService } from "./services";
+import { useTeam } from "./teams";
+import {
+  Resource,
+  ResourceFromListType,
+  ResourceType,
+} from "./types/resources.types";
 
-type QueryKey = string | number;
-
-const getQueryKeyFromType = (type: ResourceFromListType) => {
-  if (type !== "application" && type !== "service") {
-    return "database";
-  }
-  return type;
+// Query keys
+export const ResourceKeys = {
+  all: ["resources"],
+  queries: {
+    all: () => ResourceKeys.all,
+    single: (uuid: string) => [...ResourceKeys.all, uuid],
+  },
 };
 
-export const getResources = (
-  options?: Omit<
-    UseQueryOptions<Resource[], Error, Resource[], QueryKey[]>,
-    "queryKey" | "queryFn"
-  >
-) => ({
-  ...options,
-  queryKey: ["resources"],
-  queryFn: async () => {
-    const data = await coolifyFetch<Resource[]>("/resources");
-    data.forEach((resource) => {
-      const type = getQueryKeyFromType(resource.type);
-      const queryKey = [type, resource.uuid];
-      queryClient.setQueryData(queryKey, resource);
+const getQueryKeyFromType = (type: ResourceFromListType) => {
+  switch (type) {
+    case "application":
+      return ApplicationKeys.queries.all();
+    case "service":
+      return ServiceKeys.queries.all();
+    default:
+      return DatabaseKeys.queries.all();
+  }
+};
 
-      if (type === "database") {
-        queryClient.setQueryData(["databases"], (old: Database[]) => {
-          const index = old.findIndex((db) => db.uuid === resource.uuid);
-          if (index === -1) {
-            return [...old, resource];
-          }
-          return old;
-        });
-      }
-    });
-    return data;
-  },
-});
+// Fetch functions
+export const getResources = async () => {
+  const data = await coolifyFetch<Resource[]>("/resources");
+  data.forEach((resource) => {
+    const key = getQueryKeyFromType(resource.type);
+
+    optimisticUpdateInsertOneToMany(key, resource);
+    optimisticUpdateOne([...key, resource.uuid], resource);
+  });
+  return data;
+};
+
+// Query hooks
+export const useResource = <T extends Resource>(
+  uuid: string,
+  type: ResourceType,
+  options?: Omit<UseQueryOptions<T, Error>, "queryKey">
+) => {
+  if (!type) {
+    throw new Error("Resource type is required");
+  }
+
+  switch (type) {
+    case "application":
+      return useApplication(uuid, options as any);
+    case "database":
+      return useDatabase(uuid, options as any);
+    case "service":
+      return useService(uuid, options as any);
+    case "project":
+      return useProject(uuid, options as any);
+    case "server":
+      return useServer(uuid, options as any);
+    case "team":
+      return useTeam(uuid, options as any);
+    default:
+      throw new Error(`Unknown resource type: ${type}`);
+  }
+};
+
+export const useResources = (
+  type?: ResourceFromListType,
+  options?: UseQueryOptions<Resource[], Error>
+) => {
+  return useQuery({
+    queryKey: [...ResourceKeys.queries.all(), type],
+    queryFn: getResources,
+    ...options,
+  });
+};

@@ -2,7 +2,6 @@ import LogsViewer from "@/components/LogsViewer";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useIsFocused } from "@react-navigation/native";
-import { useQuery } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -12,21 +11,23 @@ type LogsData = {
 };
 
 type ResourceLogsProps = {
-  logsFetcher: (uuid: string, lines: number, options: any) => any;
+  useLogsFetcher: (uuid: string, lines: number, options: any) => any;
 };
 
-export function ResourceLogs({ logsFetcher }: ResourceLogsProps) {
+export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
   const { uuid } = useGlobalSearchParams<{ uuid: string }>();
   const isFocused = useIsFocused();
 
   const [lines, setLines] = useState("100");
   const [debouncedLines, setDebouncedLines] = useState("100");
 
-  const { data: logData, isPending: isPendingLogs } = useQuery(
-    logsFetcher(uuid, Number(debouncedLines), {
+  const { data: logData, isPending: isPendingLogs } = useLogsFetcher(
+    uuid,
+    Number(debouncedLines),
+    {
       refetchInterval: 2000,
       enabled: isFocused,
-    })
+    }
   );
 
   useEffect(() => {

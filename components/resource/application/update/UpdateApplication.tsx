@@ -1,4 +1,4 @@
-import { updateApplication } from "@/api/application";
+import { useUpdateApplication } from "@/api/application";
 import {
   Application,
   UpdateApplicationBody,
@@ -7,7 +7,6 @@ import { ResourceHttpError } from "@/api/types/resources.types";
 import { useEditing } from "@/context/EditingContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { getDirtyData } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -41,9 +40,7 @@ export default function UpdateApplication({ data }: { data: Application }) {
   });
   const [readonlyLabels, setReadonlyLabels] = useState(true);
 
-  const { mutateAsync: saveChanges } = useMutation(
-    updateApplication(data.uuid)
-  );
+  const { mutateAsync: saveChanges } = useUpdateApplication(data.uuid);
 
   const handleSave = (data: UpdateApplicationBody) => {
     const changedData = getDirtyData(data, dirtyFields);
