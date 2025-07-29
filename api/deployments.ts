@@ -7,7 +7,7 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 import { ApplicationKeys } from "./application";
-import { coolifyFetch } from "./client";
+import { coolifyFetch, optimisticUpdateOne } from "./client";
 import { ApplicationDeployment, Deployment } from "./types/deployments.types";
 
 // Query keys
@@ -35,17 +35,19 @@ export const DeploymentKeys = {
 // Fetch functions
 export const getDeployments = async () => {
   const data = await coolifyFetch<Deployment[]>("/deployments");
-  data.forEach((deployment) => {
-    queryClient.setQueryData(
+  data.forEach((deployment) =>
+    optimisticUpdateOne(
       DeploymentKeys.queries.single(deployment.deployment_uuid),
       deployment
-    );
-  });
+    )
+  );
   return data;
 };
 
-// Returns cached data from getDeploymentLogs if available,
-// since the logs are baked into a deployment object
+/**
+ * Returns cached data from getDeploymentLogs if available,
+ * since the logs are baked into a deployment object
+ */
 export const getDeployment = async (uuid: string) => {
   const old = queryClient.getQueryData<Deployment>(
     DeploymentKeys.queries.logs(uuid)
@@ -53,7 +55,7 @@ export const getDeployment = async (uuid: string) => {
   if (old) return old;
 
   const data = await coolifyFetch<Deployment>(`/deployments/${uuid}`);
-  queryClient.setQueryData(DeploymentKeys.queries.logs(uuid), data);
+  optimisticUpdateOne(DeploymentKeys.queries.logs(uuid), data);
   return data;
 };
 
@@ -79,11 +81,11 @@ export const getApplicationDeployments = async (
     `/deployments/applications/${uuid}?skip=${pageParam}&take=${pageSize}`
   );
   data.deployments.forEach((deployment) => {
-    queryClient.setQueryData(
+    optimisticUpdateOne(
       DeploymentKeys.queries.single(deployment.deployment_uuid),
       deployment
     );
-    queryClient.setQueryData(
+    optimisticUpdateOne(
       DeploymentKeys.queries.logs(deployment.deployment_uuid),
       deployment
     );
