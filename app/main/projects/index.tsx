@@ -118,6 +118,7 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
 export default function ProjectsIndex() {
   const { data, isPending, refetch } = useProjects();
   const [isRefreshing, setIsRefreshing] = useState(false);
+
   useRefreshOnFocus(refetch);
 
   if (isPending) {

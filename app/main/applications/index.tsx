@@ -3,12 +3,15 @@ import { ResourceCard } from "@/components/cards/ResourceCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { SafeView } from "@/components/SafeView";
 import { Text } from "@/components/ui/text";
+import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
 
 export default function ApplicationsIndex() {
   const { data, isPending, refetch } = useApplications();
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useRefreshOnFocus(refetch);
 
   if (isPending) {
     return <LoadingScreen />;

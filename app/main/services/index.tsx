@@ -3,12 +3,15 @@ import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
 import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
 import { Text } from "@/components/ui/text";
+import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
 
 export default function ServicesIndex() {
   const { data, isPending, refetch } = useServices();
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useRefreshOnFocus(refetch);
 
   if (isPending) {
     return <ResourcesSkeleton />;
