@@ -1,4 +1,4 @@
-import { createApplicationEnv } from "@/api/application";
+import { ApplicationKeys, useCreateApplicationEnv } from "@/api/application";
 import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/checkbox";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { router, useGlobalSearchParams } from "expo-router";
 import { useRef, useState } from "react";
 import { ScrollView, View } from "react-native";
@@ -24,20 +24,18 @@ export default function ApplicationEnvironmentsCreate() {
   const [isPreview, setIsPreview] = useState(true);
   const valueInputRef = useRef<any>(null);
 
-  const mutation = useMutation(
-    createApplicationEnv(uuid as string, {
-      onSuccess: () => {
-        toast.success("Environment variable created successfully");
-        queryClient.invalidateQueries({
-          queryKey: ["applications", "envs", uuid],
-        });
-        router.back();
-      },
-      onError: (error) => {
-        toast.error(error.message || "Failed to create environment variable");
-      },
-    })
-  );
+  const mutation = useCreateApplicationEnv(uuid as string, {
+    onSuccess: () => {
+      toast.success("Environment variable created successfully");
+      queryClient.invalidateQueries({
+        queryKey: ApplicationKeys.queries.envs(uuid as string),
+      });
+      router.back();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create environment variable");
+    },
+  });
 
   const handleSubmit = () => {
     mutation.mutate({

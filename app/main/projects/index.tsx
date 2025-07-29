@@ -1,4 +1,4 @@
-import { deleteProject, getProjects } from "@/api/projects";
+import { ProjectKeys, useDeleteProject, useProjects } from "@/api/projects";
 import { Project, ProjectBase } from "@/api/types/project.types";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
@@ -6,7 +6,7 @@ import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
 import { SwipeableCard } from "@/components/ui/swipe-card";
 import { Text } from "@/components/ui/text";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react-native";
 import { useRef, useState } from "react";
 import { View } from "react-native";
@@ -15,7 +15,7 @@ import { toast } from "sonner-native";
 
 const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
   const queryClient = useQueryClient();
-  const { mutate } = useMutation(deleteProject(uuid));
+  const { mutate } = useDeleteProject(uuid);
 
   const isUndo = useRef(false);
   const position = useRef(0);
@@ -27,6 +27,7 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
       clearTimeout(deletionTimeout.current);
     }
 
+    // Performs the hard delete
     deletionTimeout.current = setTimeout(() => {
       if (!isUndo.current) {
         mutate();
@@ -41,24 +42,24 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
       rightContentClassName="rounded-r-lg bg-red-400 dark:bg-red-500 -ml-4"
       rightContent={<Trash color="black" />}
       dismissOnSwipeLeft
-      onDismiss={() => {
-        const project = queryClient.getQueryData<Project>(["projects", uuid]);
+      onDismiss={async () => {
+        const queryKeyAll = ProjectKeys.queries.all();
+        const queryKeySingle = ProjectKeys.queries.single(uuid);
+        await queryClient.cancelQueries({ queryKey: queryKeyAll });
+
+        const project = queryClient.getQueryData<Project>(queryKeySingle);
 
         if (!project) return;
 
         isUndo.current = false;
 
-        queryClient.setQueryData(["projects"], (data: ProjectBase[]) => {
+        // Handles the optimistic update with undo
+        queryClient.setQueryData(queryKeyAll, (data: ProjectBase[]) => {
           const index = data.findIndex((d) => d.uuid === project.uuid);
           const newData = [...data];
           newData.splice(index, 1);
           position.current = index;
           return newData;
-        });
-
-        queryClient.removeQueries({
-          queryKey: ["projects", project.uuid],
-          exact: true,
         });
 
         toastId.current = toast.success("Project deleted", {
@@ -73,7 +74,8 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
                 deletionTimeout.current = null;
               }
 
-              queryClient.setQueryData(["projects"], (data: ProjectBase[]) => {
+              // Handles the optimistic update with undo
+              queryClient.setQueryData(queryKeyAll, (data: ProjectBase[]) => {
                 const existingIndex = data.findIndex(
                   (d) => d.uuid === project.uuid
                 );
@@ -86,10 +88,8 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
                 return newData;
               });
 
-              queryClient.setQueryData<Project>(
-                ["projects", project.uuid],
-                project
-              );
+              // Handles the optimistic update with undo
+              queryClient.setQueryData<Project>(queryKeySingle, project);
 
               if (toastId.current) {
                 toast.dismiss(toastId.current);
@@ -116,8 +116,9 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
 };
 
 export default function ProjectsIndex() {
-  const { data, isPending, refetch } = useQuery(getProjects());
+  const { data, isPending, refetch } = useProjects();
   const [isRefreshing, setIsRefreshing] = useState(false);
+
   useRefreshOnFocus(refetch);
 
   if (isPending) {

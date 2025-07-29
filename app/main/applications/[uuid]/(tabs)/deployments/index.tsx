@@ -1,11 +1,10 @@
-import { getApplicationDeployments } from "@/api/deployments";
+import { useApplicationDeployments } from "@/api/deployments";
 import { DeploymentCard } from "@/components/cards/DeploymentCard";
 import { SafeView } from "@/components/SafeView";
 import { SkeletonCard } from "@/components/skeletons/SkeletonCard";
 import { Text } from "@/components/ui/text";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useIsFocused } from "@react-navigation/native";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
@@ -20,12 +19,10 @@ export default function DeploymentsStack() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery(
-    getApplicationDeployments(uuid, 5, {
-      refetchInterval: 20000,
-      enabled: isFocused,
-    })
-  );
+  } = useApplicationDeployments(uuid, 5, {
+    refetchInterval: 20000,
+    enabled: isFocused,
+  });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 

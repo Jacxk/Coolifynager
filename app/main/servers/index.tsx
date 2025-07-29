@@ -1,14 +1,13 @@
-import { getServers } from "@/api/servers";
+import { useServers } from "@/api/servers";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
 import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
 import { Text } from "@/components/ui/text";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FlatList, View } from "react-native";
 
 export default function ServersIndex() {
-  const { data, isPending, refetch } = useQuery(getServers());
+  const { data, isPending, refetch } = useServers();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   if (isPending) {

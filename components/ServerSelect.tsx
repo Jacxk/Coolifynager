@@ -1,6 +1,5 @@
-import { getServers } from "@/api/servers";
+import { useServers } from "@/api/servers";
 import useStorage from "@/hooks/useStorage";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,7 +24,7 @@ export default function ServerSelect({
   label = "Server",
 }: ServerSelectProps) {
   const insets = useSafeAreaInsets();
-  const { data: servers, refetch } = useQuery(getServers());
+  const { data: servers, refetch } = useServers();
   const { server, setServer } = useStorage({});
 
   useEffect(() => {

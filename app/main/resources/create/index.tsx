@@ -1,5 +1,5 @@
-import { createDatabase } from "@/api/databases";
-import { createService } from "@/api/services";
+import { useCreateDatabase } from "@/api/databases";
+import { useCreateService } from "@/api/services";
 import {
   CoolifyApplicationMetadataList,
   CoolifyApplications,
@@ -40,7 +40,6 @@ import {
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import useStorage from "@/hooks/useStorage";
-import { useMutation } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
 import { useState } from "react";
@@ -97,8 +96,8 @@ export default function CreateResource() {
   const [selectedResource, setSelectedResource] =
     useState<CoolifyResourceMetadata | null>(null);
 
-  const { mutateAsync: createServiceMutation } = useMutation(createService());
-  const { mutateAsync: createDatabaseMutation } = useMutation(createDatabase());
+  const { mutateAsync: createServiceMutation } = useCreateService();
+  const { mutateAsync: createDatabaseMutation } = useCreateDatabase();
 
   const applications: CoolifyResourceMetadata[] =
     CoolifyApplicationMetadataList;

@@ -1,4 +1,4 @@
-import { updateService } from "@/api/services";
+import { useUpdateService } from "@/api/services";
 import { ResourceHttpError } from "@/api/types/resources.types";
 import { Service, UpdateServiceBody } from "@/api/types/services.types";
 import InfoDialog from "@/components/InfoDialog";
@@ -13,7 +13,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { H3 } from "@/components/ui/typography";
 import { useEditing } from "@/context/EditingContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
-import { useMutation } from "@tanstack/react-query";
 import { openBrowserAsync } from "expo-web-browser";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -41,7 +40,7 @@ export default function UpdateService({ data }: { data: Service }) {
     values: getInitialValues(data),
   });
   const [showDeployableCompose, setShowDeployableCompose] = useState(false);
-  const { mutateAsync: saveChanges } = useMutation(updateService(data.uuid));
+  const { mutateAsync: saveChanges } = useUpdateService(data.uuid);
 
   const handleSave = (data: UpdateServiceBody) => {
     toast.promise(saveChanges(data), {
