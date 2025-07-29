@@ -1,6 +1,10 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { ApplicationKeys, useApplication } from "./application";
-import { coolifyFetch, optimisticUpdate, optimisticUpdateMany } from "./client";
+import {
+  coolifyFetch,
+  optimisticUpdateInsertOneToMany,
+  optimisticUpdateOne,
+} from "./client";
 import { DatabaseKeys, useDatabase } from "./databases";
 import { useProject } from "./projects";
 import { useServer } from "./servers";
@@ -38,8 +42,8 @@ export const getResources = async () => {
   data.forEach((resource) => {
     const key = getQueryKeyFromType(resource.type);
 
-    optimisticUpdateMany(key, resource);
-    optimisticUpdate([...key, resource.uuid], resource);
+    optimisticUpdateInsertOneToMany(key, resource);
+    optimisticUpdateOne([...key, resource.uuid], resource);
   });
   return data;
 };

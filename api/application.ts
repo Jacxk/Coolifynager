@@ -6,7 +6,13 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { coolifyFetch, optimisticUpdate, optimisticUpdateMany } from "./client";
+import {
+  coolifyFetch,
+  onOptimisticUpdateError,
+  onOptimisticUpdateSettled,
+  optimisticUpdateInsertOneToMany,
+  optimisticUpdateOne,
+} from "./client";
 import {
   Application,
   ApplicationActionResponse,
@@ -91,23 +97,19 @@ export const ApplicationKeys = {
 
 // Fetch functions
 export const getApplications = async () => {
-  const applications = await coolifyFetch<Application[]>("/applications");
-
-  applications.forEach((application) => {
-    queryClient.setQueryData(
-      ApplicationKeys.queries.single(application.uuid),
-      application
-    );
-  });
-
-  return applications;
+  const data = await coolifyFetch<Application[]>("/applications");
+  data.forEach((app) =>
+    optimisticUpdateOne(ApplicationKeys.queries.single(app.uuid), app)
+  );
+  return data;
 };
 
 export const getApplication = async (uuid: string) => {
-  const data = await coolifyFetch<Application>(`/applications/${uuid}`);
-  // Update the applications list cache with the new application
-  optimisticUpdateMany(ApplicationKeys.queries.all(), data);
-  return data;
+  queryClient.cancelQueries({
+    queryKey: ApplicationKeys.queries.all(),
+    exact: true,
+  });
+  return coolifyFetch<Application>(`/applications/${uuid}`);
 };
 
 export const getApplicationLogs = async (uuid: string, lines = 100) => {
@@ -124,7 +126,7 @@ export const createApplicationEnv = async (
   uuid: string,
   body: CreateApplicationEnvBody
 ) => {
-  const data = await coolifyFetch<CreateApplicationEnvResponse>(
+  return coolifyFetch<CreateApplicationEnvResponse>(
     `/applications/${uuid}/envs`,
     {
       method: "POST",
@@ -132,17 +134,6 @@ export const createApplicationEnv = async (
       body,
     }
   );
-
-  if ("message" in data) {
-    throw data;
-  }
-
-  queryClient.setQueryData(
-    ApplicationKeys.queries.envs(uuid),
-    (old: ApplicationEnv[]) => [...old, { ...body, uuid: data.uuid }]
-  );
-
-  return data;
 };
 
 export const startApplication = async (
@@ -181,12 +172,6 @@ export const updateApplication = async (
   uuid: string,
   body: UpdateApplicationBody
 ) => {
-  // Update individual application cache
-  optimisticUpdate(ApplicationKeys.queries.single(uuid), body);
-
-  // Update applications list cache
-  optimisticUpdateMany(ApplicationKeys.queries.all(), { ...body, uuid });
-
   return coolifyFetch<ResourceActionResponse>(`/applications/${uuid}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -277,6 +262,16 @@ export const useCreateApplicationEnv = (
     mutationFn: (body: CreateApplicationEnvBody) =>
       createApplicationEnv(uuid, body),
     ...options,
+    onMutate: async (env) => {
+      const update = await optimisticUpdateInsertOneToMany(
+        ApplicationKeys.queries.envs(uuid),
+        { ...env, uuid: crypto.randomUUID() }
+      );
+      await options?.onMutate?.(env);
+      return update;
+    },
+    onError: onOptimisticUpdateError,
+    onSettled: onOptimisticUpdateSettled(),
   });
 };
 
@@ -327,6 +322,26 @@ export const useUpdateApplication: UseUpdateApplication = (
     mutationKey: ApplicationKeys.mutations.update(uuid),
     mutationFn: (body: UpdateApplicationBody) => updateApplication(uuid, body),
     ...options,
+    onMutate: async (body) => {
+      const update = await optimisticUpdateOne(
+        ApplicationKeys.queries.single(uuid),
+        body
+      );
+      const insert = await optimisticUpdateInsertOneToMany(
+        ApplicationKeys.queries.all(),
+        {
+          ...body,
+          uuid,
+        }
+      );
+      await options?.onMutate?.(body);
+      return { update, insert };
+    },
+    onError: (error, variables, context) => {
+      onOptimisticUpdateError(error, variables, context?.update);
+      onOptimisticUpdateError(error, variables, context?.insert);
+    },
+    onSettled: () => onOptimisticUpdateSettled(ApplicationKeys.queries.all())(),
   });
 };
 
@@ -345,5 +360,10 @@ export const useCreateApplication = <
     mutationFn: ({ body, type }: { body: B; type: T }) =>
       createApplication(body, type),
     ...options,
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ApplicationKeys.queries.all(),
+      });
+    },
   });
 };

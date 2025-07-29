@@ -5,8 +5,8 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { coolifyFetch } from "./client";
-import { PartialProject, Project, ProjectBase } from "./types/project.types";
+import { coolifyFetch, optimisticUpdateInsertOneToMany } from "./client";
+import { PartialProject, Project } from "./types/project.types";
 import { ResourceActionResponse } from "./types/resources.types";
 
 // Query keys
@@ -46,7 +46,10 @@ export const createProject = async (data: PartialProject) => {
 
   queryClient.prefetchQuery({
     queryKey: ProjectKeys.queries.single(response.uuid),
-    queryFn: () => getProject(response.uuid),
+    queryFn: () =>
+      getProject(response.uuid).then((project) =>
+        optimisticUpdateInsertOneToMany(ProjectKeys.queries.all(), project)
+      ),
   });
   return response;
 };
@@ -59,13 +62,9 @@ export const deleteProject = async (uuid: string) => {
     }
   );
 
-  queryClient.removeQueries({
-    queryKey: ProjectKeys.queries.single(uuid),
-    exact: true,
+  queryClient.invalidateQueries({
+    queryKey: ProjectKeys.queries.all(),
   });
-  queryClient.setQueryData(ProjectKeys.all, (data: ProjectBase[]) =>
-    data.filter((d) => d.uuid !== uuid)
-  );
 
   return response;
 };

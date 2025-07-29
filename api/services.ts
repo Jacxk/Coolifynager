@@ -6,7 +6,11 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { coolifyFetch, optimisticUpdate, optimisticUpdateMany } from "./client";
+import {
+  coolifyFetch,
+  optimisticUpdateInsertOneToMany,
+  optimisticUpdateOne,
+} from "./client";
 import {
   DeleteResourceParams,
   ResourceActionResponse,
@@ -85,7 +89,7 @@ export const getServices = async () => {
 export const getService = async (uuid: string) => {
   const data = await coolifyFetch<Service>(`/services/${uuid}`);
   // Update the services list cache with the new service
-  optimisticUpdateMany(ServiceKeys.queries.all(), data);
+  optimisticUpdateInsertOneToMany(ServiceKeys.queries.all(), data);
   return data;
 };
 
@@ -113,10 +117,10 @@ export const restartService = async (uuid: string) => {
 
 export const updateService = async (uuid: string, data: UpdateServiceBody) => {
   // Update individual service cache
-  optimisticUpdate(ServiceKeys.queries.single(uuid), data);
+  optimisticUpdateOne(ServiceKeys.queries.single(uuid), data);
 
   // Update services list cache
-  optimisticUpdateMany(ServiceKeys.queries.all(), { ...data, uuid });
+  optimisticUpdateInsertOneToMany(ServiceKeys.queries.all(), { ...data, uuid });
 
   throw new Error("Not implemented");
   // TODO: Uncomment this when the API is updated

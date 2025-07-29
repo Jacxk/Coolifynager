@@ -6,7 +6,11 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { coolifyFetch, optimisticUpdate, optimisticUpdateMany } from "./client";
+import {
+  coolifyFetch,
+  optimisticUpdateInsertOneToMany,
+  optimisticUpdateOne,
+} from "./client";
 import {
   CoolifyDatabases,
   CreateDatabaseBody,
@@ -76,8 +80,8 @@ export const getDatabases = async () => {
   const data = await coolifyFetch<Database[]>("/databases");
   // Set individual database cache entries
   data.forEach((database) => {
-    optimisticUpdateMany(DatabaseKeys.queries.all(), database);
-    optimisticUpdate(DatabaseKeys.queries.single(database.uuid), database);
+    optimisticUpdateInsertOneToMany(DatabaseKeys.queries.all(), database);
+    optimisticUpdateOne(DatabaseKeys.queries.single(database.uuid), database);
   });
 
   return queryClient.getQueryData(DatabaseKeys.queries.all()) as Database[];
@@ -86,7 +90,7 @@ export const getDatabases = async () => {
 export const getDatabase = async (uuid: string) => {
   const data = await coolifyFetch<Database>(`/databases/${uuid}`);
   // Update the databases list cache with the new database
-  optimisticUpdateMany(DatabaseKeys.queries.all(), data);
+  optimisticUpdateInsertOneToMany(DatabaseKeys.queries.all(), data);
   return data;
 };
 
@@ -116,11 +120,11 @@ export const updateDatabase = async (
   uuid: string,
   data: UpdateDatabaseBody
 ) => {
-  // Update individual database cache
-  optimisticUpdate(DatabaseKeys.queries.single(uuid), data);
-
-  // Update databases list cache
-  optimisticUpdateMany(DatabaseKeys.queries.all(), { ...data, uuid });
+  optimisticUpdateInsertOneToMany(DatabaseKeys.queries.all(), {
+    ...data,
+    uuid,
+  });
+  optimisticUpdateOne(DatabaseKeys.queries.single(uuid), data);
 
   return coolifyFetch<ResourceActionResponse>(`/databases/${uuid}`, {
     method: "PATCH",
