@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-query";
 import {
   coolifyFetch,
-  optimisticUpdateInsertOneToMany,
+  onOptimisticUpdateError,
   optimisticUpdateOne,
 } from "./client";
 import {
@@ -80,17 +80,18 @@ export const ServiceKeys = {
 // Fetch functions
 export const getServices = async () => {
   const data = await coolifyFetch<Service[]>("/services");
-  data.forEach((service) => {
-    queryClient.setQueryData(ServiceKeys.queries.single(service.uuid), service);
-  });
+  data.forEach((service) =>
+    optimisticUpdateOne(ServiceKeys.queries.single(service.uuid), service)
+  );
   return data;
 };
 
 export const getService = async (uuid: string) => {
-  const data = await coolifyFetch<Service>(`/services/${uuid}`);
-  // Update the services list cache with the new service
-  optimisticUpdateInsertOneToMany(ServiceKeys.queries.all(), data);
-  return data;
+  queryClient.cancelQueries({
+    queryKey: ServiceKeys.queries.all(),
+    exact: true,
+  });
+  return coolifyFetch<Service>(`/services/${uuid}`);
 };
 
 export const getServiceLogs = async (uuid: string, lines = 100) => {
@@ -116,12 +117,6 @@ export const restartService = async (uuid: string) => {
 };
 
 export const updateService = async (uuid: string, data: UpdateServiceBody) => {
-  // Update individual service cache
-  optimisticUpdateOne(ServiceKeys.queries.single(uuid), data);
-
-  // Update services list cache
-  optimisticUpdateInsertOneToMany(ServiceKeys.queries.all(), { ...data, uuid });
-
   throw new Error("Not implemented");
   // TODO: Uncomment this when the API is updated
   // return coolifyFetch<ResourceActionResponse>(`/services/${uuid}`, {
@@ -137,12 +132,10 @@ export const createService = async (data: CreateServiceBody) => {
     body: data,
   });
 
-  if ("uuid" in response) {
-    queryClient.prefetchQuery({
-      queryKey: ServiceKeys.queries.single(response.uuid),
-      queryFn: () => getService(response.uuid),
-    });
-  }
+  queryClient.prefetchQuery({
+    queryKey: ServiceKeys.queries.single(response.uuid),
+    queryFn: () => getService(response.uuid),
+  });
 
   return response;
 };
@@ -151,11 +144,6 @@ export const deleteService = async (
   uuid: string,
   data: DeleteResourceParams
 ) => {
-  queryClient.removeQueries({
-    queryKey: ServiceKeys.queries.single(uuid),
-    exact: true,
-  });
-
   return coolifyFetch<ResourceActionResponse>(
     `/services/${uuid}?${new URLSearchParams(
       data as unknown as Record<string, string>
@@ -228,7 +216,7 @@ export const useRestartService: UseRestartService = (uuid: string, options) => {
 export const useUpdateService: UseUpdateService = (uuid: string, options) => {
   return useMutation({
     mutationKey: ServiceKeys.mutations.update(uuid),
-    mutationFn: (data: UpdateServiceBody) => updateService(uuid, data),
+    mutationFn: (data) => updateService(uuid, data),
     ...options,
   });
 };
@@ -238,8 +226,14 @@ export const useCreateService = (
 ) => {
   return useMutation({
     mutationKey: ServiceKeys.mutations.create(),
-    mutationFn: (data: CreateServiceBody) => createService(data),
+    mutationFn: createService,
     ...options,
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ServiceKeys.queries.all(),
+        exact: true,
+      });
+    },
   });
 };
 
@@ -253,7 +247,22 @@ export const useDeleteService = (
 ) => {
   return useMutation({
     mutationKey: ServiceKeys.mutations.delete(uuid),
-    mutationFn: (data: DeleteResourceParams) => deleteService(uuid, data),
+    mutationFn: (data) => deleteService(uuid, data),
     ...options,
+    onMutate: async () => {
+      const queryKey = ServiceKeys.queries.single(uuid);
+      const previousData = queryClient.getQueryData<Service[]>(queryKey);
+
+      queryClient.setQueryData(queryKey, undefined);
+
+      return { previousData, queryKey };
+    },
+    onError: onOptimisticUpdateError,
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ServiceKeys.queries.all(),
+        exact: true,
+      });
+    },
   });
 };
