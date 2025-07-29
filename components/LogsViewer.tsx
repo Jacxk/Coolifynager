@@ -1,3 +1,4 @@
+import { ResourceHttpError } from "@/api/types/resources.types";
 import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -25,6 +26,7 @@ type LogsViewerProps = {
   logs?: string | LogObject[];
   isLoading?: boolean;
   className?: string;
+  error?: ResourceHttpError;
 };
 
 function LogLineItem({
@@ -52,6 +54,7 @@ export default function LogsViewer({
   logs,
   isLoading,
   className,
+  error,
 }: LogsViewerProps) {
   const isLogString = typeof logs === "string";
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -88,7 +91,7 @@ export default function LogsViewer({
     <View className="flex-1 relative">
       <FlatList
         ref={scrollViewRef}
-        inverted={isLoading || !noLogs}
+        inverted={error?.message === undefined || !noLogs}
         invertStickyHeaders
         onScroll={onScroll}
         scrollEventThrottle={16}
@@ -101,6 +104,15 @@ export default function LogsViewer({
         )}
         keyExtractor={(_, index) => `line-${index.toString()}`}
         ListEmptyComponent={() => {
+          if (error)
+            return (
+              <View className="flex-1 pt-4 items-center">
+                <Text className="border-0 text-muted-foreground font-mono">
+                  {error?.message}
+                </Text>
+              </View>
+            );
+
           if (isLoading)
             return (
               <View className="gap-2">
