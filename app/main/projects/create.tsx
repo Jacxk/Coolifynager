@@ -1,10 +1,9 @@
-import { createProject } from "@/api/projects";
+import { useCreateProject } from "@/api/projects";
 import { PartialProject } from "@/api/types/project.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAvoidingView, View } from "react-native";
@@ -19,7 +18,7 @@ export default function CreateProject() {
     },
   });
 
-  const { mutateAsync } = useMutation(createProject());
+  const { mutateAsync } = useCreateProject();
 
   const onSubmit = (data: PartialProject) => {
     toast.promise(mutateAsync(data), {

@@ -1,4 +1,4 @@
-import { getDeploymentLogs } from "@/api/deployments";
+import { useDeploymentLogs } from "@/api/deployments";
 import { DeploymentLogData } from "@/api/types/deployments.types";
 import LogsViewer from "@/components/LogsViewer";
 import { SafeView } from "@/components/SafeView";
@@ -7,7 +7,6 @@ import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
 import { StatusText } from "@/utils/status";
 import { useIsFocused } from "@react-navigation/native";
-import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { View } from "react-native";
@@ -21,12 +20,10 @@ export default function DeploymentLogs() {
   const isFocused = useIsFocused();
   const [isFinished, setIsFinished] = useState(false);
 
-  const { data, isPending } = useQuery(
-    getDeploymentLogs(deployment_uuid, {
-      refetchInterval: 2000,
-      enabled: isFocused && !isFinished,
-    })
-  );
+  const { data, isPending } = useDeploymentLogs(deployment_uuid, {
+    refetchInterval: 2000,
+    enabled: isFocused && !isFinished,
+  });
 
   useEffect(() => {
     if (

@@ -1,15 +1,16 @@
-import { getApplication } from "@/api/application";
-import { getDatabase } from "@/api/databases";
-import { getProject } from "@/api/projects";
-import { getServer } from "@/api/servers";
-import { getService } from "@/api/services";
-import { getTeam } from "@/api/teams";
+import { ApplicationKeys, getApplication } from "@/api/application";
+import { DatabaseKeys, getDatabase } from "@/api/databases";
+import { getProject, ProjectKeys } from "@/api/projects";
+import { getServer, ServerKeys } from "@/api/servers";
+import { getService, ServiceKeys } from "@/api/services";
+import { getTeam, TeamKeys } from "@/api/teams";
 import { ResourceType } from "@/api/types/resources.types";
 import { Text } from "@/components/ui/text";
 import { useFavorites } from "@/context/FavoritesContext";
 import { groupBy } from "@/lib/utils";
 import { useQueries, UseQueryOptions } from "@tanstack/react-query";
 import { LinkProps } from "expo-router";
+import { useEffect } from "react";
 import { View } from "react-native";
 import { ResourceCard } from "./cards/ResourceCard";
 import { SkeletonCard } from "./skeletons/SkeletonCard";
@@ -70,24 +71,46 @@ type ResourceData = {
   type: ResourceType;
 };
 
-export function FavoritesList() {
+export function FavoritesList({
+  onFinishLoading,
+}: {
+  onFinishLoading: () => void;
+}) {
   const { favorites } = useFavorites();
 
-  const { data, pending } = useQueries({
+  const { data, pending, fetched } = useQueries({
     queries: favorites.map((favorite) => {
       switch (favorite.type) {
         case "application":
-          return getApplication(favorite.uuid);
+          return {
+            queryKey: ApplicationKeys.queries.single(favorite.uuid),
+            queryFn: () => getApplication(favorite.uuid),
+          };
         case "service":
-          return getService(favorite.uuid);
+          return {
+            queryKey: ServiceKeys.queries.single(favorite.uuid),
+            queryFn: () => getService(favorite.uuid),
+          };
         case "database":
-          return getDatabase(favorite.uuid);
+          return {
+            queryKey: DatabaseKeys.queries.single(favorite.uuid),
+            queryFn: () => getDatabase(favorite.uuid),
+          };
         case "project":
-          return getProject(favorite.uuid);
+          return {
+            queryKey: ProjectKeys.queries.single(favorite.uuid),
+            queryFn: () => getProject(favorite.uuid),
+          };
         case "server":
-          return getServer(favorite.uuid);
+          return {
+            queryKey: ServerKeys.queries.single(favorite.uuid),
+            queryFn: () => getServer(favorite.uuid),
+          };
         case "team":
-          return getTeam(favorite.uuid);
+          return {
+            queryKey: TeamKeys.queries.single(favorite.uuid),
+            queryFn: () => getTeam(favorite.uuid),
+          };
         default:
           return {
             queryKey: ["disabled", favorite.uuid],
@@ -112,9 +135,14 @@ export function FavoritesList() {
           } as ResourceData;
         }),
         pending: results.some((result) => result.isPending),
+        fetched: results.every((result) => result.isFetched),
       };
     },
   });
+
+  useEffect(() => {
+    if (fetched) onFinishLoading();
+  }, [fetched, onFinishLoading]);
 
   if (favorites.length === 0) {
     return (

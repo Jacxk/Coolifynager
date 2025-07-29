@@ -1,4 +1,4 @@
-import { getApplicationEnvs } from "@/api/application";
+import { ApplicationKeys, useApplicationEnvs } from "@/api/application";
 import { ApplicationEnv } from "@/api/types/application.types";
 import LoadingScreen from "@/components/LoadingScreen";
 import {
@@ -9,7 +9,7 @@ import {
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { RefreshControl, SectionList, View } from "react-native";
 import { Card, CardContent } from "./ui/card";
@@ -21,7 +21,7 @@ type SectionData = {
 };
 
 export default function EnvironmentVariableList({ uuid }: { uuid: string }) {
-  const { data: envs, isPending } = useQuery(getApplicationEnvs(uuid));
+  const { data: envs, isPending } = useApplicationEnvs(uuid);
 
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -29,7 +29,7 @@ export default function EnvironmentVariableList({ uuid }: { uuid: string }) {
   const onRefresh = async () => {
     setIsRefreshing(true);
     queryClient
-      .invalidateQueries({ queryKey: ["applications", "envs", uuid] })
+      .invalidateQueries({ queryKey: ApplicationKeys.queries.envs(uuid) })
       .finally(() => setIsRefreshing(false));
   };
 

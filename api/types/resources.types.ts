@@ -131,11 +131,9 @@ export type ResourceHttpError = {
   };
 };
 
-export type ResourceUpdateResponse =
-  | ResourceHttpError
-  | {
-      uuid: string;
-    };
+export type ResourceUpdateResponse = {
+  uuid: string;
+};
 
 export type CoolifyResourceMetadata = {
   name: string;
