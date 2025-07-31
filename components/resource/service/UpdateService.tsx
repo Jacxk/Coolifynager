@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { H3 } from "@/components/ui/typography";
 import { useEditing } from "@/context/EditingContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
+import { getDirtyData } from "@/lib/utils";
 import { openBrowserAsync } from "expo-web-browser";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -29,34 +30,50 @@ const getInitialValues = (data: Service): UpdateServiceBody => ({
   server_uuid: data.server.uuid,
 });
 
-export default function UpdateService({ data }: { data: Service }) {
+export default function UpdateService({
+  data: initialData,
+}: {
+  data: Service;
+}) {
   const { setIsEditing } = useEditing();
   const {
     control,
     reset,
     handleSubmit,
-    formState: { isDirty },
+    formState: { isDirty, dirtyFields },
   } = useForm<UpdateServiceBody>({
-    values: getInitialValues(data),
+    values: getInitialValues(initialData),
   });
   const [showDeployableCompose, setShowDeployableCompose] = useState(false);
-  const { mutateAsync: saveChanges } = useUpdateService(data.uuid);
+  const { mutateAsync: saveChanges } = useUpdateService(initialData.uuid);
 
   const handleSave = (data: UpdateServiceBody) => {
-    toast.promise(saveChanges(data), {
-      loading: "Saving changes...",
-      success: () => {
-        reset((data) => data, {
-          keepDirtyValues: true,
-        });
-        setIsEditing(false);
-        return "Changes saved successfully!";
-      },
-      error: (err: unknown) => {
-        console.log(err);
-        return (err as ResourceHttpError).message ?? "Failed to save changes.";
-      },
-    });
+    const changedData = getDirtyData(data, dirtyFields);
+
+    toast.promise(
+      saveChanges({
+        ...changedData,
+        docker_compose_raw: Buffer.from(data.docker_compose ?? "").toString(
+          "base64"
+        ),
+        server_uuid: initialData.server.uuid,
+        project_uuid: undefined, // TODO: figure out how to get this, it's not on the API response
+      }),
+      {
+        loading: "Saving changes...",
+        success: () => {
+          reset();
+          setIsEditing(false);
+          return "Changes saved successfully!";
+        },
+        error: (err: unknown) => {
+          console.log(err);
+          return (
+            (err as ResourceHttpError).message ?? "Failed to save changes."
+          );
+        },
+      }
+    );
   };
 
   const handleCancel = () => {
@@ -142,7 +159,7 @@ export default function UpdateService({ data }: { data: Service }) {
               placeholder="Docker Compose"
               onChangeText={onChange}
               onBlur={onBlur}
-              value={showDeployableCompose ? data.docker_compose : value}
+              value={showDeployableCompose ? initialData.docker_compose : value}
               editable={false}
             />
           )}

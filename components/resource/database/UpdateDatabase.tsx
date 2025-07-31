@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useEditing } from "@/context/EditingContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
+import { getDirtyData } from "@/lib/utils";
 import { openBrowserAsync } from "expo-web-browser";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -129,25 +130,20 @@ export default function UpdateDatabase({ data }: { data: Database }) {
   const { mutateAsync: saveChanges } = useUpdateDatabase(data.uuid);
 
   const handleSave = (formData: UpdateDatabaseBody) => {
-    // Handle database-specific data processing
-    let processedData = { ...formData };
+    const changedData = getDirtyData(formData, dirtyFields);
 
-    if (isPostgreSQLDatabase(data) && "postgres_conf" in formData) {
-      processedData = {
-        ...processedData,
-        postgres_conf: Buffer.from(
-          formData.postgres_conf ?? "",
-          "utf-8"
-        ).toString("base64"),
-      };
+    // Handle database-specific data processing
+    if (isPostgreSQLDatabase(data) && "postgres_conf" in changedData) {
+      changedData.postgres_conf = Buffer.from(
+        changedData.postgres_conf ?? "",
+        "utf-8"
+      ).toString("base64");
     }
 
-    toast.promise(saveChanges(processedData), {
+    toast.promise(saveChanges(changedData), {
       loading: "Saving changes...",
       success: () => {
-        reset((data) => data, {
-          keepDirtyValues: true,
-        });
+        reset();
         setIsEditing(false);
         return "Changes saved successfully!";
       },

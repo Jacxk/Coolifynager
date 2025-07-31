@@ -1,12 +1,12 @@
 import { useUpdateApplication } from "@/api/application";
 import {
   Application,
-  BuildPack,
   UpdateApplicationBody,
 } from "@/api/types/application.types";
 import { ResourceHttpError } from "@/api/types/resources.types";
 import { useEditing } from "@/context/EditingContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
+import { getDirtyData } from "@/lib/utils";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -19,35 +19,6 @@ import GeneralSection from "./GeneralSection";
 import HTTPBasicAuthSection from "./HTTPBasicAuthSection";
 import NetworkSection from "./NetworkSection";
 
-const getInitialValues = (data: Application): UpdateApplicationBody => ({
-  ports_mappings: data.ports_mappings,
-  build_pack: data.build_pack,
-  static_image:
-    data.static_image === "false" ? "nginx:alpine" : data.static_image,
-  custom_nginx_configuration: data.custom_nginx_configuration,
-  redirect: data.redirect,
-  domains: data.fqdn?.split(",").join("\n"),
-  install_command: data.install_command,
-  build_command: data.build_command,
-  start_command: data.start_command,
-  base_directory: data.base_directory,
-  publish_directory: data.publish_directory,
-  docker_compose_location: data.docker_compose_location,
-  docker_compose_custom_build_command: data.docker_compose_custom_build_command,
-  docker_compose_custom_start_command: data.docker_compose_custom_start_command,
-  watch_paths: data.watch_paths,
-  custom_docker_run_options: data.custom_docker_run_options,
-  use_build_server: data.destination.server.settings.is_build_server,
-  ports_exposes: data.ports_exposes,
-  custom_network_aliases: data.custom_network_aliases,
-  is_http_basic_auth_enabled: data.is_http_basic_auth_enabled,
-  http_basic_auth_username: data.http_basic_auth_username,
-  http_basic_auth_password: data.http_basic_auth_password,
-  custom_labels: data.custom_labels,
-  pre_deployment_command: data.pre_deployment_command,
-  post_deployment_command: data.post_deployment_command,
-});
-
 export default function UpdateApplication({ data }: { data: Application }) {
   const { setIsEditing } = useEditing();
   const {
@@ -56,41 +27,44 @@ export default function UpdateApplication({ data }: { data: Application }) {
     handleSubmit,
     formState: { errors, dirtyFields },
   } = useForm<UpdateApplicationBody>({
-    values: getInitialValues(data),
+    shouldUnregister: true,
+    values: {
+      ...data,
+      static_image:
+        data.static_image === "false" ? "nginx:alpine" : data.static_image,
+      domains: data.fqdn?.split(",").join("\n"),
+    },
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   });
   const [readonlyLabels, setReadonlyLabels] = useState(true);
 
   const { mutateAsync: saveChanges } = useUpdateApplication(data.uuid);
 
   const handleSave = (data: UpdateApplicationBody) => {
-    toast.promise(
-      saveChanges({
-        ...data,
-        domains: data.domains?.split("\n").join(","),
-        custom_nginx_configuration:
-          data.build_pack === BuildPack.static
-            ? Buffer.from(data.custom_nginx_configuration ?? "").toString(
-                "base64"
-              )
-            : undefined,
-      }),
-      {
-        loading: "Saving changes...",
-        success: () => {
-          reset((data) => data, {
-            keepDirtyValues: true,
-          });
-          setIsEditing(false);
-          return "Changes saved successfully!";
-        },
-        error: (err: unknown) => {
-          console.log(err);
-          return (
-            (err as ResourceHttpError).message ?? "Failed to save changes."
-          );
-        },
-      }
-    );
+    const changedData = getDirtyData(data, dirtyFields);
+    if ("domains" in changedData) {
+      changedData.domains = changedData.domains?.split("\n").join(",");
+    }
+    if ("custom_nginx_configuration" in changedData) {
+      changedData.custom_nginx_configuration = Buffer.from(
+        changedData.custom_nginx_configuration ?? ""
+      ).toString("base64");
+    }
+
+    toast.promise(saveChanges(changedData), {
+      loading: "Saving changes...",
+      success: () => {
+        reset();
+        setIsEditing(false);
+        return "Changes saved successfully!";
+      },
+      error: (err: unknown) => {
+        console.log(err);
+        return (err as ResourceHttpError).message ?? "Failed to save changes.";
+      },
+    });
   };
 
   const handleCancel = () => {

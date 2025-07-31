@@ -1,3 +1,4 @@
+import { ResourceHttpError } from "@/api/types/resources.types";
 import LogsViewer from "@/components/LogsViewer";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -20,15 +21,16 @@ export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
 
   const [lines, setLines] = useState("100");
   const [debouncedLines, setDebouncedLines] = useState("100");
+  const [err, setErr] = useState<ResourceHttpError>();
 
-  const { data: logData, isPending: isPendingLogs } = useLogsFetcher(
-    uuid,
-    Number(debouncedLines),
-    {
-      refetchInterval: 2000,
-      enabled: isFocused,
-    }
-  );
+  const {
+    data: logData,
+    isPending: isPendingLogs,
+    error,
+  } = useLogsFetcher(uuid, Number(debouncedLines), {
+    refetchInterval: 2000,
+    enabled: isFocused,
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -37,6 +39,12 @@ export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
 
     return () => clearTimeout(timer);
   }, [lines]);
+
+  useEffect(() => {
+    if (!logData && error) {
+      setErr(error as ResourceHttpError);
+    }
+  }, [logData, error]);
 
   return (
     <View className="flex-1 gap-2">
@@ -57,6 +65,7 @@ export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
       <LogsViewer
         logs={(logData as LogsData)?.logs}
         isLoading={isPendingLogs}
+        error={err}
       />
     </View>
   );

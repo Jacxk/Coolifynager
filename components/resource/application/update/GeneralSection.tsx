@@ -185,9 +185,8 @@ export default function GeneralSection({
         <Controller
           control={control}
           name="domains"
-          disabled={readonlyLabels}
+          disabled={!readonlyLabels}
           rules={{
-            required: "Domains are required",
             validate: (domains) => {
               const invalidDomains = domains
                 ?.split(/[\n,]+/)
@@ -199,7 +198,7 @@ export default function GeneralSection({
               return undefined;
             },
           }}
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({ field: { onChange, value, onBlur, disabled } }) => (
             <Textarea
               placeholder="https://coolify.io"
               value={value}
@@ -208,7 +207,7 @@ export default function GeneralSection({
               className="max-h-24 min-h-10"
               keyboardType="url"
               autoCapitalize="none"
-              editable={readonlyLabels}
+              editable={!disabled}
             />
           )}
         />
