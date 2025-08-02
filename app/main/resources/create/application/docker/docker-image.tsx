@@ -6,7 +6,7 @@ import { PortsExposesController } from "@/components/resource/application/update
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { useCreateApplication } from "@/hooks/useCreateApplication";
+import { useCreateApplicationHandler } from "@/hooks/useCreateApplication";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -24,7 +24,7 @@ export default function DockerImage() {
     },
   });
 
-  const { handleCreateApplication, isPending } = useCreateApplication(
+  const { handleCreateApplication, isPending } = useCreateApplicationHandler(
     CoolifyApplications.DOCKER_IMAGE
   );
 

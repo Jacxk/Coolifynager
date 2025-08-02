@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
-import { useCreateApplication } from "@/hooks/useCreateApplication";
+import { useCreateApplicationHandler } from "@/hooks/useCreateApplication";
 import { Link, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Control, Controller, useForm, useWatch } from "react-hook-form";
@@ -243,7 +243,7 @@ export default function CreateGitRepositoryApplication() {
     },
   });
 
-  const { handleCreateApplication, isPending } = useCreateApplication(
+  const { handleCreateApplication, isPending } = useCreateApplicationHandler(
     CoolifyApplications.PUBLIC_REPOSITORY
   );
 

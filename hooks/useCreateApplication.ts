@@ -1,23 +1,23 @@
-import { createApplication } from "@/api/application";
+import { useCreateApplication } from "@/api/application";
 import {
   CoolifyApplications,
   CreateApplicationBody,
   CreateApplicationBodyRequired,
 } from "@/api/types/application.types";
-import { useMutation } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { toast } from "sonner-native";
 
-export const useCreateApplication = <B extends CreateApplicationBody>(
+export const useCreateApplicationHandler = <B extends CreateApplicationBody>(
   type: CoolifyApplications,
   routerPath?: "applications" | "services" | "databases"
 ) => {
   const { environment_uuid, server_uuid, project_uuid } =
     useLocalSearchParams<CreateApplicationBodyRequired>();
 
-  const { mutateAsync, ...rest } = useMutation(
-    createApplication<CoolifyApplications, B & CreateApplicationBodyRequired>()
-  );
+  const { mutateAsync, ...rest } = useCreateApplication<
+    CoolifyApplications,
+    B & CreateApplicationBodyRequired
+  >();
 
   const handleCreateApplication = (data: B) => {
     toast.promise(

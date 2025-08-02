@@ -5,7 +5,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateApplication } from "@/hooks/useCreateApplication";
+import { useCreateApplicationHandler } from "@/hooks/useCreateApplication";
 import { Buffer } from "buffer";
 import { Controller, useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -26,7 +26,7 @@ export default function DockerFile() {
   });
 
   const { handleCreateApplication, isPending } =
-    useCreateApplication<CreateApplicationBodyDockerfile>(
+    useCreateApplicationHandler<CreateApplicationBodyDockerfile>(
       CoolifyApplications.DOCKERFILE
     );
 
