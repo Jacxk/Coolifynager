@@ -113,9 +113,37 @@ export const getApplication = async (uuid: string) => {
 };
 
 export const getApplicationLogs = async (uuid: string, lines = 100) => {
-  return coolifyFetch<ApplicationLogs>(
+  const { logs } = await coolifyFetch<ApplicationLogs>(
     `/applications/${uuid}/logs?lines=${lines}`
   );
+
+  // Split logs into lines
+  const splitLogs = logs.split("\n");
+  // Remove first half of logs
+  const firstHalf = splitLogs.slice(0, splitLogs.length / 2);
+  // Escape special characters in first half
+  const escaped = firstHalf
+    .join("\\n")
+    .replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+
+  // Initiate fixed with the logs in case there's no duplicate
+  let fixed = logs.replace(/\n/g, "\\n");
+
+  // Match first half in logs
+  const match = fixed.matchAll(RegExp(escaped, "g")).toArray();
+
+  // If first half is found in logs more than one time, remove it
+  if (match.length > 1) {
+    // Set the fixed logs to the matcher
+    fixed = match[0][0];
+    // Add a new line
+    fixed += "\\n";
+    // Append the last line from the logs,
+    // since it was lost when splitting.
+    fixed += splitLogs[splitLogs.length - 1];
+  }
+
+  return { logs: fixed.split("\\n").toReversed().join("\n") };
 };
 
 export const getApplicationEnvs = async (uuid: string) => {
