@@ -52,22 +52,33 @@ export async function coolifyFetch<T>(
 }
 
 export async function optimisticUpdateInsertOneToMany<
-  T extends { uuid?: string }
+  T extends { uuid?: string; deployment_uuid?: string }
 >(queryKey: (string | number)[], data: T) {
   await queryClient.cancelQueries({ queryKey });
 
-  const previousData = queryClient.getQueryData<T>(queryKey);
+  const previousData = queryClient.getQueryData<T[]>(queryKey);
 
   queryClient.setQueryData(queryKey, (old: T[] | undefined) => {
     if (!old) return [data];
 
+    const identifierKey = data.deployment_uuid ? "deployment_uuid" : "uuid";
+    const identifierValue = data.deployment_uuid ?? data.uuid;
+
+    if (!identifierValue) return [...old, data];
+
     const index = old.findIndex(
-      (resource) => data.uuid && resource.uuid === data.uuid
+      (resource) =>
+        (identifierKey === "deployment_uuid" &&
+          resource.deployment_uuid === identifierValue) ||
+        (identifierKey === "uuid" && resource.uuid === identifierValue)
     );
+
     if (index === -1) return [...old, data];
 
     return old.map((resource) =>
-      data.uuid && resource.uuid === data.uuid
+      (identifierKey === "deployment_uuid" &&
+        resource.deployment_uuid === identifierValue) ||
+      (identifierKey === "uuid" && resource.uuid === identifierValue)
         ? { ...resource, ...data }
         : resource
     );
