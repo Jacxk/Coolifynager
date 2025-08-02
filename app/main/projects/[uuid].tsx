@@ -1,6 +1,7 @@
 import { useProject } from "@/api/projects";
 import { useResources } from "@/api/resources";
 import { CoolifyDatabaseType } from "@/api/types/database.types";
+import { Project as ProjectType } from "@/api/types/project.types";
 import { Resource, ResourceType } from "@/api/types/resources.types";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { ChevronUp } from "@/components/icons/ChevronUp";
@@ -19,56 +20,17 @@ const isDatabase = (resource: Resource) => {
   );
 };
 
-export default function Project() {
-  const navigation = useNavigation();
-  const { uuid } = useLocalSearchParams<{ uuid: string }>();
-
-  const {
-    data: project,
-    isPending: projectPending,
-    refetch: refetchProject,
-  } = useProject(uuid);
-  const {
-    data: resources,
-    isPending: resourcesPending,
-    refetch: refetchResources,
-  } = useResources();
-
-  const [refreshing, setRefreshing] = useState(false);
-
-  const refetch = useCallback(async () => {
-    await refetchProject();
-    await refetchResources();
-  }, [refetchProject, refetchResources]);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    refetch().finally(() => setRefreshing(false));
-  };
-
-  useRefreshOnFocus(refetch);
-  useEffect(() => {
-    if (project?.environments) {
-      navigation.setParams({
-        environments: project.environments.map(
-          (env) => `${env.uuid}:${env.name}`
-        ),
-      } as any);
-    }
-  }, [project, navigation]);
-
-  if (projectPending || resourcesPending) {
-    return <ProjectSkeleton />;
-  }
-
-  if (!project || !resources) {
-    return (
-      <SafeView className="justify-center items-center relative">
-        <Text className="text-muted-foreground">No project found</Text>
-      </SafeView>
-    );
-  }
-
+function ProjectView({
+  project,
+  resources,
+  refreshing,
+  onRefresh,
+}: {
+  project: ProjectType;
+  resources: Resource[];
+  refreshing: boolean;
+  onRefresh: () => void;
+}) {
   const projectEnvironmentIds = useMemo(
     () => project.environments.map((env) => env.id),
     [project.environments]
@@ -178,6 +140,66 @@ export default function Project() {
       renderSectionHeader={({ section: { title } }) => <H3>{title}</H3>}
       showsVerticalScrollIndicator={false}
       stickySectionHeadersEnabled={false}
+    />
+  );
+}
+
+export default function Project() {
+  const navigation = useNavigation();
+  const { uuid } = useLocalSearchParams<{ uuid: string }>();
+
+  const {
+    data: project,
+    isPending: projectPending,
+    refetch: refetchProject,
+  } = useProject(uuid);
+  const {
+    data: resources,
+    isPending: resourcesPending,
+    refetch: refetchResources,
+  } = useResources();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refetch = useCallback(async () => {
+    await refetchProject();
+    await refetchResources();
+  }, [refetchProject, refetchResources]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    refetch().finally(() => setRefreshing(false));
+  };
+
+  useRefreshOnFocus(refetch);
+  useEffect(() => {
+    if (project?.environments) {
+      navigation.setParams({
+        environments: project.environments.map(
+          (env) => `${env.uuid}:${env.name}`
+        ),
+      } as any);
+    }
+  }, [project, navigation]);
+
+  if (projectPending || resourcesPending) {
+    return <ProjectSkeleton />;
+  }
+
+  if (!project || !resources) {
+    return (
+      <SafeView className="justify-center items-center relative">
+        <Text className="text-muted-foreground">No project found</Text>
+      </SafeView>
+    );
+  }
+
+  return (
+    <ProjectView
+      project={project}
+      resources={resources}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
     />
   );
 }

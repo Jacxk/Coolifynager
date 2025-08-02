@@ -24,7 +24,7 @@ export type Deployment = {
   rollback: boolean;
   server_id: number;
   server_name: string;
-  status: "queued" | "in_progress" | "failed" | "success" | "finished" | string;
+  status: "queued" | "in_progress" | "failed" | "success" | "finished";
   updated_at: string;
 };
 

@@ -7,7 +7,11 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 import { ApplicationKeys } from "./application";
-import { coolifyFetch, optimisticUpdateOne } from "./client";
+import {
+  coolifyFetch,
+  optimisticUpdateInsertOneToMany,
+  optimisticUpdateOne,
+} from "./client";
 import { ApplicationDeployment, Deployment } from "./types/deployments.types";
 
 // Query keys
@@ -61,7 +65,12 @@ export const getDeployment = async (uuid: string) => {
 
 export const getDeploymentLogs = async (uuid: string) => {
   const data = await coolifyFetch<Deployment>(`/deployments/${uuid}`);
-  queryClient.setQueryData(DeploymentKeys.queries.single(uuid), data);
+
+  if (data.status === "in_progress") {
+    optimisticUpdateInsertOneToMany(DeploymentKeys.queries.all(), data);
+  }
+
+  optimisticUpdateOne(DeploymentKeys.queries.single(uuid), data);
 
   return data;
 };
@@ -89,6 +98,10 @@ export const getApplicationDeployments = async (
       DeploymentKeys.queries.logs(deployment.deployment_uuid),
       deployment
     );
+
+    if (deployment.status === "in_progress") {
+      optimisticUpdateInsertOneToMany(DeploymentKeys.queries.all(), deployment);
+    }
   });
   return data;
 };
