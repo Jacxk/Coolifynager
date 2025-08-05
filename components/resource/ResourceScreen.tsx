@@ -90,6 +90,7 @@ function ResourceEditingForm({
     formState: { errors },
     handleSubmit,
     reset,
+    formState: { isValid },
   } = useForm({
     values: {
       name: data?.name ?? "",
@@ -150,7 +151,7 @@ function ResourceEditingForm({
       />
 
       <View className="flex-row gap-2 mt-4">
-        <Button onPress={handleSubmit(handleSave)}>
+        <Button onPress={handleSubmit(handleSave)} disabled={!isValid}>
           <Text>Save</Text>
         </Button>
         <Button variant="outline" onPress={handleCancel}>

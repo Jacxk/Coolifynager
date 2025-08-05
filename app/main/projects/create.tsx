@@ -11,14 +11,18 @@ import { toast } from "sonner-native";
 
 export default function CreateProject() {
   const headerHeight = useHeaderHeight();
-  const { control, handleSubmit } = useForm<PartialProject>({
+  const {
+    control,
+    formState: { isValid },
+    handleSubmit,
+  } = useForm<PartialProject>({
     defaultValues: {
       name: "",
       description: "",
     },
   });
 
-  const { mutateAsync } = useCreateProject();
+  const { mutateAsync, isPending } = useCreateProject();
 
   const onSubmit = (data: PartialProject) => {
     toast.promise(mutateAsync(data), {
@@ -86,7 +90,11 @@ export default function CreateProject() {
         environment.
       </Text>
 
-      <Button onPress={handleSubmit(onSubmit)}>
+      <Button
+        onPress={handleSubmit(onSubmit)}
+        loading={isPending}
+        disabled={!isValid}
+      >
         <Text>Continue</Text>
       </Button>
     </KeyboardAvoidingView>
