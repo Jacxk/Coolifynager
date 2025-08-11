@@ -15,6 +15,7 @@ import { Service } from "@/api/types/services.types";
 import { Team } from "@/api/types/teams.types";
 import { EditingProvider, useEditing } from "@/context/EditingContext";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
+import { navigatePath } from "@/lib/navigation";
 import { useIsFocused } from "@react-navigation/native";
 import { Redirect, router, Stack } from "expo-router";
 import { Info } from "lucide-react-native";
@@ -267,8 +268,7 @@ function useResourceMutations(
             message,
           }: ApplicationActionResponse) => {
             toast.success(message);
-            router.push("./deployments");
-            router.push({
+            navigatePath({
               pathname: "./deployments/logs",
               params: { deployment_uuid },
             });
