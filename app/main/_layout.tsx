@@ -4,7 +4,16 @@ import { Stack } from "expo-router";
 
 export default function MainLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        headerBackButtonDisplayMode: "minimal",
+      }}
+    >
+      <Stack.Screen
+        name="applications/index"
+        options={{ title: "Applications", headerShown: true }}
+      />
       <Stack.Screen
         name="index"
         options={{ title: APP_NAME, headerShown: true }}
