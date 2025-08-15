@@ -5,6 +5,7 @@ import { SafeView } from "@/components/SafeView";
 import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
 import { SwipeableCard } from "@/components/ui/swipe-card";
 import { Text } from "@/components/ui/text";
+import { useDestructiveAction } from "@/hooks/useDestructiveAction";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react-native";
@@ -16,11 +17,17 @@ import { toast } from "sonner-native";
 const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
   const queryClient = useQueryClient();
   const { mutate } = useDeleteProject(uuid);
+  const { handleDestructiveAction } = useDestructiveAction();
+
+  const queryKeySingle = ProjectKeys.queries.single(uuid);
+  const project = queryClient.getQueryData<Project>(queryKeySingle);
 
   const isUndo = useRef(false);
   const position = useRef(0);
   const toastId = useRef<string | number | null>(null);
   const deletionTimeout = useRef<number | null>(null);
+
+  if (!project) return null;
 
   const scheduleDeletion = () => {
     if (deletionTimeout.current) {
@@ -36,6 +43,40 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
     }, 5000);
   };
 
+  const undoDeletion = () => {
+    isUndo.current = true;
+
+    if (deletionTimeout.current) {
+      clearTimeout(deletionTimeout.current);
+      deletionTimeout.current = null;
+    }
+
+    // Handles the optimistic update with undo
+    queryClient.setQueryData(
+      ProjectKeys.queries.all(),
+      (data: ProjectBase[]) => {
+        const existingIndex = data.findIndex((d) => d.uuid === project.uuid);
+        if (existingIndex !== -1) {
+          return data;
+        }
+
+        const newData = [...data];
+        newData.splice(position.current, 0, project);
+        return newData;
+      }
+    );
+
+    // Handles the optimistic update with undo
+    queryClient.setQueryData<Project>(
+      ProjectKeys.queries.single(uuid),
+      project
+    );
+
+    if (toastId.current) {
+      toast.dismiss(toastId.current);
+    }
+  };
+
   return (
     <SwipeableCard
       threshold={70}
@@ -44,12 +85,8 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
       dismissOnSwipeLeft
       onDismiss={async () => {
         const queryKeyAll = ProjectKeys.queries.all();
-        const queryKeySingle = ProjectKeys.queries.single(uuid);
+
         await queryClient.cancelQueries({ queryKey: queryKeyAll });
-
-        const project = queryClient.getQueryData<Project>(queryKeySingle);
-
-        if (!project) return;
 
         isUndo.current = false;
 
@@ -62,43 +99,23 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
           return newData;
         });
 
-        toastId.current = toast.success("Project deleted", {
-          id: project.uuid,
-          action: {
-            label: "Undo",
-            onClick: () => {
-              isUndo.current = true;
+        handleDestructiveAction(
+          () => {
+            toastId.current = toast.success("Project deleted", {
+              id: project.uuid,
+              action: {
+                label: "Undo",
+                onClick: undoDeletion,
+              },
+            });
 
-              if (deletionTimeout.current) {
-                clearTimeout(deletionTimeout.current);
-                deletionTimeout.current = null;
-              }
-
-              // Handles the optimistic update with undo
-              queryClient.setQueryData(queryKeyAll, (data: ProjectBase[]) => {
-                const existingIndex = data.findIndex(
-                  (d) => d.uuid === project.uuid
-                );
-                if (existingIndex !== -1) {
-                  return data;
-                }
-
-                const newData = [...data];
-                newData.splice(position.current, 0, project);
-                return newData;
-              });
-
-              // Handles the optimistic update with undo
-              queryClient.setQueryData<Project>(queryKeySingle, project);
-
-              if (toastId.current) {
-                toast.dismiss(toastId.current);
-              }
-            },
+            scheduleDeletion();
           },
-        });
-
-        scheduleDeletion();
+          {
+            onCancel: undoDeletion,
+            promptMessage: "Verify to delete project",
+          }
+        );
       }}
     >
       <ResourceCard
