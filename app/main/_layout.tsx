@@ -1,6 +1,8 @@
 import { AddResourceButton } from "@/components/AddResourceButton";
+import { SettingsIcon } from "@/components/icons/Settings";
 import { APP_NAME } from "@/constants/AppDetails";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
+import { TouchableOpacity } from "react-native";
 
 export default function MainLayout() {
   return (
@@ -16,7 +18,19 @@ export default function MainLayout() {
       />
       <Stack.Screen
         name="index"
-        options={{ title: APP_NAME, headerShown: true }}
+        options={{
+          title: APP_NAME,
+          headerShown: true,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => router.push("/main/settings")}>
+              <SettingsIcon />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="settings"
+        options={{ title: "Settings", headerShown: true }}
       />
       <Stack.Screen
         name="projects/index"
