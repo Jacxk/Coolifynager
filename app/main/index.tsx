@@ -18,7 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
 import { useIsFocused } from "@react-navigation/native";
 import { useQueryClient } from "@tanstack/react-query";
@@ -134,10 +133,6 @@ export default function MainIndex() {
       )}
 
       <FavoritesList onFinishLoading={onFinishLoading} />
-
-      <Link href="/setup/api_token">
-        <Text>Change api token</Text>
-      </Link>
     </ScrollView>
   );
 }

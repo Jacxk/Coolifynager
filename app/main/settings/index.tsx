@@ -5,7 +5,7 @@ import {
 } from "@/components/SettingsButton";
 import { SettingsLink, SettingsLinkProps } from "@/components/SettingsLink";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { FlatList, Linking } from "react-native";
+import { FlatList, Linking, View } from "react-native";
 import { Switch } from "react-native-gesture-handler";
 
 type SettingsItem =
@@ -45,8 +45,9 @@ export default function Settings() {
 
   return (
     <FlatList
-      className="p-4"
+      className="px-4"
       data={data}
+      ItemSeparatorComponent={() => <View className="h-[.3px] bg-muted" />}
       renderItem={({ item }) => {
         if (item.isLink) {
           return <SettingsLink {...item} />;
