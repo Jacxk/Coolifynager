@@ -16,15 +16,19 @@ function Input({
   const textInputProps = {
     className: cn(
       "h-12 text-[1.1rem] text-foreground placeholder:text-muted-foreground",
-      { "opacity-50": props.editable === false },
-      className
+      { "opacity-50": props.editable === false }
     ),
     placeholderClassName: cn("text-muted", placeholderClassName),
     ...props,
   };
 
   return (
-    <View className="w-full flex flex-row items-center border border-input rounded-md px-3 bg-background gap-2">
+    <View
+      className={cn(
+        "w-full flex flex-row items-center border border-input rounded-md px-3 bg-background gap-2",
+        className
+      )}
+    >
       {icon &&
         React.cloneElement(icon, {
           // @ts-ignore
@@ -58,6 +62,7 @@ function PasswordInput({
         autoComplete="off"
         autoCorrect={false}
         textContentType="none"
+        clearButtonMode="never"
         {...props}
       />
       <Pressable
