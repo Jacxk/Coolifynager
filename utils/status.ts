@@ -15,4 +15,16 @@ export const StatusText = {
         return status;
     }
   },
+  resource: (status: string | undefined) => {
+    switch (status) {
+      case "running:healthy":
+        return "Running (Healthy)";
+      case "running:unhealthy":
+        return "Running (Unhealthy)";
+      case "exited:unhealthy":
+        return "Stopped";
+      default:
+        return status;
+    }
+  },
 };

@@ -1,5 +1,6 @@
 import { ResourceType } from "@/api/types/resources.types";
 import { useFavorites } from "@/context/FavoritesContext";
+import { StatusText } from "@/utils/status";
 import { LinkProps, router } from "expo-router";
 import React from "react";
 import { View } from "react-native";
@@ -52,7 +53,7 @@ export function ResourceCard({
           <CardTitle>{title}</CardTitle>
           <CardDescription className={!isServerRunning ? "text-red-500" : ""}>
             {isServerRunning
-              ? description
+              ? description || StatusText.resource(status || undefined)
               : "The underlying server has problems"}
           </CardDescription>
         </CardHeader>
