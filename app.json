@@ -1,6 +1,7 @@
 {
   "expo": {
-    "name": "coolifynager",
+    "name": "Coolifynager",
+    "description": "Manage your Coolify instance on the go",
     "slug": "coolifynager",
     "version": "1.0.0",
     "orientation": "portrait",
