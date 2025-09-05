@@ -43,6 +43,7 @@ export function ResourceCard({
     .shouldCancelWhenOutside(true)
     .requireExternalGestureToFail(starTap)
     .onStart(() => runOnJS(router.navigate)(href));
+  const healthTap = Gesture.Tap().hitSlop(8).shouldCancelWhenOutside(true);
 
   return (
     <GestureDetector gesture={cardTap}>
@@ -56,11 +57,11 @@ export function ResourceCard({
           </CardDescription>
         </CardHeader>
         {status && (
-          <HealthIndicator
-            status={status}
-            className="absolute top-2 left-2"
-            iconClassName="size-2"
-          />
+          <GestureDetector gesture={healthTap}>
+            <View collapsable={false} className="absolute top-2 left-2">
+              <HealthIndicator status={status} iconClassName="size-2" />
+            </View>
+          </GestureDetector>
         )}
         {!hideFavorite && (
           <View className="p-4">
