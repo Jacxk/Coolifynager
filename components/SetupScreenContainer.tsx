@@ -8,7 +8,7 @@ export default function SetupScreenContainer({
 }) {
   return (
     <KeyboardAvoidingView
-      className="flex-1 justify-center p-8 gap-4"
+      className="flex-1 justify-center p-8 gap-4 bg-branding"
       behavior="padding"
       onLayout={() => {
         SplashScreen.hide();
