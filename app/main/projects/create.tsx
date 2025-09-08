@@ -3,14 +3,12 @@ import { PartialProject } from "@/api/types/project.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAvoidingView, View } from "react-native";
 import { toast } from "sonner-native";
 
 export default function CreateProject() {
-  const headerHeight = useHeaderHeight();
   const {
     control,
     formState: { isValid },
@@ -42,7 +40,6 @@ export default function CreateProject() {
     <KeyboardAvoidingView
       behavior="padding"
       className="flex-1 gap-4 justify-center p-4"
-      style={{ marginTop: -headerHeight }}
     >
       <Controller
         control={control}

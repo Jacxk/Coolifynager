@@ -7,20 +7,36 @@ import { Pressable, TextInput, View, type TextInputProps } from "react-native";
 function Input({
   className,
   placeholderClassName,
+  icon,
   ...props
 }: TextInputProps & {
   ref?: React.RefObject<TextInput>;
+  icon?: React.ReactElement;
 }) {
+  const textInputProps = {
+    className: cn(
+      "h-12 text-[1.1rem] text-foreground placeholder:text-muted-foreground",
+      { "opacity-50": props.editable === false },
+      className
+    ),
+    placeholderClassName: cn("text-muted", placeholderClassName),
+    ...props,
+  };
+
   return (
-    <TextInput
-      className={cn(
-        "h-12 w-full rounded-md border border-input bg-background px-3 text-[1.1rem] text-foreground placeholder:text-muted",
-        { "opacity-50": props.editable === false },
-        className
-      )}
-      placeholderClassName={cn("text-muted", placeholderClassName)}
-      {...props}
-    />
+    <View className="w-full flex flex-row items-center border border-input rounded-md px-3 bg-background gap-2">
+      {icon &&
+        React.cloneElement(icon, {
+          // @ts-ignore
+          className: "text-muted-foreground",
+          size: 16,
+        })}
+      <TextInput
+        {...textInputProps}
+        className={cn("flex-1", textInputProps.className)}
+        clearButtonMode="always"
+      />
+    </View>
   );
 }
 

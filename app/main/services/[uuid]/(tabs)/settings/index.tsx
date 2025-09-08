@@ -1,30 +1,6 @@
-import { ChevronRight } from "@/components/icons/ChevronRight";
 import { TriangleAlert } from "@/components/icons/TriangleAlert";
-import { Text } from "@/components/ui/text";
-import { Link } from "expo-router";
-import { FlatList, View } from "react-native";
-
-function SettingsLink({
-  href,
-  label,
-  icon,
-}: {
-  href: string;
-  label: string;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <Link href={href as any} className="py-4">
-      <View className="flex flex-row items-center justify-between w-full">
-        <View className="flex flex-row items-center gap-3">
-          {icon}
-          <Text className="text-lg">{label}</Text>
-        </View>
-        <ChevronRight />
-      </View>
-    </Link>
-  );
-}
+import { SettingsLink } from "@/components/SettingsLink";
+import { FlatList } from "react-native";
 
 export default function ServiceSettingsIndex() {
   const data = [

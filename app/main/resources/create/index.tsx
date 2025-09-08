@@ -19,6 +19,7 @@ import {
 } from "@/api/types/services.types";
 import EnvironmentSelect from "@/components/EnvironmentSelect";
 import { BookOpenText } from "@/components/icons/BookOpenText";
+import { SearchIcon } from "@/components/icons/SearchIcon";
 import ServerSelect from "@/components/ServerSelect";
 import {
   AlertDialog,
@@ -37,6 +38,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
 import useStorage from "@/hooks/useStorage";
@@ -95,6 +97,7 @@ export default function CreateResource() {
   const [selectedType, setSelectedType] = useState<ResourceType | null>(null);
   const [selectedResource, setSelectedResource] =
     useState<CoolifyResourceMetadata | null>(null);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   const { mutateAsync: createServiceMutation } = useCreateService();
   const { mutateAsync: createDatabaseMutation } = useCreateDatabase();
@@ -111,20 +114,34 @@ export default function CreateResource() {
   }[] = [
     {
       title: "Applications",
-      data: applications,
-      type: "application",
+      data: applications.filter(
+        (app) =>
+          app.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+          app.description.toLowerCase().includes(searchKeyword.toLowerCase())
+      ),
+      type: "application" as ResourceType,
     },
     {
       title: "Databases",
-      data: databases,
-      type: "database",
+      data: databases.filter(
+        (db) =>
+          db.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+          db.description.toLowerCase().includes(searchKeyword.toLowerCase())
+      ),
+      type: "database" as ResourceType,
     },
     {
       title: "Services",
-      data: services,
-      type: "service",
+      data: services.filter(
+        (service) =>
+          service.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+          service.description
+            .toLowerCase()
+            .includes(searchKeyword.toLowerCase())
+      ),
+      type: "service" as ResourceType,
     },
-  ];
+  ].filter((section) => section.data.length > 0);
 
   const handleCreateService = () => {
     if (selectedType !== "service") return;
@@ -253,6 +270,19 @@ export default function CreateResource() {
 
   return (
     <>
+      <View className="p-4">
+        <Input
+          icon={<SearchIcon />}
+          placeholder="Search resources..."
+          value={searchKeyword}
+          onChangeText={setSearchKeyword}
+          className="w-full"
+        />
+        <Text className="text-muted-foreground text-sm text-right">
+          {sections.reduce((acc, section) => acc + section.data.length, 0)}{" "}
+          resources found.
+        </Text>
+      </View>
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.name}
@@ -280,7 +310,7 @@ export default function CreateResource() {
           </View>
         )}
         ListEmptyComponent={
-          <Text className="text-muted-foreground">No resources found.</Text>
+          <Text className="text-muted-foreground p-4">No resources found.</Text>
         }
       />
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

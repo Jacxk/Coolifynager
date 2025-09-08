@@ -126,7 +126,7 @@ export function FavoritesList({
           return {
             uuid: resourceData?.uuid || favorites[index]?.uuid,
             name: resourceData?.name || "Unknown",
-            description: resourceData?.description || resourceData?.status,
+            description: resourceData?.description,
             serverStatus: resourceData?.server?.proxy?.status,
             status: resourceData?.status,
             type:
