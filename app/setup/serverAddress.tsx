@@ -29,16 +29,17 @@ export default function ServerStep() {
     }
   };
 
-  useEffect(() => {
+  const onChangeServer = (text: string) => {
     try {
-      new URL(server.trim());
+      new URL(text.trim());
       setValid(true);
     } catch {
       setValid(false);
     }
 
     setError(undefined);
-  }, [server]);
+    setServer(text);
+  };
 
   useEffect(() => {
     setup.getServerAddress().then((s) => setServer(s ?? server ?? ""));
@@ -48,7 +49,7 @@ export default function ServerStep() {
     <SetupScreenContainer>
       <Text>Enter your Coolify instance URL</Text>
       <Input
-        onChangeText={setServer}
+        onChangeText={onChangeServer}
         onSubmitEditing={saveServerAddress}
         value={server}
         placeholder="http://localhost:8000"
