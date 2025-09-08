@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "bundleIdentifier": "com.jacxk.coolifynager"
     },
     "android": {
       "adaptiveIcon": {
