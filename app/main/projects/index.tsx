@@ -1,4 +1,9 @@
-import { ProjectKeys, useDeleteProject, useProjects } from "@/api/projects";
+import {
+  ProjectKeys,
+  useDeleteProject,
+  useProject,
+  useProjects,
+} from "@/api/projects";
 import { Project, ProjectBase } from "@/api/types/project.types";
 import { ResourceCard } from "@/components/cards/ResourceCard";
 import { SafeView } from "@/components/SafeView";
@@ -19,8 +24,7 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
   const { mutate } = useDeleteProject(uuid);
   const { handleDestructiveAction } = useDestructiveAction();
 
-  const queryKeySingle = ProjectKeys.queries.single(uuid);
-  const project = queryClient.getQueryData<Project>(queryKeySingle);
+  const { data: project } = useProject(uuid);
 
   const isUndo = useRef(false);
   const position = useRef(0);
