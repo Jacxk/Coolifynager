@@ -91,7 +91,8 @@ export const getDatabases = async () => {
     optimisticUpdateOne(DatabaseKeys.queries.single(database.uuid), database);
   });
 
-  return queryClient.getQueryData(DatabaseKeys.queries.all()) as Database[];
+  return (queryClient.getQueryData(DatabaseKeys.queries.all()) ||
+    []) as Database[];
 };
 
 export const getDatabase = async (uuid: string) => {
