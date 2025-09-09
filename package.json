@@ -62,7 +62,9 @@
     "sonner-native": "^0.21.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
-    "expo-application": "~6.1.5"
+    "expo-application": "~6.1.5",
+    "expo-notifications": "~0.31.4",
+    "expo-device": "~7.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
