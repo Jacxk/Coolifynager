@@ -107,10 +107,20 @@ export const onOptimisticUpdateError = (
   data: unknown,
   error: unknown,
   variables: unknown,
-  context?: { queryKey: (string | number)[]; previousData: unknown }
+  context?: {
+    queryKey: (string | number)[];
+    previousData: unknown;
+    queryKeyAll?: (string | number)[];
+    previousDataAll?: unknown;
+  }
 ) => {
   if (!context) return;
   queryClient.setQueryData(context.queryKey, context.previousData);
+
+  // Handle multiple query updates (like delete operations)
+  if (context.queryKeyAll && context.previousDataAll !== undefined) {
+    queryClient.setQueryData(context.queryKeyAll, context.previousDataAll);
+  }
 };
 
 export const onOptimisticUpdateSettled = (customKey?: (string | number)[]) => {
