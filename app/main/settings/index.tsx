@@ -42,7 +42,7 @@ export default function Settings() {
     {
       label: "Reconfigure Linked Instance",
       isLink: true,
-      href: "/setup",
+      href: "/setup/serverAddress",
       icon: <Server />,
       description:
         "Change the server address and/or the API key of the current linked instance.",
