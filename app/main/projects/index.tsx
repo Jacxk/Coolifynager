@@ -10,7 +10,7 @@ import { SafeView } from "@/components/SafeView";
 import { ResourcesSkeleton } from "@/components/skeletons/ProjectsSkeleton";
 import { SwipeableCard } from "@/components/ui/swipe-card";
 import { Text } from "@/components/ui/text";
-import { useDestructiveAction } from "@/hooks/useDestructiveAction";
+import { useSecureAction } from "@/hooks/useDestructiveAction";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react-native";
@@ -22,7 +22,7 @@ import { toast } from "sonner-native";
 const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
   const queryClient = useQueryClient();
   const { mutate } = useDeleteProject(uuid);
-  const { handleDestructiveAction } = useDestructiveAction();
+  const { handleSecureAction } = useSecureAction();
 
   const { data: project } = useProject(uuid);
 
@@ -103,7 +103,7 @@ const ProjectCard = ({ uuid, name, description }: ProjectBase) => {
           return newData;
         });
 
-        handleDestructiveAction(
+        handleSecureAction(
           () => {
             toastId.current = toast.success("Project deleted", {
               id: project.uuid,

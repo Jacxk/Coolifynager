@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/checkbox";
 import { Text } from "@/components/ui/text";
 import { useFavorites } from "@/context/FavoritesContext";
-import { useDestructiveAction } from "@/hooks/useDestructiveAction";
+import { useSecureAction } from "@/hooks/useDestructiveAction";
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
@@ -42,7 +42,7 @@ export default function DangerScreen({
   const [runDockerCleanup, setRunDockerCleanup] = useState(true);
 
   const { mutateAsync: deleteResource } = useDeleteService(uuid);
-  const { handleDestructiveAction } = useDestructiveAction();
+  const { handleSecureAction } = useSecureAction();
 
   const onDelete = () => {
     const runDeletion = async () => {
@@ -55,7 +55,7 @@ export default function DangerScreen({
         });
       else throw new Error("Not implemented");
     };
-    handleDestructiveAction(runDeletion)
+    handleSecureAction(runDeletion)
       .then(() => {
         toast("Resource deleted");
         removeFavorite(uuid);
