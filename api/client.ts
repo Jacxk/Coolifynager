@@ -17,8 +17,6 @@ export async function coolifyFetch<T>(
 
   const url = `${serverAddress}/api/v1${endpoint}`;
 
-  console.log(`[${method}] ${endpoint}`);
-
   const token = await SecureStore.getItemAsync(Secrets.API_TOKEN);
   if (!headers.Authorization && !token) throw new Error("API token not found");
 
@@ -37,18 +35,24 @@ export async function coolifyFetch<T>(
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
-  const response = await fetch(url, fetchOptions);
+  try {
+    const response = await fetch(url, fetchOptions);
+    console.log(`[${method}] [${response.status}] ${endpoint}`);
 
-  if (response.status >= 400) {
-    const error = await response.json();
+    if (response.status >= 400) {
+      const error = await response.json();
+      throw error;
+    }
+
+    if (isText) {
+      return (await response.text()) as T;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Network request failed for ${endpoint}:`, error);
     throw error;
   }
-
-  if (isText) {
-    return (await response.text()) as T;
-  }
-
-  return await response.json();
 }
 
 export async function optimisticUpdateInsertOneToMany<
