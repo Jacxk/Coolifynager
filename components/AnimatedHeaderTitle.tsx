@@ -1,4 +1,5 @@
 import { Text } from "@/components/ui/text";
+import { StatusText } from "@/utils/status";
 import { useTheme } from "@react-navigation/native";
 import { useEffect } from "react";
 import { Platform, Pressable, View } from "react-native";
@@ -20,7 +21,7 @@ type AnimatedHeaderTitleProps = {
   onHeaderClick?: () => void;
 };
 
-export const AnimatedHeader = ({
+export const AnimatedHeaderTitle = ({
   name,
   status,
   showTitle,
@@ -98,7 +99,7 @@ export const AnimatedHeader = ({
             className="text-xs text-muted-foreground text-center"
             numberOfLines={1}
           >
-            {status}
+            {StatusText.resource(status)}
           </Text>
         </Pressable>
       </Animated.View>
