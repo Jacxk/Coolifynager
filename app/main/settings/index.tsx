@@ -2,6 +2,7 @@ import { ArrowUpRight } from "@/components/icons/ArrowUpRight";
 import Info from "@/components/icons/Info";
 import { MessageCircle } from "@/components/icons/MessageCircle";
 import { Moon } from "@/components/icons/Moon";
+import { RotateCw } from "@/components/icons/RotateCw";
 import { Server } from "@/components/icons/Server";
 import { Trash2 } from "@/components/icons/Trash2";
 import {
@@ -10,8 +11,10 @@ import {
 } from "@/components/SettingsButton";
 import { SettingsLink, SettingsLinkProps } from "@/components/SettingsLink";
 import { H3 } from "@/components/ui/typography";
+import { LOG_REFETCH_INTERVAL_STORAGE_KEY } from "@/constants/StorageKeys";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { Linking, SectionList, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert, Linking, SectionList, View } from "react-native";
 import { Switch } from "react-native-gesture-handler";
 
 type SettingsItem =
@@ -46,6 +49,39 @@ export default function Settings() {
       icon: <Server />,
       description:
         "Change the server address and/or the API key of the current linked instance.",
+    },
+    {
+      label: "Logs Refetch Interval",
+      isLink: false,
+      onPress: async () => {
+        const savedInterval = await AsyncStorage.getItem(
+          LOG_REFETCH_INTERVAL_STORAGE_KEY
+        );
+        Alert.prompt(
+          "Logs Refetch Interval",
+          "Enter the logs refetch interval in milliseconds, do not go too low as it will cause performance issues. The default is 2000ms.",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              isPreferred: true,
+              text: "Save",
+              onPress: (text) => {
+                AsyncStorage.setItem(
+                  LOG_REFETCH_INTERVAL_STORAGE_KEY,
+                  text || "2000"
+                );
+              },
+            },
+          ],
+          "plain-text",
+          savedInterval ?? "2000",
+          "numeric"
+        );
+      },
+      icon: <RotateCw />,
     },
     {
       label: "Clear Cache",

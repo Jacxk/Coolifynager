@@ -11,7 +11,3 @@ export const APP_ID =
   Constants?.easConfig?.projectId;
 
 export const APP_COLOR = "#000F43";
-
-export const FAVORITES_STORAGE_KEY = "FAVORITES";
-export const SETUP_COMPLETE_STORAGE_KEY = "SetupComplete";
-export const PERMISSIONS_SAVED_STORAGE_KEY = "PermissionsSaved";

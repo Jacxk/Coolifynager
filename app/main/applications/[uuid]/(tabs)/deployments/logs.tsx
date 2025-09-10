@@ -5,7 +5,9 @@ import { SafeView } from "@/components/SafeView";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
+import { LOG_REFETCH_INTERVAL_STORAGE_KEY } from "@/constants/StorageKeys";
 import { StatusText } from "@/utils/status";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
@@ -20,8 +22,11 @@ export default function DeploymentLogs() {
   const isFocused = useIsFocused();
   const [isFinished, setIsFinished] = useState(false);
 
+  const refetchInterval =
+    Number(AsyncStorage.getItem(LOG_REFETCH_INTERVAL_STORAGE_KEY)) || 2000;
+
   const { data, isPending } = useDeploymentLogs(deployment_uuid, {
-    refetchInterval: 2000,
+    refetchInterval,
     enabled: isFocused && !isFinished,
   });
 

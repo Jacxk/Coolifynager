@@ -1,5 +1,5 @@
 import { ResourceType } from "@/api/types/resources.types";
-import { FAVORITES_STORAGE_KEY } from "@/constants/AppDetails";
+import { FAVORITES_STORAGE_KEY } from "@/constants/StorageKeys";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
   createContext,

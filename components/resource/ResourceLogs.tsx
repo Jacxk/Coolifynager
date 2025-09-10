@@ -2,10 +2,15 @@ import { ResourceHttpError } from "@/api/types/resources.types";
 import LogsViewer from "@/components/LogsViewer";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import {
+  LOG_REFETCH_INTERVAL_STORAGE_KEY,
+  LOGS_LINES_STORAGE_KEY,
+} from "@/constants/StorageKeys";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { View } from "react-native";
 
 type LogsData = {
@@ -29,14 +34,18 @@ export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
   const [persistedError, setPersistedError] = useState<
     ResourceHttpError | undefined
   >();
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  const refetchInterval =
+    Number(AsyncStorage.getItem(LOG_REFETCH_INTERVAL_STORAGE_KEY)) || 2000;
 
   const {
     data: logData,
     isPending: isPendingLogs,
     error,
   } = useLogsFetcher(uuid, Number(debouncedLines), {
-    refetchInterval: !persistedError ? 2000 : 10000,
-    enabled: isFocused,
+    refetchInterval: !persistedError ? refetchInterval : 10000,
+    enabled: isFocused && isInitialized,
   });
 
   useEffect(() => {
@@ -50,10 +59,24 @@ export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedLines(lines);
+      AsyncStorage.setItem(LOGS_LINES_STORAGE_KEY, lines);
     }, 500);
 
     return () => clearTimeout(timer);
   }, [lines]);
+
+  useLayoutEffect(() => {
+    AsyncStorage.getItem(LOGS_LINES_STORAGE_KEY).then((value) => {
+      const lines = value || "100";
+      setDebouncedLines(lines);
+      setLines(lines);
+      setIsInitialized(true);
+    });
+  }, []);
+
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <View className="flex-1 gap-2">
