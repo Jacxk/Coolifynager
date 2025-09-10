@@ -3,6 +3,7 @@ import LogsViewer from "@/components/LogsViewer";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useIsFocused } from "@react-navigation/native";
+import { UseQueryResult } from "@tanstack/react-query";
 import { useGlobalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -12,7 +13,11 @@ type LogsData = {
 };
 
 type ResourceLogsProps = {
-  useLogsFetcher: (uuid: string, lines: number, options: any) => any;
+  useLogsFetcher: (
+    uuid: string,
+    lines: number,
+    options: any
+  ) => UseQueryResult<LogsData, Error>;
 };
 
 export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
@@ -21,16 +26,26 @@ export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
 
   const [lines, setLines] = useState("100");
   const [debouncedLines, setDebouncedLines] = useState("100");
-  const [err, setErr] = useState<ResourceHttpError>();
+  const [persistedError, setPersistedError] = useState<
+    ResourceHttpError | undefined
+  >();
 
   const {
     data: logData,
     isPending: isPendingLogs,
     error,
   } = useLogsFetcher(uuid, Number(debouncedLines), {
-    refetchInterval: 2000,
+    refetchInterval: !persistedError ? 2000 : 10000,
     enabled: isFocused,
   });
+
+  useEffect(() => {
+    if (error) {
+      setPersistedError(error);
+    } else if (logData) {
+      setPersistedError(undefined);
+    }
+  }, [error, logData]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,12 +54,6 @@ export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
 
     return () => clearTimeout(timer);
   }, [lines]);
-
-  useEffect(() => {
-    if (!logData && error) {
-      setErr(error as ResourceHttpError);
-    }
-  }, [logData, error]);
 
   return (
     <View className="flex-1 gap-2">
@@ -65,7 +74,7 @@ export function ResourceLogs({ useLogsFetcher }: ResourceLogsProps) {
       <LogsViewer
         logs={(logData as LogsData)?.logs}
         isLoading={isPendingLogs}
-        error={err}
+        error={persistedError}
       />
     </View>
   );
