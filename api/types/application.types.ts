@@ -38,6 +38,7 @@ export type Application = ApplicationBase & {
   dockerfile: string | null;
   dockerfile_location: string;
   dockerfile_target_build: string | null;
+  destination_type: "App\\Models\\StandaloneDocker";
   git_full_url: string | null;
   health_check_enabled: boolean;
   health_check_host: string;
@@ -153,7 +154,6 @@ export type UpdateApplicationBody = Partial<
     | "compose_parsing_version"
     | "custom_healthcheck_found"
     | "dockerfile_location"
-    | "dockerfile_target_build"
     | "git_full_url"
     | "laravel_through_key"
     | "preview_url_template"
@@ -277,3 +277,5 @@ export type CreateApplicationBodyDockerImage = CreateApplicationBody & {
   docker_registry_image_name: string;
   docker_registry_image_tag: string;
 };
+
+export type ApplicationType = "Dockerfile" | "DockerCompose" | "Standalone";

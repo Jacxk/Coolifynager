@@ -1,4 +1,5 @@
 import {
+  ApplicationType,
   BuildPack,
   UpdateApplicationBody,
 } from "@/api/types/application.types";
@@ -9,6 +10,7 @@ import { Control, Controller, useController } from "react-hook-form";
 import { View } from "react-native";
 import BaseSection from "./build/BaseSection";
 import DockerComposeSection from "./build/DockerComposeSection";
+import DockerfileSection from "./build/DockerFileSection";
 import NixpacksPublishDirectorySection from "./build/NixpacksPublishDirectorySection";
 import NixpacksSection from "./build/NixpacksSection";
 
@@ -41,8 +43,10 @@ export function BaseDirectoryController({
 
 export default function BuildSection({
   control,
+  applicationType,
 }: {
   control: Control<UpdateApplicationBody>;
+  applicationType?: ApplicationType;
 }) {
   const {
     field: { value: buildPack },
@@ -51,7 +55,9 @@ export default function BuildSection({
     name: "build_pack",
   });
 
-  if (buildPack === BuildPack.dockerfile) return null;
+  if (buildPack === BuildPack.dockerfile && applicationType !== "Dockerfile")
+    return null;
+
   return (
     <View className="gap-2">
       <H3>Build</H3>
@@ -66,7 +72,10 @@ export default function BuildSection({
         <DockerComposeSection control={control} />
       )}
       {buildPack !== BuildPack.dockercompose && (
-        <BaseSection control={control} />
+        <BaseSection control={control} applicationType={applicationType} />
+      )}
+      {applicationType === "Dockerfile" && (
+        <DockerfileSection control={control} />
       )}
     </View>
   );

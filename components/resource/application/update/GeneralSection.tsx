@@ -1,4 +1,5 @@
 import {
+  ApplicationType,
   BuildPack,
   RedirectType,
   UpdateApplicationBody,
@@ -41,9 +42,12 @@ const buildPackLabel = (type?: string) =>
 
 export function BuildPackSelectController({
   control,
+  applicationType,
 }: {
   control: Control<any>;
+  applicationType?: ApplicationType;
 }) {
+  if (applicationType === "Dockerfile") return null;
   return (
     <Controller
       control={control}
@@ -84,10 +88,12 @@ export default function GeneralSection({
   control,
   errors,
   readonlyLabels,
+  applicationType,
 }: {
   control: Control<UpdateApplicationBody>;
   errors: FieldErrors<UpdateApplicationBody>;
   readonlyLabels: boolean;
+  applicationType?: ApplicationType;
 }) {
   const {
     field: { value: buildPack },
@@ -99,7 +105,10 @@ export default function GeneralSection({
   return (
     <View className="gap-2">
       <H3>General</H3>
-      <BuildPackSelectController control={control} />
+      <BuildPackSelectController
+        control={control}
+        applicationType={applicationType}
+      />
 
       {buildPack === BuildPack.static && (
         <>

@@ -1,6 +1,7 @@
 import { useUpdateApplication } from "@/api/application";
 import {
   Application,
+  BuildPack,
   UpdateApplicationBody,
 } from "@/api/types/application.types";
 import { ResourceHttpError } from "@/api/types/resources.types";
@@ -41,6 +42,16 @@ export default function UpdateApplication({ data }: { data: Application }) {
   const [readonlyLabels, setReadonlyLabels] = useState(true);
 
   const { mutateAsync: saveChanges } = useUpdateApplication(data.uuid);
+
+  const applicationType = (() => {
+    if (
+      data.destination_type === "App\\Models\\StandaloneDocker" &&
+      data.build_pack === BuildPack.dockerfile
+    ) {
+      return "Dockerfile";
+    }
+    return "Standalone";
+  })();
 
   const handleSave = (data: UpdateApplicationBody) => {
     const changedData = getDirtyData(data, dirtyFields);
@@ -90,9 +101,10 @@ export default function UpdateApplication({ data }: { data: Application }) {
         control={control}
         errors={errors}
         readonlyLabels={readonlyLabels}
+        applicationType={applicationType}
       />
       <DockerRegistrySection control={control} />
-      <BuildSection control={control} />
+      <BuildSection control={control} applicationType={applicationType} />
       <NetworkSection control={control} />
       <HTTPBasicAuthSection
         control={control}

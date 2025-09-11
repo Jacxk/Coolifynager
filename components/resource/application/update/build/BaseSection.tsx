@@ -1,4 +1,7 @@
-import { UpdateApplicationBody } from "@/api/types/application.types";
+import {
+  ApplicationType,
+  UpdateApplicationBody,
+} from "@/api/types/application.types";
 import InfoDialog from "@/components/InfoDialog";
 import {
   Checkbox,
@@ -14,30 +17,54 @@ import { View } from "react-native";
 
 export default function BaseSection({
   control,
+  applicationType = "Standalone",
 }: {
   control: Control<UpdateApplicationBody>;
+  applicationType?: ApplicationType;
 }) {
   return (
     <>
-      <View className="gap-1">
-        <InfoDialog
-          label="Watch Paths"
-          description="Gitignore-style rules to filter Git based webhook deployments."
-        />
-        <Controller
-          control={control}
-          name="watch_paths"
-          render={({ field: { onChange, value, onBlur } }) => (
-            <Textarea
-              value={value ?? ""}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              placeholder="src/page/**"
-              autoCapitalize="none"
-            />
-          )}
-        />
-      </View>
+      {applicationType !== "Dockerfile" ? (
+        <View className="gap-1">
+          <InfoDialog
+            label="Watch Paths"
+            description="Gitignore-style rules to filter Git based webhook deployments."
+          />
+          <Controller
+            control={control}
+            name="watch_paths"
+            render={({ field: { onChange, value, onBlur } }) => (
+              <Textarea
+                value={value ?? ""}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder="src/page/**"
+                autoCapitalize="none"
+              />
+            )}
+          />
+        </View>
+      ) : (
+        <View className="gap-1">
+          <InfoDialog
+            label="Docker Build Stage Target"
+            description="Useful if you have multi-staged dockerfile"
+          />
+          <Controller
+            control={control}
+            name="dockerfile_target_build"
+            render={({ field: { onChange, value, onBlur } }) => (
+              <Input
+                value={value ?? ""}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                placeholder=""
+                autoCapitalize="none"
+              />
+            )}
+          />
+        </View>
+      )}
       <View className="gap-1">
         <InfoDialog
           label="Custom Docker Options"
