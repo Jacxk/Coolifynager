@@ -1,11 +1,11 @@
 import * as LocalAuthentication from "expo-local-authentication";
 import { useState } from "react";
 
-export function useDestructiveAction() {
+export function useSecureAction() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleDestructiveAction = async <T>(
+  const handleSecureAction = async <T>(
     action: () => Promise<T> | T,
     {
       onCancel = () => {},
@@ -36,6 +36,6 @@ export function useDestructiveAction() {
   return {
     success,
     error,
-    handleDestructiveAction,
+    handleSecureAction,
   };
 }

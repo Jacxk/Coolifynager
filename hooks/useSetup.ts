@@ -1,4 +1,8 @@
 import { getHealth, validateToken } from "@/api/status";
+import {
+  PERMISSIONS_SAVED_STORAGE_KEY,
+  SETUP_COMPLETE_STORAGE_KEY,
+} from "@/constants/AppDetails";
 import { Secrets } from "@/constants/Secrets";
 import { isValidUrl } from "@/lib/utils";
 import SecureStore from "@/utils/SecureStorage";
@@ -9,6 +13,7 @@ import { useEffect, useState } from "react";
 export default function useSetup() {
   const [apiTokenSaved, setApiTokenSaved] = useState(false);
   const [serverAddressSaved, setServerAddressSaved] = useState(false);
+  const [permissionsSaved, setIsPermissionsSaved] = useState(false);
 
   const getApiToken = () => SecureStore.getItemAsync(Secrets.API_TOKEN);
   const setApiToken = async (key: string) => {
@@ -41,11 +46,19 @@ export default function useSetup() {
     setServerAddressSaved(true);
   };
 
+  const getPermissionsSaved = () =>
+    AsyncStorage.getItem(PERMISSIONS_SAVED_STORAGE_KEY);
+
+  const setPermissionsSaved = async (saved: boolean) => {
+    await AsyncStorage.setItem(PERMISSIONS_SAVED_STORAGE_KEY, String(saved));
+    setIsPermissionsSaved(saved);
+  };
+
   const resetSetup = async () => {
     await SecureStore.deleteItemAsync(Secrets.API_TOKEN);
     await SecureStore.deleteItemAsync(Secrets.SERVER_ADDRESS);
 
-    await AsyncStorage.setItem("SetupComplete", "false");
+    await AsyncStorage.setItem(SETUP_COMPLETE_STORAGE_KEY, "false");
 
     router.dismissTo("/setup/serverAddress");
   };
@@ -53,14 +66,22 @@ export default function useSetup() {
   useEffect(() => {
     getApiToken().then((api) => setApiTokenSaved(!!api));
     getServerAddress().then((server) => setServerAddressSaved(!!server));
+    getPermissionsSaved().then((permissions) =>
+      setIsPermissionsSaved(!!permissions)
+    );
   }, []);
 
   useEffect(() => {
     AsyncStorage.setItem(
-      "SetupComplete",
-      String(apiTokenSaved && serverAddressSaved)
+      SETUP_COMPLETE_STORAGE_KEY,
+      String(apiTokenSaved && serverAddressSaved && permissionsSaved)
     );
-  }, [apiTokenSaved, serverAddressSaved]);
+  }, [apiTokenSaved, serverAddressSaved, permissionsSaved]);
+
+  const isSetupComplete = () =>
+    AsyncStorage.getItem(SETUP_COMPLETE_STORAGE_KEY).then(
+      (value) => value === "true"
+    );
 
   return {
     setApiToken,
@@ -68,5 +89,8 @@ export default function useSetup() {
     setServerAddress,
     getServerAddress,
     resetSetup,
+    isSetupComplete,
+    getPermissionsSaved,
+    setPermissionsSaved,
   };
 }

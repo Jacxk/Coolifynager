@@ -251,11 +251,24 @@ export const useDeleteService = (
     ...options,
     onMutate: async () => {
       const queryKey = ServiceKeys.queries.single(uuid);
-      const previousData = queryClient.getQueryData<Service[]>(queryKey);
+      const queryKeyAll = ServiceKeys.queries.all();
+
+      await queryClient.cancelQueries({ queryKey });
+      await queryClient.cancelQueries({ queryKey: queryKeyAll });
+
+      const previousData = queryClient.getQueryData<Service>(queryKey);
+      const previousDataAll = queryClient.getQueryData<Service[]>(queryKeyAll);
+
+      if (previousDataAll) {
+        queryClient.setQueryData(
+          queryKeyAll,
+          previousDataAll.filter((service) => service.uuid !== uuid)
+        );
+      }
 
       queryClient.setQueryData(queryKey, undefined);
 
-      return { previousData, queryKey };
+      return { previousData, queryKey, previousDataAll, queryKeyAll };
     },
     onError: onOptimisticUpdateError,
     onSettled: () => {

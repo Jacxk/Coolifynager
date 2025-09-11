@@ -23,7 +23,7 @@ import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { RefreshControl, ScrollView, View } from "react-native";
 import { toast } from "sonner-native";
-import { AnimatedHeader } from "../AnimatedHeaderTitle";
+import { AnimatedHeaderTitle } from "../AnimatedHeaderTitle";
 import { DomainsSelect } from "../DomainsSelect";
 import { HealthIndicator } from "../HealthIndicator";
 import { Edit } from "../icons/Edit";
@@ -442,7 +442,7 @@ function ResourceScreenBase({
       <Stack.Screen
         options={{
           header: () => (
-            <AnimatedHeader
+            <AnimatedHeaderTitle
               name={data.name}
               status={hasStatus ? data.status : "unknown"}
               showTitle={showHeaderTitle}

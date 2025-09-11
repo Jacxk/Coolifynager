@@ -41,6 +41,7 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        branding: "#000F43",
       },
       borderWidth: {
         hairline: hairlineWidth(),

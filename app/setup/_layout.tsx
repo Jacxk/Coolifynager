@@ -2,9 +2,6 @@ import { Stack } from "expo-router";
 
 export default function SetupLayout() {
   return (
-    <Stack
-      initialRouteName="serverAddress"
-      screenOptions={{ headerShown: false }}
-    />
+    <Stack initialRouteName="index" screenOptions={{ headerShown: false }} />
   );
 }

@@ -28,7 +28,6 @@ export default function MainLayout() {
           ),
         }}
       />
-      <Stack.Screen name="settings" options={{ headerShown: false }} />
       <Stack.Screen
         name="projects/index"
         options={{

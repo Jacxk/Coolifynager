@@ -55,38 +55,38 @@ export default function ApiTokenStep() {
   return (
     <SetupScreenContainer>
       <View className="flex-row items-center mb-1">
-        <Text>Enter your Coolify API Token</Text>
+        <Text className="text-white text-lg">Enter your Coolify API Token</Text>
         <InfoDialog
           title="How to generate an API Token"
           description={`To connect ${APP_NAME} to your Coolify instance, you need to generate an API token:`}
           triggerAccessibilityLabel="API Token Info"
         >
           <View className="pl-2">
-            <Text className="text-muted-foreground">
+            <Text className="text-white/80">
               1. Open your{" "}
               <Text
-                className="underline font-semibold text-yellow-500"
+                className="underline font-semibold text-yellow-400"
                 onPress={openBrowser}
               >
                 Coolify dashboard
               </Text>
               .
             </Text>
-            <Text className="text-muted-foreground">
+            <Text className="text-white/80">
               2. Go to{" "}
-              <Text className="font-semibold text-yellow-500">
+              <Text className="font-semibold text-yellow-400">
                 Keys & Tokens {">"} API tokens
               </Text>
               .
             </Text>
-            <Text className="text-muted-foreground">
+            <Text className="text-white/80">
               3. Create a new token with the following permissions:
             </Text>
             <View className="pl-4">
-              <Text className="text-muted-foreground">• read</Text>
-              <Text className="text-muted-foreground">• read:sensitive</Text>
-              <Text className="text-muted-foreground">• write</Text>
-              <Text className="text-muted-foreground">• deploy</Text>
+              <Text className="text-white/80">• read</Text>
+              <Text className="text-white/80">• read:sensitive</Text>
+              <Text className="text-white/80">• write</Text>
+              <Text className="text-white/80">• deploy</Text>
             </View>
           </View>
         </InfoDialog>
@@ -99,10 +99,15 @@ export default function ApiTokenStep() {
         placeholder="API TOKEN"
         enablesReturnKeyAutomatically
       />
-      <Button onPress={saveKey} disabled={!valid} loading={loading}>
-        <Text>Save</Text>
+      <Button
+        onPress={saveKey}
+        disabled={!valid}
+        loading={loading}
+        className="bg-white"
+      >
+        <Text className="text-black">Save</Text>
       </Button>
-      {!!error && <Text className="color-red-500">{error}</Text>}
+      {!!error && <Text className="text-red-400">{error}</Text>}
     </SetupScreenContainer>
   );
 }
