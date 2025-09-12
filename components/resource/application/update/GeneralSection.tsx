@@ -47,7 +47,9 @@ export function BuildPackSelectController({
   control: Control<any>;
   applicationType?: ApplicationType;
 }) {
-  if (applicationType === "Dockerfile") return null;
+  if (applicationType === "Dockerfile" || applicationType === "DockerImage")
+    return null;
+
   return (
     <Controller
       control={control}
@@ -69,13 +71,15 @@ export function BuildPackSelectController({
               />
             </SelectTrigger>
             <SelectContent>
-              {Object.values(BuildPack).map((value) => (
-                <SelectItem
-                  key={value}
-                  value={value}
-                  label={buildPackLabel(value)}
-                />
-              ))}
+              {Object.values(BuildPack)
+                .filter((value) => value !== BuildPack.dockerimage)
+                .map((value) => (
+                  <SelectItem
+                    key={value}
+                    value={value}
+                    label={buildPackLabel(value)}
+                  />
+                ))}
             </SelectContent>
           </Select>
         </View>

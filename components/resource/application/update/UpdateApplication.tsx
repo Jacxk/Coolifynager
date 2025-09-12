@@ -1,6 +1,7 @@
 import { useUpdateApplication } from "@/api/application";
 import {
   Application,
+  ApplicationType,
   BuildPack,
   UpdateApplicationBody,
 } from "@/api/types/application.types";
@@ -43,12 +44,18 @@ export default function UpdateApplication({ data }: { data: Application }) {
 
   const { mutateAsync: saveChanges } = useUpdateApplication(data.uuid);
 
-  const applicationType = (() => {
+  const applicationType: ApplicationType = (() => {
     if (
       data.destination_type === "App\\Models\\StandaloneDocker" &&
       data.build_pack === BuildPack.dockerfile
     ) {
       return "Dockerfile";
+    }
+    if (
+      data.destination_type === "App\\Models\\StandaloneDocker" &&
+      data.build_pack === BuildPack.dockerimage
+    ) {
+      return "DockerImage";
     }
     return "Standalone";
   })();

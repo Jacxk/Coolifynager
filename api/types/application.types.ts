@@ -123,6 +123,7 @@ export enum BuildPack {
   static = "static",
   dockerfile = "dockerfile",
   dockercompose = "dockercompose",
+  dockerimage = "dockerimage",
 }
 
 export enum RedirectType {
@@ -278,4 +279,8 @@ export type CreateApplicationBodyDockerImage = CreateApplicationBody & {
   docker_registry_image_tag: string;
 };
 
-export type ApplicationType = "Dockerfile" | "DockerCompose" | "Standalone";
+export type ApplicationType =
+  | "Dockerfile"
+  | "DockerCompose"
+  | "Standalone"
+  | "DockerImage";
