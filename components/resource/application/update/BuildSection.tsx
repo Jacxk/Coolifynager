@@ -64,7 +64,9 @@ export default function BuildSection({
       {buildPack === BuildPack.nixpacks && (
         <NixpacksSection control={control} />
       )}
-      <BaseDirectoryController control={control} />
+      {applicationType !== "DockerImage" && (
+        <BaseDirectoryController control={control} />
+      )}
       {buildPack === BuildPack.nixpacks && (
         <NixpacksPublishDirectorySection control={control} />
       )}
