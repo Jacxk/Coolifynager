@@ -27,6 +27,7 @@ type LogsViewerProps = {
   isLoading?: boolean;
   className?: string;
   error?: ResourceHttpError;
+  status?: string;
 };
 
 function LogLineItem({
@@ -55,6 +56,7 @@ export default function LogsViewer({
   isLoading,
   className,
   error,
+  status,
 }: LogsViewerProps) {
   const isLogString = typeof logs === "string";
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -91,7 +93,9 @@ export default function LogsViewer({
     <View className="flex-1 relative">
       <FlatList
         ref={scrollViewRef}
-        inverted={error?.message === undefined || !noLogs}
+        inverted={
+          status !== "queued" && (error?.message === undefined || !noLogs)
+        }
         invertStickyHeaders
         onScroll={onScroll}
         scrollEventThrottle={16}

@@ -31,13 +31,9 @@ export default function DeploymentLogs() {
   });
 
   useEffect(() => {
-    if (
-      data?.status === "finished" ||
-      data?.status === "failed" ||
-      data?.status === "cancelled-by-user"
-    ) {
-      setIsFinished(true);
-    }
+    setIsFinished(
+      ["finished", "failed", "cancelled-by-user"].includes(data?.status ?? "")
+    );
   }, [data?.status]);
 
   useLayoutEffect(() => {
@@ -77,6 +73,7 @@ export default function DeploymentLogs() {
       <LogsViewer
         logs={showHidden ? logs : logs?.filter((log) => !log.hidden)}
         isLoading={isPending}
+        status={data?.status}
       />
     </SafeView>
   );
