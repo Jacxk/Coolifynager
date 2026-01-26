@@ -2,6 +2,7 @@ import { UpdateMySQLDatabaseBody } from "@/api/types/database.types";
 import InfoDialog from "@/components/InfoDialog";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
 
@@ -22,8 +23,11 @@ export default function MysqlDetails({
           control={control}
           name="mysql_root_password"
           rules={{ required: "Root Password is required" }}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
             <PasswordInput
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               onChangeText={onChange}
               onBlur={onBlur}
               value={value}
@@ -42,8 +46,15 @@ export default function MysqlDetails({
           control={control}
           name="mysql_user"
           rules={{ required: "Normal User is required" }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <Input onChangeText={onChange} onBlur={onBlur} value={value} />
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
+            <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+            />
           )}
         />
         {errors.mysql_user && (
@@ -57,8 +68,11 @@ export default function MysqlDetails({
           control={control}
           name="mysql_password"
           rules={{ required: "Normal User Password is required" }}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
             <PasswordInput
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               onChangeText={onChange}
               onBlur={onBlur}
               value={value}
@@ -79,8 +93,11 @@ export default function MysqlDetails({
           control={control}
           name="mysql_database"
           disabled
-          render={({ field: { onChange, onBlur, value, disabled } }) => (
+          render={({ field: { onChange, onBlur, value, disabled }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               onChangeText={onChange}
               onBlur={onBlur}
               value={value}

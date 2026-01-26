@@ -1,6 +1,7 @@
 import { UpdateClickHouseDatabaseBody } from "@/api/types/database.types";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
 
@@ -14,10 +15,13 @@ export default function ClickhouseDetails({
       <Controller
         control={control}
         name="clickhouse_admin_user"
-        render={({ field: { value, onChange }, fieldState: { error } }) => (
+        render={({ field: { value, onChange }, fieldState: { error, isDirty } }) => (
           <View className="flex-1 gap-1">
             <Text className="text-muted-foreground">Username</Text>
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="admin"
               value={value}
               editable={false}
@@ -30,10 +34,13 @@ export default function ClickhouseDetails({
       <Controller
         control={control}
         name="clickhouse_admin_password"
-        render={({ field: { value, onChange }, fieldState: { error } }) => (
+        render={({ field: { value, onChange }, fieldState: { error, isDirty } }) => (
           <View className="flex-1 gap-1">
             <Text className="text-muted-foreground">Password</Text>
             <PasswordInput
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="There should be a password here"
               value={value}
               editable={false}

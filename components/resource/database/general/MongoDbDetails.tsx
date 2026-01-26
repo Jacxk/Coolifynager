@@ -2,6 +2,7 @@ import { UpdateMongoDBDatabaseBody } from "@/api/types/database.types";
 import InfoDialog from "@/components/InfoDialog";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
 import { Control, Controller, FieldErrors, useWatch } from "react-hook-form";
 import { View } from "react-native";
 
@@ -24,8 +25,11 @@ export default function MongoDbDetails({
           control={control}
           name="mongo_initdb_root_username"
           rules={{ required: "Username is required" }}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="If empty: postgres"
               onChangeText={onChange}
               onBlur={onBlur}
@@ -46,8 +50,11 @@ export default function MongoDbDetails({
           control={control}
           name="mongo_initdb_root_password"
           rules={{ required: "Password is required" }}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
             <PasswordInput
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="Enter DB password"
               onChangeText={onChange}
               onBlur={onBlur}

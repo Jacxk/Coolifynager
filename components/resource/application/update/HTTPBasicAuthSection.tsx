@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { H3 } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 import { Buffer } from "buffer";
 import {
   Control,
@@ -54,7 +55,7 @@ export default function HTTPBasicAuthSection({
       <Controller
         control={control}
         name="is_http_basic_auth_enabled"
-        render={({ field: { onChange, value } }) => (
+        render={({ field: { onChange, value }, fieldState: { isDirty } }) => (
           <Checkbox checked={value ?? false} onCheckedChange={onChange}>
             <CheckboxLabel asChild>
               <InfoDialog
@@ -62,7 +63,7 @@ export default function HTTPBasicAuthSection({
                 description="This will add the proper proxy labels to the container."
               />
             </CheckboxLabel>
-            <CheckboxIcon />
+            <CheckboxIcon className={cn({ "border-yellow-500": isDirty })} />
           </Checkbox>
         )}
       />
@@ -74,8 +75,17 @@ export default function HTTPBasicAuthSection({
               control={control}
               name="http_basic_auth_username"
               rules={{ required: "Username is required" }}
-              render={({ field: { onChange, value } }) => (
-                <Input value={value ?? ""} onChangeText={onChange} />
+              render={({
+                field: { onChange, value },
+                fieldState: { isDirty },
+              }) => (
+                <Input
+                  className={cn({
+                    "border-yellow-500": isDirty,
+                  })}
+                  value={value ?? ""}
+                  onChangeText={onChange}
+                />
               )}
             />
             {errors.http_basic_auth_username && (
@@ -90,8 +100,17 @@ export default function HTTPBasicAuthSection({
               control={control}
               name="http_basic_auth_password"
               rules={{ required: "Password is required" }}
-              render={({ field: { onChange, value } }) => (
-                <Input value={value ?? ""} onChangeText={onChange} />
+              render={({
+                field: { onChange, value },
+                fieldState: { isDirty },
+              }) => (
+                <Input
+                  className={cn({
+                    "border-yellow-500": isDirty,
+                  })}
+                  value={value ?? ""}
+                  onChangeText={onChange}
+                />
               )}
             />
             {errors.http_basic_auth_password && (
@@ -108,8 +127,14 @@ export default function HTTPBasicAuthSection({
           control={control}
           name="custom_labels"
           disabled={readonlyLabels}
-          render={({ field: { onChange, value, disabled } }) => (
+          render={({
+            field: { onChange, value, disabled },
+            fieldState: { isDirty },
+          }) => (
             <Textarea
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={Buffer.from(value ?? "", "base64").toString("utf-8")}
               onChangeText={(text) =>
                 onChange(Buffer.from(text, "utf-8").toString("base64"))

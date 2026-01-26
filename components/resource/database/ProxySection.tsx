@@ -7,6 +7,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
 import DBCustomConfiguration from "./DBCustomConfiguration";
@@ -24,10 +25,10 @@ export default function ProxySection({
       <Controller
         control={control}
         name="is_public"
-        render={({ field: { value, onChange } }) => (
+        render={({ field: { value, onChange }, fieldState: { isDirty } }) => (
           <Checkbox checked={value ?? false} onCheckedChange={onChange}>
             <CheckboxLabel>Make it publicly available</CheckboxLabel>
-            <CheckboxIcon />
+            <CheckboxIcon className={cn({ "border-yellow-500": isDirty })} />
           </Checkbox>
         )}
       />
@@ -36,8 +37,11 @@ export default function ProxySection({
         <Controller
           control={control}
           name="public_port"
-          render={({ field: { value, onChange } }) => (
+          render={({ field: { value, onChange }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               keyboardType="number-pad"
               placeholder="5432"
               value={value?.toString()}

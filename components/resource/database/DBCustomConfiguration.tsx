@@ -4,6 +4,7 @@ import {
 } from "@/api/types/database.types";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { Control, Controller, Path } from "react-hook-form";
 import { View } from "react-native";
 
@@ -44,9 +45,11 @@ export default function DBCustomConfiguration({
       <Controller
         control={control}
         name={name}
-        render={({ field: { value, onChange } }) => (
+        render={({ field: { value, onChange }, fieldState: { isDirty } }) => (
           <Textarea
-            className="h-40"
+            className={cn("h-40", {
+              "border-yellow-500": isDirty,
+            })}
             value={value ?? ""}
             onChangeText={onChange}
           />

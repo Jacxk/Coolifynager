@@ -1,6 +1,7 @@
 import { UpdateApplicationBody } from "@/api/types/application.types";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
 
@@ -15,8 +16,11 @@ export default function NixpacksPublishDirectorySection({
       <Controller
         control={control}
         name="base_directory"
-        render={({ field: { onChange, value, onBlur } }) => (
+        render={({ field: { onChange, value, onBlur }, fieldState: { isDirty } }) => (
           <Input
+            className={cn({
+              "border-yellow-500": isDirty,
+            })}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}

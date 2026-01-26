@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { openBrowserAsync } from "expo-web-browser";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
@@ -29,8 +30,14 @@ function WatchPathsController({
       <Controller
         control={control}
         name="watch_paths"
-        render={({ field: { onChange, value, onBlur } }) => (
+        render={({
+          field: { onChange, value, onBlur },
+          fieldState: { isDirty },
+        }) => (
           <Textarea
+            className={cn({
+              "border-yellow-500": isDirty,
+            })}
             value={value ?? ""}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -57,8 +64,14 @@ function DockerBuildStageTargetController({
       <Controller
         control={control}
         name="dockerfile_target_build"
-        render={({ field: { onChange, value, onBlur } }) => (
+        render={({
+          field: { onChange, value, onBlur },
+          fieldState: { isDirty },
+        }) => (
           <Input
+            className={cn({
+              "border-yellow-500": isDirty,
+            })}
             value={value ?? ""}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -80,7 +93,7 @@ function UseBuildServerController({
     <Controller
       control={control}
       name="use_build_server"
-      render={({ field: { onChange, value } }) => (
+      render={({ field: { onChange, value }, fieldState: { isDirty } }) => (
         <Checkbox checked={value ?? false} onCheckedChange={onChange}>
           <CheckboxLabel asChild>
             <InfoDialog
@@ -94,7 +107,7 @@ function UseBuildServerController({
                     className="underline"
                     onPress={() =>
                       openBrowserAsync(
-                        "https://coolify.io/docs/knowledge-base/server/build-server"
+                        "https://coolify.io/docs/knowledge-base/server/build-server",
                       )
                     }
                   >
@@ -105,7 +118,7 @@ function UseBuildServerController({
               }
             />
           </CheckboxLabel>
-          <CheckboxIcon />
+          <CheckboxIcon className={cn({ "border-yellow-500": isDirty })} />
         </Checkbox>
       )}
     />
@@ -137,7 +150,7 @@ function CustomDockerOptionsController({
                 className="underline"
                 onPress={() =>
                   openBrowserAsync(
-                    "https://coolify.io/docs/knowledge-base/docker/custom-commands"
+                    "https://coolify.io/docs/knowledge-base/docker/custom-commands",
                   )
                 }
               >
@@ -151,8 +164,14 @@ function CustomDockerOptionsController({
       <Controller
         control={control}
         name="custom_docker_run_options"
-        render={({ field: { onChange, value, onBlur } }) => (
+        render={({
+          field: { onChange, value, onBlur },
+          fieldState: { isDirty },
+        }) => (
           <Input
+            className={cn({
+              "border-yellow-500": isDirty,
+            })}
             value={value ?? ""}
             onChangeText={onChange}
             onBlur={onBlur}

@@ -3,6 +3,7 @@ import InfoDialog from "@/components/InfoDialog";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 import { openBrowserAsync } from "expo-web-browser";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
@@ -23,7 +24,7 @@ export default function DockerRegistrySection({
               className="underline"
               onPress={() =>
                 openBrowserAsync(
-                  "https://coolify.io/docs/knowledge-base/docker/registry"
+                  "https://coolify.io/docs/knowledge-base/docker/registry",
                 )
               }
             >
@@ -45,8 +46,14 @@ export default function DockerRegistrySection({
         <Controller
           control={control}
           name="docker_registry_image_name"
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({
+            field: { onChange, value, onBlur },
+            fieldState: { isDirty },
+          }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={value ?? ""}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -74,8 +81,14 @@ export default function DockerRegistrySection({
         <Controller
           control={control}
           name="docker_registry_image_tag"
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({
+            field: { onChange, value, onBlur },
+            fieldState: { isDirty },
+          }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={value ?? ""}
               onChangeText={onChange}
               onBlur={onBlur}

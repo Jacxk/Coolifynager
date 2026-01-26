@@ -3,6 +3,7 @@ import InfoDialog from "@/components/InfoDialog";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
 
@@ -18,13 +19,16 @@ export function PortsExposesController({ control }: { control: Control<any> }) {
             "Invalid ports exposes. Use comma separated numbers (e.g. 80,443)",
         },
       }}
-      render={({ field: { onChange, value, onBlur } }) => (
+      render={({ field: { onChange, value, onBlur }, fieldState: { isDirty } }) => (
         <View className="gap-1">
           <InfoDialog
             label="Ports Exposes"
             description="A comma separated list of ports your application uses. The first port will be used as default healthcheck port if nothing defined in the Healthcheck menu. Be sure to set this correctly."
           />
           <Input
+            className={cn({
+              "border-yellow-500": isDirty,
+            })}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -72,8 +76,11 @@ export default function NetworkSection({
         <Controller
           control={control}
           name="ports_mappings"
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({ field: { onChange, value, onBlur }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={value ?? ""}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -106,8 +113,11 @@ export default function NetworkSection({
         <Controller
           control={control}
           name="custom_network_aliases"
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({ field: { onChange, value, onBlur }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={value ?? ""}
               onChangeText={onChange}
               onBlur={onBlur}

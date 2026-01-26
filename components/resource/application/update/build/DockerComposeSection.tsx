@@ -2,6 +2,7 @@ import { UpdateApplicationBody } from "@/api/types/application.types";
 import InfoDialog from "@/components/InfoDialog";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
 
@@ -14,7 +15,7 @@ export function DockerComposeLocationController({
     <Controller
       control={control}
       name="docker_compose_location"
-      render={({ field: { onChange, value, onBlur } }) => (
+      render={({ field: { onChange, value, onBlur }, fieldState: { isDirty } }) => (
         <View className="gap-1">
           <InfoDialog
             label="Docker Compose Location"
@@ -26,6 +27,9 @@ export function DockerComposeLocationController({
             }
           />
           <Input
+            className={cn({
+              "border-yellow-500": isDirty,
+            })}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}
@@ -72,8 +76,11 @@ export default function DockerComposeSection({
         <Controller
           control={control}
           name="docker_compose_custom_build_command"
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({ field: { onChange, value, onBlur }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={value ?? ""}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -105,8 +112,11 @@ export default function DockerComposeSection({
         <Controller
           control={control}
           name="docker_compose_custom_start_command"
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({ field: { onChange, value, onBlur }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={value ?? ""}
               onChangeText={onChange}
               onBlur={onBlur}

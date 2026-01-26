@@ -6,6 +6,7 @@ import {
 import InfoDialog from "@/components/InfoDialog";
 import { Input } from "@/components/ui/input";
 import { H3 } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 import { Control, Controller, useController } from "react-hook-form";
 import { View } from "react-native";
 import BaseSection from "./build/BaseSection";
@@ -23,13 +24,19 @@ export function BaseDirectoryController({
     <Controller
       control={control}
       name="base_directory"
-      render={({ field: { onChange, value, onBlur } }) => (
+      render={({
+        field: { onChange, value, onBlur },
+        fieldState: { isDirty },
+      }) => (
         <View className="gap-1">
           <InfoDialog
             label="Base Directory"
             description="Directory to use as root. Useful for monorepos."
           />
           <Input
+            className={cn({
+              "border-yellow-500": isDirty,
+            })}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}

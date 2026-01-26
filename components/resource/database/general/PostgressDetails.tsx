@@ -2,6 +2,7 @@ import { UpdatePostgreSQLDatabaseBody } from "@/api/types/database.types";
 import InfoDialog from "@/components/InfoDialog";
 import { Input, PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
 
@@ -24,8 +25,11 @@ export default function PostgressDetails({
           control={control}
           name="postgres_user"
           rules={{ required: "Username is required" }}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="If empty: postgres"
               onChangeText={onChange}
               onBlur={onBlur}
@@ -48,8 +52,11 @@ export default function PostgressDetails({
           control={control}
           name="postgres_password"
           rules={{ required: "Password is required" }}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
             <PasswordInput
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="Enter DB password"
               onChangeText={onChange}
               onBlur={onBlur}
@@ -73,8 +80,11 @@ export default function PostgressDetails({
           control={control}
           name="postgres_db"
           disabled
-          render={({ field: { onChange, onBlur, value, disabled } }) => (
+          render={({ field: { onChange, onBlur, value, disabled }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="If empty, it will be the same as Username."
               onChangeText={onChange}
               onBlur={onBlur}
@@ -93,8 +103,11 @@ export default function PostgressDetails({
           control={control}
           name="postgres_initdb_args"
           disabled
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="If empty, use default. See in docker docs."
               onChangeText={onChange}
               onBlur={onBlur}
@@ -110,8 +123,11 @@ export default function PostgressDetails({
           control={control}
           name="postgres_host_auth_method"
           disabled
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="If empty, use default. See in docker docs."
               onChangeText={onChange}
               onBlur={onBlur}

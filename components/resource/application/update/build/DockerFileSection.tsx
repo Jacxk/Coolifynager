@@ -1,6 +1,7 @@
 import { UpdateApplicationBody } from "@/api/types/application.types";
 import InfoDialog from "@/components/InfoDialog";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
 
@@ -15,7 +16,7 @@ export default function DockerfileSection({
       <Controller
         control={control}
         name="dockerfile"
-        render={({ field: { onChange, value, onBlur } }) => (
+        render={({ field: { onChange, value, onBlur }, fieldState: { isDirty } }) => (
           <Textarea
             value={value ?? ""}
             onChangeText={onChange}
@@ -23,7 +24,9 @@ export default function DockerfileSection({
             placeholder={`FROM nginx\nEXPOSE 80\nCMD ["nginx", "-g", "daemon off;"]`}
             autoCapitalize="none"
             autoComplete="off"
-            className="flex-1"
+            className={cn("flex-1", {
+              "border-yellow-500": isDirty,
+            })}
             numberOfLines={Math.min(10, (value ?? "").split("\n").length + 3)}
           />
         )}

@@ -2,6 +2,7 @@ import { UpdateApplicationBody } from "@/api/types/application.types";
 import InfoDialog from "@/components/InfoDialog";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
+import { cn } from "@/lib/utils";
 import { openBrowserAsync } from "expo-web-browser";
 import { Control, Controller } from "react-hook-form";
 import { View } from "react-native";
@@ -24,8 +25,14 @@ export default function NixpacksSection({
         <Controller
           control={control}
           name="install_command"
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({
+            field: { onChange, value, onBlur },
+            fieldState: { isDirty },
+          }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -46,8 +53,14 @@ export default function NixpacksSection({
         <Controller
           control={control}
           name="build_command"
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({
+            field: { onChange, value, onBlur },
+            fieldState: { isDirty },
+          }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -68,8 +81,14 @@ export default function NixpacksSection({
         <Controller
           control={control}
           name="start_command"
-          render={({ field: { onChange, value, onBlur } }) => (
+          render={({
+            field: { onChange, value, onBlur },
+            fieldState: { isDirty },
+          }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}

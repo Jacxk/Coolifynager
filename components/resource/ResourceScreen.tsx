@@ -16,6 +16,7 @@ import { Team } from "@/api/types/teams.types";
 import { EditingProvider, useEditing } from "@/context/EditingContext";
 import { useRefreshOnFocus } from "@/hooks/useRefreshOnFocus";
 import { navigatePath } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
 import { useIsFocused } from "@react-navigation/native";
 import { Redirect, router, Stack } from "expo-router";
 import { Info } from "lucide-react-native";
@@ -121,8 +122,11 @@ function ResourceEditingForm({
             control={control}
             name="name"
             rules={{ required: true }}
-            render={({ field: { value, onChange } }) => (
+            render={({ field: { value, onChange }, fieldState: { isDirty } }) => (
               <Input
+                className={cn({
+                  "border-yellow-500": isDirty,
+                })}
                 value={value}
                 onChangeText={onChange}
                 onSubmitEditing={handleSubmit(onSubmitDetails)}
@@ -140,9 +144,11 @@ function ResourceEditingForm({
       <Controller
         control={control}
         name="description"
-        render={({ field: { value, onChange } }) => (
+        render={({ field: { value, onChange }, fieldState: { isDirty } }) => (
           <Input
-            className="mt-2"
+            className={cn("mt-2", {
+              "border-yellow-500": isDirty,
+            })}
             value={value}
             onChangeText={onChange}
             onSubmitEditing={handleSubmit(onSubmitDetails)}
@@ -238,7 +244,7 @@ function useResourceMutations(
   useStopResource: UseStopHook,
   useRestartResource: UseRestartHook,
   useUpdateResource: UseUpdateHook,
-  refetch: () => void
+  refetch: () => void,
 ) {
   const { setIsEditingDetails, setIsEditing } = useEditing();
 
@@ -273,7 +279,7 @@ function useResourceMutations(
               params: { deployment_uuid },
             });
           },
-        }
+        },
       );
     } else {
       startMutation.mutate(undefined, {
@@ -339,7 +345,7 @@ function useResourceMutations(
         error: (error: unknown) => {
           return (error as Error).message || "Failed to update details";
         },
-      }
+      },
     );
   };
 
@@ -393,7 +399,7 @@ function ResourceScreenBase({
     useStopResource,
     useRestartResource,
     useUpdateResource,
-    refetch
+    refetch,
   );
 
   const handleScroll = (event: any) => {
@@ -416,7 +422,7 @@ function ResourceScreenBase({
 
   const domains = useMemo<string[]>(
     () => extractDomains(data || ({} as ResourceData)),
-    [data]
+    [data],
   );
 
   if (isPending) {
@@ -431,8 +437,8 @@ function ResourceScreenBase({
   const serverStatus = hasDestination
     ? (data.destination as ResourceDestination).server?.proxy?.status
     : hasServer
-    ? (data.server as SingleServer).proxy?.status
-    : "unknown";
+      ? (data.server as SingleServer).proxy?.status
+      : "unknown";
 
   // Check if data has status property for the header
   const hasStatus = "status" in data;

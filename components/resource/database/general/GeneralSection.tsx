@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { H3 } from "@/components/ui/typography";
+import { cn } from "@/lib/utils";
 import { Control, Controller, FieldErrors } from "react-hook-form";
 import { View } from "react-native";
 import ClickhouseDetails from "./ClickhouseDetails";
@@ -42,8 +43,11 @@ export default function GeneralSection({
           control={control}
           name="image"
           rules={{ required: "Image is required" }}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, onBlur, value }, fieldState: { isDirty } }) => (
             <Input
+              className={cn({
+                "border-yellow-500": isDirty,
+              })}
               placeholder="Image"
               onChangeText={onChange}
               onBlur={onBlur}

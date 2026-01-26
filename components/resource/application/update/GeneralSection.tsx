@@ -15,7 +15,7 @@ import {
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { H3 } from "@/components/ui/typography";
-import { isValidUrl } from "@/lib/utils";
+import { cn, isValidUrl } from "@/lib/utils";
 import {
   Control,
   Controller,
@@ -28,17 +28,17 @@ const redirectLabel = (type?: string) =>
   type === RedirectType.both
     ? "Allow www & non-www."
     : type === RedirectType.www
-    ? "Redirect to www."
-    : "Redirect to non-www.";
+      ? "Redirect to www."
+      : "Redirect to non-www.";
 
 const buildPackLabel = (type?: string) =>
   type === BuildPack.nixpacks
     ? "Nixpacks"
     : type === BuildPack.static
-    ? "Static"
-    : type === BuildPack.dockerfile
-    ? "Dockerfile"
-    : "Docker Compose";
+      ? "Static"
+      : type === BuildPack.dockerfile
+        ? "Dockerfile"
+        : "Docker Compose";
 
 export function BuildPackSelectController({
   control,
@@ -54,7 +54,7 @@ export function BuildPackSelectController({
     <Controller
       control={control}
       name="build_pack"
-      render={({ field: { onChange, value } }) => (
+      render={({ field: { onChange, value }, fieldState: { isDirty } }) => (
         <View className="gap-1">
           <Text className="text-muted-foreground">Build Pack</Text>
           <Select
@@ -64,7 +64,7 @@ export function BuildPackSelectController({
             }}
             onValueChange={(option) => onChange(option?.value as BuildPack)}
           >
-            <SelectTrigger>
+            <SelectTrigger className={cn({ "border-yellow-500": isDirty })}>
               <SelectValue
                 placeholder="Select a build pack"
                 className="text-foreground"
@@ -121,7 +121,10 @@ export default function GeneralSection({
             <Controller
               control={control}
               name="static_image"
-              render={({ field: { onChange, value } }) => (
+              render={({
+                field: { onChange, value },
+                fieldState: { isDirty },
+              }) => (
                 <Select
                   value={{
                     value: value ?? "",
@@ -129,7 +132,9 @@ export default function GeneralSection({
                   }}
                   onValueChange={(option) => onChange(option?.value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger
+                    className={cn({ "border-yellow-500": isDirty })}
+                  >
                     <SelectValue
                       placeholder="Select a build pack"
                       className="text-foreground"
@@ -156,11 +161,16 @@ export default function GeneralSection({
             <Controller
               control={control}
               name="custom_nginx_configuration"
-              render={({ field: { onChange, value } }) => (
+              render={({
+                field: { onChange, value },
+                fieldState: { isDirty },
+              }) => (
                 <Textarea
                   value={value ?? ""}
                   onChangeText={onChange}
-                  className="h-96 min-h-10"
+                  className={cn("h-96 min-h-10", {
+                    "border-yellow-500": isDirty,
+                  })}
                   autoCapitalize="none"
                 />
               )}
@@ -211,13 +221,18 @@ export default function GeneralSection({
               return undefined;
             },
           }}
-          render={({ field: { onChange, value, onBlur, disabled } }) => (
+          render={({
+            field: { onChange, value, onBlur, disabled },
+            fieldState: { isDirty },
+          }) => (
             <Textarea
               placeholder="https://coolify.io"
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
-              className="max-h-24 min-h-10"
+              className={cn("max-h-24 min-h-10", {
+                "border-yellow-500": isDirty,
+              })}
               keyboardType="url"
               autoCapitalize="none"
               editable={!disabled}
@@ -237,7 +252,7 @@ export default function GeneralSection({
         <Controller
           control={control}
           name="redirect"
-          render={({ field: { onChange, value } }) => (
+          render={({ field: { onChange, value }, fieldState: { isDirty } }) => (
             <Select
               value={{
                 value: value ?? "",
@@ -245,7 +260,7 @@ export default function GeneralSection({
               }}
               onValueChange={(option) => onChange(option?.value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className={cn({ "border-yellow-500": isDirty })}>
                 <SelectValue
                   placeholder="Select a redirect type"
                   className="text-foreground"
