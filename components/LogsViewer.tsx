@@ -3,9 +3,11 @@ import { Text } from "@/components/ui/text";
 import { cn } from "@/lib/utils";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Dimensions,
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  ScrollView,
   View,
 } from "react-native";
 import Animated, {
@@ -38,12 +40,13 @@ function LogLineItem({
   className?: string;
 }) {
   return (
-    <View className={cn("flex-row items-stretch w-full", className)}>
+    <View className={cn("flex-row items-stretch", className)}>
       <Text
-        className={cn("font-mono flex-1", {
+        className={cn("font-mono", {
           "text-yellow-600 bg-yellow-500/10": log.hidden,
         })}
         selectable
+        style={{ flexShrink: 0 }}
       >
         {log.output}
       </Text>
@@ -89,54 +92,62 @@ export default function LogsViewer({
         .map((line) => ({ output: line, hidden: false }))
     : (logs as LogObject[]);
 
+  const screenWidth = Dimensions.get("window").width;
+
   return (
     <View className="flex-1 relative">
-      <FlatList
-        ref={scrollViewRef}
-        inverted={
-          status !== "queued" && (error?.message === undefined || !noLogs)
-        }
-        invertStickyHeaders
-        onScroll={onScroll}
-        scrollEventThrottle={16}
+      <ScrollView
+        horizontal
         className="flex-1 rounded-md border border-input"
-        contentContainerClassName="p-4"
-        keyboardDismissMode="interactive"
-        data={logData}
-        renderItem={({ item }) => (
-          <LogLineItem log={item} className={className} />
-        )}
-        keyExtractor={(_, index) => `line-${index.toString()}`}
-        ListEmptyComponent={() => {
-          if (error)
-            return (
-              <View className="flex-1 pt-4 items-center">
-                <Text className="border-0 text-muted-foreground font-mono">
-                  {error?.message}
-                </Text>
-              </View>
-            );
+        nestedScrollEnabled={true}
+      >
+        <FlatList
+          ref={scrollViewRef}
+          inverted={
+            status !== "queued" && (error?.message === undefined || !noLogs)
+          }
+          invertStickyHeaders
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          className="flex-1"
+          contentContainerStyle={{ padding: 16 }}
+          keyboardDismissMode="interactive"
+          data={logData}
+          renderItem={({ item }) => (
+            <LogLineItem log={item} className={className} />
+          )}
+          keyExtractor={(_, index) => `line-${index.toString()}`}
+          ListEmptyComponent={() => {
+            if (error)
+              return (
+                <View className="flex-1 pt-4 items-center">
+                  <Text className="border-0 text-muted-foreground font-mono">
+                    {error?.message}
+                  </Text>
+                </View>
+              );
 
-          if (isLoading)
-            return (
-              <View className="gap-2">
-                {Array.from({ length: 30 }).map((_, index) => (
-                  <Skeleton className="h-4 w-full" key={index} />
-                ))}
-              </View>
-            );
+            if (isLoading)
+              return (
+                <View className="gap-2">
+                  {Array.from({ length: 30 }).map((_, index) => (
+                    <Skeleton className="h-4 w-full" key={index} />
+                  ))}
+                </View>
+              );
 
-          if (noLogs)
-            return (
-              <View className="flex-1 pt-4 items-center">
-                <Text className="border-0 text-muted-foreground font-mono">
-                  No logs found
-                </Text>
-              </View>
-            );
-          return null;
-        }}
-      />
+            if (noLogs)
+              return (
+                <View className="flex-1 pt-4 items-center">
+                  <Text className="border-0 text-muted-foreground font-mono">
+                    No logs found
+                  </Text>
+                </View>
+              );
+            return null;
+          }}
+        />
+      </ScrollView>
       <Animated.View
         className="absolute flex-1 left-2"
         style={scrollAnimatedStyle}

@@ -37,7 +37,7 @@ export type UseStartApplication = (
     ApplicationActionResponse,
     Error,
     { force?: boolean; instant_deploy?: boolean }
-  >
+  >,
 ) => UseMutationResult<
   ApplicationActionResponse,
   Error,
@@ -46,12 +46,12 @@ export type UseStartApplication = (
 
 export type UseStopApplication = (
   uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>,
 ) => UseMutationResult<ResourceActionResponse, Error, void>;
 
 export type UseRestartApplication = (
   uuid: string,
-  options?: UseMutationOptions<ApplicationActionResponse, Error, void>
+  options?: UseMutationOptions<ApplicationActionResponse, Error, void>,
 ) => UseMutationResult<ApplicationActionResponse, Error, void>;
 
 export type UseUpdateApplication = (
@@ -60,7 +60,7 @@ export type UseUpdateApplication = (
     ResourceActionResponse,
     Error,
     UpdateApplicationBody
-  >
+  >,
 ) => UseMutationResult<ResourceActionResponse, Error, UpdateApplicationBody>;
 
 // Query keys
@@ -99,7 +99,7 @@ export const ApplicationKeys = {
 export const getApplications = async () => {
   const data = await coolifyFetch<Application[]>("/applications");
   data.forEach((app) =>
-    optimisticUpdateOne(ApplicationKeys.queries.single(app.uuid), app)
+    optimisticUpdateOne(ApplicationKeys.queries.single(app.uuid), app),
   );
   return data;
 };
@@ -114,36 +114,10 @@ export const getApplication = async (uuid: string) => {
 
 export const getApplicationLogs = async (uuid: string, lines = 100) => {
   const { logs } = await coolifyFetch<ApplicationLogs>(
-    `/applications/${uuid}/logs?lines=${lines}`
+    `/applications/${uuid}/logs?lines=${lines}`,
   );
 
-  // Split logs into lines
-  const splitLogs = logs.split("\n");
-  // Remove first half of logs
-  const firstHalf = splitLogs.slice(0, splitLogs.length / 2);
-  // Escape special characters in first half
-  const escaped = firstHalf
-    .join("\\n")
-    .replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-
-  // Initiate fixed with the logs in case there's no duplicate
-  let fixed = logs.replace(/\n/g, "\\n");
-
-  // Match first half in logs
-  const match = fixed.matchAll(RegExp(escaped, "g")).toArray();
-
-  // If first half is found in logs more than one time, remove it
-  if (match.length > 1) {
-    // Set the fixed logs to the matcher
-    fixed = match[0][0];
-    // Add a new line
-    fixed += "\\n";
-    // Append the last line from the logs,
-    // since it was lost when splitting.
-    fixed += splitLogs[splitLogs.length - 1];
-  }
-
-  return { logs: fixed.split("\\n").toReversed().join("\n") };
+  return { logs: logs.split("\n").toReversed().join("\n") };
 };
 
 export const getApplicationEnvs = async (uuid: string) => {
@@ -152,7 +126,7 @@ export const getApplicationEnvs = async (uuid: string) => {
 
 export const createApplicationEnv = async (
   uuid: string,
-  body: CreateApplicationEnvBody
+  body: CreateApplicationEnvBody,
 ) => {
   return coolifyFetch<CreateApplicationEnvResponse>(
     `/applications/${uuid}/envs`,
@@ -160,14 +134,14 @@ export const createApplicationEnv = async (
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
-    }
+    },
   );
 };
 
 export const startApplication = async (
   uuid: string,
   force = false,
-  instant_deploy = false
+  instant_deploy = false,
 ) => {
   const params = new URLSearchParams({
     force: String(force),
@@ -177,7 +151,7 @@ export const startApplication = async (
     `/applications/${uuid}/start?${params.toString()}`,
     {
       method: "POST",
-    }
+    },
   );
 };
 
@@ -192,13 +166,13 @@ export const restartApplication = async (uuid: string) => {
     `/applications/${uuid}/restart`,
     {
       method: "POST",
-    }
+    },
   );
 };
 
 export const updateApplication = async (
   uuid: string,
-  body: UpdateApplicationBody
+  body: UpdateApplicationBody,
 ) => {
   return coolifyFetch<ResourceActionResponse>(`/applications/${uuid}`, {
     method: "PATCH",
@@ -209,17 +183,17 @@ export const updateApplication = async (
 
 export const createApplication = async <
   T extends CoolifyApplications,
-  B extends CreateApplicationBodyRequired
+  B extends CreateApplicationBodyRequired,
 >(
   body: B,
-  type: T
+  type: T,
 ) => {
   const res = await coolifyFetch<ResourceCreateResponse>(
     `/applications${CreateApplicationUrl[type]}`,
     {
       method: "POST",
       body,
-    }
+    },
   );
 
   queryClient.prefetchQuery({
@@ -232,7 +206,7 @@ export const createApplication = async <
 
 // Query hooks
 export const useApplications = (
-  options?: Omit<UseQueryOptions<Application[], Error>, "queryKey">
+  options?: Omit<UseQueryOptions<Application[], Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ApplicationKeys.queries.all(),
@@ -243,7 +217,7 @@ export const useApplications = (
 
 export const useApplication = (
   uuid: string,
-  options?: Omit<UseQueryOptions<Application, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<Application, Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ApplicationKeys.queries.single(uuid),
@@ -255,7 +229,7 @@ export const useApplication = (
 export const useApplicationLogs = (
   uuid: string,
   lines = 100,
-  options?: Omit<UseQueryOptions<ApplicationLogs, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<ApplicationLogs, Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ApplicationKeys.queries.logs(uuid, lines),
@@ -266,7 +240,7 @@ export const useApplicationLogs = (
 
 export const useApplicationEnvs = (
   uuid: string,
-  options?: Omit<UseQueryOptions<ApplicationEnv[], Error>, "queryKey">
+  options?: Omit<UseQueryOptions<ApplicationEnv[], Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ApplicationKeys.queries.envs(uuid),
@@ -282,7 +256,7 @@ export const useCreateApplicationEnv = (
     CreateApplicationEnvResponse,
     Error,
     CreateApplicationEnvBody
-  >
+  >,
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.createEnv(uuid),
@@ -292,7 +266,7 @@ export const useCreateApplicationEnv = (
     onMutate: async (env) => {
       const update = await optimisticUpdateInsertOneToMany(
         ApplicationKeys.queries.envs(uuid),
-        { ...env, uuid: crypto.randomUUID() }
+        { ...env, uuid: crypto.randomUUID() },
       );
       await options?.onMutate?.(env);
       return update;
@@ -304,7 +278,7 @@ export const useCreateApplicationEnv = (
 
 export const useStartApplication: UseStartApplication = (
   uuid: string,
-  options
+  options,
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.start(uuid),
@@ -321,7 +295,7 @@ export const useStartApplication: UseStartApplication = (
 
 export const useStopApplication: UseStopApplication = (
   uuid: string,
-  options
+  options,
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.stop(uuid),
@@ -332,7 +306,7 @@ export const useStopApplication: UseStopApplication = (
 
 export const useRestartApplication: UseRestartApplication = (
   uuid: string,
-  options
+  options,
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.restart(uuid),
@@ -343,7 +317,7 @@ export const useRestartApplication: UseRestartApplication = (
 
 export const useUpdateApplication: UseUpdateApplication = (
   uuid: string,
-  options
+  options,
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.update(uuid),
@@ -352,14 +326,14 @@ export const useUpdateApplication: UseUpdateApplication = (
     onMutate: async (body) => {
       const update = await optimisticUpdateOne(
         ApplicationKeys.queries.single(uuid),
-        body
+        body,
       );
       const insert = await optimisticUpdateInsertOneToMany(
         ApplicationKeys.queries.all(),
         {
           ...body,
           uuid,
-        }
+        },
       );
       await options?.onMutate?.(body);
       return { update, insert };
@@ -374,13 +348,13 @@ export const useUpdateApplication: UseUpdateApplication = (
 
 export const useCreateApplication = <
   T extends CoolifyApplications,
-  B extends CreateApplicationBodyRequired
+  B extends CreateApplicationBodyRequired,
 >(
   options?: UseMutationOptions<
     ResourceCreateResponse,
     Error,
     { body: B; type: T }
-  >
+  >,
 ) => {
   return useMutation({
     mutationKey: ApplicationKeys.mutations.create(),
