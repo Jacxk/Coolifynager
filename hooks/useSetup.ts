@@ -1,9 +1,9 @@
 import { getHealth, validateToken } from "@/api/status";
+import { Secrets } from "@/constants/Secrets";
 import {
   PERMISSIONS_SAVED_STORAGE_KEY,
   SETUP_COMPLETE_STORAGE_KEY,
-} from "@/constants/AppDetails";
-import { Secrets } from "@/constants/Secrets";
+} from "@/constants/StorageKeys";
 import { isValidUrl } from "@/lib/utils";
 import SecureStore from "@/utils/SecureStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -41,7 +41,7 @@ export default function useSetup() {
 
     await SecureStore.setItemAsync(
       Secrets.SERVER_ADDRESS,
-      address.replace(/\/api$|\/$/, "")
+      address.replace(/\/api$|\/$/, ""),
     );
     setServerAddressSaved(true);
   };
@@ -67,20 +67,20 @@ export default function useSetup() {
     getApiToken().then((api) => setApiTokenSaved(!!api));
     getServerAddress().then((server) => setServerAddressSaved(!!server));
     getPermissionsSaved().then((permissions) =>
-      setIsPermissionsSaved(!!permissions)
+      setIsPermissionsSaved(!!permissions),
     );
   }, []);
 
   useEffect(() => {
     AsyncStorage.setItem(
       SETUP_COMPLETE_STORAGE_KEY,
-      String(apiTokenSaved && serverAddressSaved && permissionsSaved)
+      String(apiTokenSaved && serverAddressSaved && permissionsSaved),
     );
   }, [apiTokenSaved, serverAddressSaved, permissionsSaved]);
 
   const isSetupComplete = () =>
     AsyncStorage.getItem(SETUP_COMPLETE_STORAGE_KEY).then(
-      (value) => value === "true"
+      (value) => value === "true",
     );
 
   return {
