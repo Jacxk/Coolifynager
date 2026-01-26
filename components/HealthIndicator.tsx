@@ -16,9 +16,11 @@ export function HealthIndicator({
 }: HealthIndicatorProps) {
   const [isHealthDialogOpen, setIsHealthDialogOpen] = useState(false);
 
-  const healthy_running = status === "running:healthy";
+  const healthy_running = ["running:healthy", "running:unknown"].includes(
+    status,
+  );
   const unhealthy_running = status === "running:unhealthy";
-  const unhealthy_exited = status === "exited:unhealthy";
+  const unhealthy_exited = ["exited:unhealthy", "exited"].includes(status);
 
   return (
     <View className={cn("flex-1 items-end justify-center", className)}>
