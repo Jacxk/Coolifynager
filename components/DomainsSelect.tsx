@@ -37,17 +37,20 @@ export function DomainsSelect({
       </SelectTrigger>
       <SelectContent insets={contentInsets}>
         <SelectGroup>
-          {domains.map((domain) => (
-            <SelectItem
-              onPress={() => openBrowserAsync(domain)}
-              label={domain}
-              value={domain}
-              key={domain}
-              hideIndicator
-            >
-              {domain}
-            </SelectItem>
-          ))}
+          {domains.map((domain) => {
+            domain = domain.replace(/:\d+$/, "");
+            return (
+              <SelectItem
+                onPress={() => openBrowserAsync(domain)}
+                label={domain}
+                value={domain}
+                key={domain}
+                hideIndicator
+              >
+                {domain}
+              </SelectItem>
+            );
+          })}
         </SelectGroup>
       </SelectContent>
     </Select>

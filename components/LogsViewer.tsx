@@ -42,7 +42,7 @@ function LogLineItem({
   return (
     <View className={cn("flex-row items-stretch", className)}>
       <Text
-        className={cn("font-mono", {
+        className={cn("font-mono focus:bg-yellow-500/50", {
           "text-yellow-600 bg-yellow-500/10": log.hidden,
         })}
         selectable
