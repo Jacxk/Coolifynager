@@ -45,7 +45,10 @@ export default function Settings() {
     {
       label: "Reconfigure Linked Instance",
       isLink: true,
-      href: "/setup/serverAddress",
+      href: {
+        pathname: "/setup/serverAddress",
+        params: { reconfigure: "true" },
+      },
       icon: <Server />,
       description:
         "Change the server address and/or the API key of the current linked instance.",
@@ -55,7 +58,7 @@ export default function Settings() {
       isLink: false,
       onPress: async () => {
         const savedInterval = await AsyncStorage.getItem(
-          LOG_REFETCH_INTERVAL_STORAGE_KEY
+          LOG_REFETCH_INTERVAL_STORAGE_KEY,
         );
         Alert.prompt(
           "Logs Refetch Interval",
@@ -71,14 +74,14 @@ export default function Settings() {
               onPress: (text) => {
                 AsyncStorage.setItem(
                   LOG_REFETCH_INTERVAL_STORAGE_KEY,
-                  text || "2000"
+                  text || "2000",
                 );
               },
             },
           ],
           "plain-text",
           savedInterval ?? "2000",
-          "numeric"
+          "numeric",
         );
       },
       icon: <RotateCw />,

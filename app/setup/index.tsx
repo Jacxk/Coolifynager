@@ -1,19 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { H1, Lead, P } from "@/components/ui/typography";
 import { APP_DESCRIPTION, APP_ICON, APP_NAME } from "@/constants/AppDetails";
-import useSetup from "@/hooks/useSetup";
 import { router } from "expo-router";
 import { Image, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function SetupIndex() {
-  const setup = useSetup();
-
   const handleGetStarted = () => {
-    setup.isSetupComplete().then((complete) => {
-      const route = complete ? "/setup/serverAddress" : "/setup/permissions";
-      router.push(route);
-    });
+    router.push("/setup/serverAddress");
   };
 
   const insets = useSafeAreaInsets();

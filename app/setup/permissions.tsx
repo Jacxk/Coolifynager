@@ -40,8 +40,8 @@ function PermissionButton({
         status === "granted"
           ? "bg-green-400/40"
           : status === "denied"
-          ? "bg-red-400/40"
-          : "bg-white/10"
+            ? "bg-red-400/40"
+            : "bg-white/10"
       }`}
     >
       <View className="mr-3">
@@ -56,7 +56,7 @@ function PermissionButton({
 }
 
 export default function SetupPermissions() {
-  const setup = useSetup();
+  const { setPermissions, setSetupComplete } = useSetup();
 
   const [notificationsPermission, setNotificationsPermission] =
     useState<PermissionStatus>("pending");
@@ -101,9 +101,12 @@ export default function SetupPermissions() {
     }
   };
 
-  const handleNext = () => {
-    router.push("/setup/serverAddress");
-    setup.setPermissionsSaved(true);
+  const handleFinish = () => {
+    setPermissions(true)
+      .then(() => setSetupComplete(true))
+      .then(() => {
+        router.dismissTo("/main");
+      });
   };
 
   const checkPermissions = async () => {
@@ -174,8 +177,8 @@ export default function SetupPermissions() {
         </View>
       </View>
 
-      <Button onPress={handleNext} size="lg" className="w-full bg-white">
-        <P className={`font-semibold text-black`}>Continue</P>
+      <Button onPress={handleFinish} size="lg" className="w-full bg-white">
+        <P className={`font-semibold text-black`}>Finish</P>
       </Button>
     </View>
   );

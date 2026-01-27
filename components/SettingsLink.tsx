@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
-import { router } from "expo-router";
+import { Href, router } from "expo-router";
 import { TouchableOpacity, View } from "react-native";
 import { ChevronRight } from "./icons/ChevronRight";
 import { Text } from "./ui/text";
 
 export type SettingsLinkProps = {
-  href: string;
+  href: Href;
   label: string;
   icon?: React.ReactNode;
   description?: string;

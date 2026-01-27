@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import useSetup from "@/hooks/useSetup";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
 export default function ServerStep() {
-  const setup = useSetup();
+  const { reconfigure } = useLocalSearchParams<{ reconfigure: string }>();
+  const { setServerAddress, serverAddress } = useSetup();
 
   const [server, setServer] = useState("");
   const [valid, setValid] = useState(false);
@@ -18,11 +19,15 @@ export default function ServerStep() {
   const saveServerAddress = async () => {
     if (valid) {
       setLoading(true);
-      setup
-        .setServerAddress(server)
+      setServerAddress(server)
         .then(() => setError(undefined))
-        .then(() => router.navigate("/setup/api_token"))
-        .catch((e) => setError(e.message))
+        .then(() =>
+          router.navigate({
+            pathname: "/setup/api_token",
+            params: { reconfigure },
+          }),
+        )
+        .catch((error: Error) => setError(error.message))
         .finally(() => setLoading(false));
     } else {
       Alert.alert("Please set a server");
@@ -35,6 +40,7 @@ export default function ServerStep() {
       setValid(true);
     } catch {
       setValid(false);
+      setError("Invalid URL");
     }
 
     setError(undefined);
@@ -42,8 +48,10 @@ export default function ServerStep() {
   };
 
   useEffect(() => {
-    setup.getServerAddress().then((s) => onChangeServer(s ?? server ?? ""));
-  }, []);
+    if (serverAddress) {
+      onChangeServer(serverAddress);
+    }
+  }, [serverAddress]);
 
   return (
     <SetupScreenContainer>

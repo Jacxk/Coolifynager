@@ -5,35 +5,32 @@ import { PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { APP_NAME } from "@/constants/AppDetails";
 import useSetup from "@/hooks/useSetup";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Alert as NativeAlert, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ApiTokenStep() {
-  const setup = useSetup();
+  const { reconfigure } = useLocalSearchParams<{ reconfigure: string }>();
+  const { setApiToken, serverAddress } = useSetup();
 
   const [token, setToken] = useState("");
   const [valid, setValid] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
-  const insets = useSafeAreaInsets();
-  const contentInsets = {
-    top: insets.top,
-    bottom: insets.bottom,
-    left: 12,
-    right: 12,
-  };
-
   const saveKey = () => {
     if (valid) {
       setLoading(true);
-      setup
-        .setApiToken(token)
+      setApiToken(token)
         .then(() => setError(undefined))
-        .then(() => router.dismissTo("/main"))
+        .then(() => {
+          if (reconfigure) {
+            router.dismissTo("/main/settings");
+          } else {
+            router.navigate("/setup/permissions");
+          }
+        })
         .catch((e) => setError(e.message))
         .finally(() => setLoading(false));
     } else {
@@ -42,15 +39,14 @@ export default function ApiTokenStep() {
   };
 
   const openBrowser = () => {
-    setup
-      .getServerAddress()
-      .then((url) => openBrowserAsync(`${url}/security/api-tokens`));
+    openBrowserAsync(`${serverAddress}/security/api-tokens`);
   };
 
-  useEffect(() => {
-    setValid(token.trim() !== "");
+  const onChangeToken = (text: string) => {
+    setValid(text.trim() !== "");
     setError(undefined);
-  }, [token]);
+    setToken(text);
+  };
 
   return (
     <SetupScreenContainer>
@@ -93,7 +89,7 @@ export default function ApiTokenStep() {
       </View>
       <PasswordInput
         enterKeyHint="done"
-        onChangeText={setToken}
+        onChangeText={onChangeToken}
         onSubmitEditing={saveKey}
         value={token}
         placeholder="API TOKEN"

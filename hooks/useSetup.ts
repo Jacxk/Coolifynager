@@ -11,11 +11,10 @@ import { router } from "expo-router";
 import { useEffect, useState } from "react";
 
 export default function useSetup() {
-  const [apiTokenSaved, setApiTokenSaved] = useState(false);
-  const [serverAddressSaved, setServerAddressSaved] = useState(false);
-  const [permissionsSaved, setIsPermissionsSaved] = useState(false);
+  const [setupComplete, setSetupCompleteState] = useState<boolean | null>(null);
+  const [serverAddress, setServerAddressState] = useState<string | null>(null);
+  const [permissions, setPermissionsState] = useState<boolean | null>(null);
 
-  const getApiToken = () => SecureStore.getItemAsync(Secrets.API_TOKEN);
   const setApiToken = async (key: string) => {
     const { success, message } = await validateToken(key);
 
@@ -25,11 +24,8 @@ export default function useSetup() {
     else if (success === false) throw new Error(message);
 
     await SecureStore.setItemAsync(Secrets.API_TOKEN, key);
-    setApiTokenSaved(true);
   };
 
-  const getServerAddress = () =>
-    SecureStore.getItemAsync(Secrets.SERVER_ADDRESS);
   const setServerAddress = async (address: string) => {
     if (!isValidUrl(address)) {
       throw new Error("INVALID_URL");
@@ -43,15 +39,12 @@ export default function useSetup() {
       Secrets.SERVER_ADDRESS,
       address.replace(/\/api$|\/$/, ""),
     );
-    setServerAddressSaved(true);
+    setServerAddressState(address);
   };
 
-  const getPermissionsSaved = () =>
-    AsyncStorage.getItem(PERMISSIONS_SAVED_STORAGE_KEY);
-
-  const setPermissionsSaved = async (saved: boolean) => {
+  const setPermissions = async (saved: boolean) => {
     await AsyncStorage.setItem(PERMISSIONS_SAVED_STORAGE_KEY, String(saved));
-    setIsPermissionsSaved(saved);
+    setPermissionsState(saved);
   };
 
   const resetSetup = async () => {
@@ -60,37 +53,38 @@ export default function useSetup() {
 
     await AsyncStorage.setItem(SETUP_COMPLETE_STORAGE_KEY, "false");
 
+    setSetupCompleteState(false);
+    setServerAddressState(null);
+    setPermissionsState(null);
+
     router.dismissTo("/setup/serverAddress");
   };
 
+  const setSetupComplete = async (complete: boolean) => {
+    await AsyncStorage.setItem(SETUP_COMPLETE_STORAGE_KEY, String(complete));
+    setSetupCompleteState(complete);
+  };
+
   useEffect(() => {
-    getApiToken().then((api) => setApiTokenSaved(!!api));
-    getServerAddress().then((server) => setServerAddressSaved(!!server));
-    getPermissionsSaved().then((permissions) =>
-      setIsPermissionsSaved(!!permissions),
-    );
+    AsyncStorage.getItem(SETUP_COMPLETE_STORAGE_KEY).then((value) => {
+      setSetupCompleteState(value === "true");
+    });
+    SecureStore.getItemAsync(Secrets.SERVER_ADDRESS).then((value) => {
+      setServerAddressState(value);
+    });
+    AsyncStorage.getItem(PERMISSIONS_SAVED_STORAGE_KEY).then((value) => {
+      setPermissionsState(value === "true");
+    });
   }, []);
 
-  useEffect(() => {
-    AsyncStorage.setItem(
-      SETUP_COMPLETE_STORAGE_KEY,
-      String(apiTokenSaved && serverAddressSaved && permissionsSaved),
-    );
-  }, [apiTokenSaved, serverAddressSaved, permissionsSaved]);
-
-  const isSetupComplete = () =>
-    AsyncStorage.getItem(SETUP_COMPLETE_STORAGE_KEY).then(
-      (value) => value === "true",
-    );
-
   return {
+    setupComplete,
+    serverAddress,
+    permissions,
     setApiToken,
-    getApiToken,
     setServerAddress,
-    getServerAddress,
+    setSetupComplete,
+    setPermissions,
     resetSetup,
-    isSetupComplete,
-    getPermissionsSaved,
-    setPermissionsSaved,
   };
 }

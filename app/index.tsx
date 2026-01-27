@@ -1,21 +1,14 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import useSetup from "@/hooks/useSetup";
 import { Redirect } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootIndex() {
-  const [setupComplete, setSetupComplete] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    AsyncStorage.getItem("SetupComplete").then((value) => {
-      setSetupComplete(value === "true");
-    });
-  }, []);
+  const { setupComplete } = useSetup();
 
   if (setupComplete === null) return null;
 
   if (setupComplete) return <Redirect href="/main" />;
-  else return <Redirect href="/setup/serverAddress" />;
+  else return <Redirect href="/setup" />;
 }
