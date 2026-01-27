@@ -1,3 +1,4 @@
+import { useTeams } from "@/api/teams";
 import { ArrowUpRight } from "@/components/icons/ArrowUpRight";
 import Info from "@/components/icons/Info";
 import { MessageCircle } from "@/components/icons/MessageCircle";
@@ -10,21 +11,69 @@ import {
   SettingsButtonProps,
 } from "@/components/SettingsButton";
 import { SettingsLink, SettingsLinkProps } from "@/components/SettingsLink";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { H3 } from "@/components/ui/typography";
 import { LOG_REFETCH_INTERVAL_STORAGE_KEY } from "@/constants/StorageKeys";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import useSetup from "@/hooks/useSetup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert, Linking, SectionList, View } from "react-native";
 import { Switch } from "react-native-gesture-handler";
 
 type SettingsItem =
-  | (SettingsLinkProps & { isLink: true })
-  | (SettingsButtonProps & { isLink: false });
+  | SettingsLinkProps
+  | SettingsButtonProps
+  | { label: string; render: React.ReactElement | null };
 
 type SettingsSections = {
   title: string;
   data: SettingsItem[];
 };
+
+function TeamSelect() {
+  const { team, setTeam } = useSetup();
+  const { data: teams } = useTeams();
+
+  if (!teams || !team) return null;
+
+  const selectedTeam = {
+    value: team,
+    label: teams.find((t) => t.id.toString() === team)?.name ?? team,
+  };
+
+  return (
+    <View>
+      <Label nativeID="team-label">Team Selection</Label>
+      <Select
+        onValueChange={(team) => team && setTeam(team.value)}
+        value={selectedTeam}
+      >
+        <SelectTrigger>
+          <SelectValue
+            className="text-foreground"
+            placeholder="Select a team"
+          />
+        </SelectTrigger>
+        <SelectContent>
+          {teams.map((team) => (
+            <SelectItem
+              key={team.id}
+              value={team.id.toString()}
+              label={team.name}
+            />
+          ))}
+        </SelectContent>
+      </Select>
+    </View>
+  );
+}
 
 export default function Settings() {
   const { toggleColorScheme, isDarkColorScheme } = useColorScheme();
@@ -32,7 +81,6 @@ export default function Settings() {
   const appearanceItems: SettingsItem[] = [
     {
       label: "Dark Mode",
-      isLink: false,
       onPress: toggleColorScheme,
       icon: <Moon />,
       rightComponent: (
@@ -43,8 +91,11 @@ export default function Settings() {
 
   const appConfigItems: SettingsItem[] = [
     {
+      label: "Team Selection",
+      render: <TeamSelect />,
+    },
+    {
       label: "Reconfigure Linked Instance",
-      isLink: true,
       href: {
         pathname: "/setup/serverAddress",
         params: { reconfigure: "true" },
@@ -55,7 +106,6 @@ export default function Settings() {
     },
     {
       label: "Logs Refetch Interval",
-      isLink: false,
       onPress: async () => {
         const savedInterval = await AsyncStorage.getItem(
           LOG_REFETCH_INTERVAL_STORAGE_KEY,
@@ -71,7 +121,7 @@ export default function Settings() {
             {
               isPreferred: true,
               text: "Save",
-              onPress: (text) => {
+              onPress: (text: string | undefined) => {
                 AsyncStorage.setItem(
                   LOG_REFETCH_INTERVAL_STORAGE_KEY,
                   text || "2000",
@@ -89,7 +139,6 @@ export default function Settings() {
     {
       label: "Clear Cache",
       labelClassName: "text-destructive",
-      isLink: false,
       onPress: () => {
         // TODO: Clear cache
       },
@@ -100,7 +149,6 @@ export default function Settings() {
   const appInfoItems: SettingsItem[] = [
     {
       label: "Share Feedback",
-      isLink: false,
       onPress: () => {
         Linking.openURL("https://github.com/Jacxk/Coolifynager/issues");
       },
@@ -109,7 +157,6 @@ export default function Settings() {
     },
     {
       label: "About",
-      isLink: true,
       href: "/main/settings/about",
       icon: <Info />,
     },
@@ -140,7 +187,9 @@ export default function Settings() {
         <H3 className="my-4">{title}</H3>
       )}
       renderItem={({ item }) => {
-        if (item.isLink) {
+        if ("render" in item) {
+          return item.render ?? null;
+        } else if ("href" in item) {
           return <SettingsLink {...item} />;
         } else {
           return <SettingsButton {...item} />;

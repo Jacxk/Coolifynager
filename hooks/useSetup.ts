@@ -3,6 +3,7 @@ import { Secrets } from "@/constants/Secrets";
 import {
   PERMISSIONS_SAVED_STORAGE_KEY,
   SETUP_COMPLETE_STORAGE_KEY,
+  TEAM_STORAGE_KEY,
 } from "@/constants/StorageKeys";
 import { isValidUrl } from "@/lib/utils";
 import SecureStore from "@/utils/SecureStorage";
@@ -14,6 +15,7 @@ export default function useSetup() {
   const [setupComplete, setSetupCompleteState] = useState<boolean | null>(null);
   const [serverAddress, setServerAddressState] = useState<string | null>(null);
   const [permissions, setPermissionsState] = useState<boolean | null>(null);
+  const [team, setTeamState] = useState<string>("NO_TEAM_SELECTED");
 
   const setApiToken = async (key: string) => {
     const { success, message } = await validateToken(key);
@@ -47,6 +49,11 @@ export default function useSetup() {
     setPermissionsState(saved);
   };
 
+  const setTeam = async (team: string) => {
+    await AsyncStorage.setItem(TEAM_STORAGE_KEY, team);
+    setTeamState(team);
+  };
+
   const resetSetup = async () => {
     await SecureStore.deleteItemAsync(Secrets.API_TOKEN);
     await SecureStore.deleteItemAsync(Secrets.SERVER_ADDRESS);
@@ -75,16 +82,21 @@ export default function useSetup() {
     AsyncStorage.getItem(PERMISSIONS_SAVED_STORAGE_KEY).then((value) => {
       setPermissionsState(value === "true");
     });
+    AsyncStorage.getItem(TEAM_STORAGE_KEY).then((value) => {
+      if (value) setTeamState(value);
+    });
   }, []);
 
   return {
     setupComplete,
     serverAddress,
     permissions,
+    team,
     setApiToken,
     setServerAddress,
     setSetupComplete,
     setPermissions,
+    setTeam,
     resetSetup,
   };
 }
