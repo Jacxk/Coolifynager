@@ -1,3 +1,4 @@
+import { filterResourcesByTeam } from "@/lib/utils";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { ApplicationKeys, useApplication } from "./application";
 import {
@@ -39,13 +40,18 @@ const getQueryKeyFromType = (type: ResourceFromListType) => {
 // Fetch functions
 export const getResources = async () => {
   const data = await coolifyFetch<Resource[]>("/resources");
-  data.forEach((resource) => {
+  // Resources have team_id in destination.server.team_id (similar to applications/databases)
+  const filtered = await filterResourcesByTeam(
+    data,
+    (resource) => resource.destination?.server?.team_id,
+  );
+  filtered.forEach((resource) => {
     const key = getQueryKeyFromType(resource.type);
 
     optimisticUpdateInsertOneToMany(key, resource);
     optimisticUpdateOne([...key, resource.uuid], resource);
   });
-  return data;
+  return filtered;
 };
 
 // Query hooks

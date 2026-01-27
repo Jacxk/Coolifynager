@@ -1,5 +1,9 @@
 import { queryClient } from "@/app/_layout";
 import {
+  filterResourceByTeam,
+  filterResourcesByTeam,
+} from "@/lib/utils";
+import {
   useMutation,
   UseMutationOptions,
   UseMutationResult,
@@ -98,10 +102,14 @@ export const ApplicationKeys = {
 // Fetch functions
 export const getApplications = async () => {
   const data = await coolifyFetch<Application[]>("/applications");
-  data.forEach((app) =>
+  const filtered = await filterResourcesByTeam(
+    data,
+    (app) => app.destination.server.team_id,
+  );
+  filtered.forEach((app) =>
     optimisticUpdateOne(ApplicationKeys.queries.single(app.uuid), app),
   );
-  return data;
+  return filtered;
 };
 
 export const getApplication = async (uuid: string) => {
@@ -109,7 +117,11 @@ export const getApplication = async (uuid: string) => {
     queryKey: ApplicationKeys.queries.all(),
     exact: true,
   });
-  return coolifyFetch<Application>(`/applications/${uuid}`);
+  const application = await coolifyFetch<Application>(`/applications/${uuid}`);
+  return filterResourceByTeam(
+    application,
+    (app) => app.destination.server.team_id,
+  );
 };
 
 export const getApplicationLogs = async (uuid: string, lines = 100) => {

@@ -1,5 +1,9 @@
 import { queryClient } from "@/app/_layout";
 import {
+  filterResourceByTeam,
+  filterResourcesByTeam,
+} from "@/lib/utils";
+import {
   useMutation,
   UseMutationOptions,
   useQuery,
@@ -32,17 +36,53 @@ export const ProjectKeys = {
 // Fetch functions
 export const getProjects = async () => {
   const data = await coolifyFetch<PartialProject[]>("/projects");
-  data.forEach((project) => {
+  
+  // Check if team_id exists in the response (API might return it even if type doesn't)
+  const hasTeamId = data.length > 0 && 'team_id' in data[0];
+  
+  let filtered: PartialProject[];
+  if (hasTeamId) {
+    // Filter directly if team_id is present
+    filtered = await filterResourcesByTeam(
+      data,
+      (project) => (project as PartialProject & { team_id?: number }).team_id,
+    );
+  } else {
+    // If team_id is not in the list response, fetch full projects to filter
+    // This is less efficient but necessary if API doesn't return team_id in list
+    const projectsWithTeam = await Promise.all(
+      data.map(async (project) => {
+        try {
+          const fullProject = await getProject(project.uuid);
+          return fullProject;
+        } catch {
+          return null;
+        }
+      })
+    );
+    const validProjects = projectsWithTeam.filter(
+      (p): p is Project => p !== null
+    );
+    const filteredProjects = await filterResourcesByTeam(
+      validProjects,
+      (project) => project.team_id,
+    );
+    // Convert back to PartialProject format
+    filtered = filteredProjects.map(({ team_id, created_at, updated_at, environments, ...rest }) => rest);
+  }
+  
+  filtered.forEach((project) => {
     queryClient.prefetchQuery({
       queryKey: ProjectKeys.queries.single(project.uuid),
       queryFn: () => getProject(project.uuid),
     });
   });
-  return data;
+  return filtered;
 };
 
 export const getProject = async (uuid: string) => {
-  return coolifyFetch<Project>(`/projects/${uuid}`);
+  const project = await coolifyFetch<Project>(`/projects/${uuid}`);
+  return filterResourceByTeam(project, (p) => p.team_id);
 };
 
 export const createProject = async (data: ProjectCreateBody) => {

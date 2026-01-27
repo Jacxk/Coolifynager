@@ -1,5 +1,9 @@
 import { queryClient } from "@/app/_layout";
 import {
+  filterResourceByTeam,
+  filterResourcesByTeam,
+} from "@/lib/utils";
+import {
   useMutation,
   UseMutationOptions,
   UseMutationResult,
@@ -85,8 +89,12 @@ export const DatabaseKeys = {
  */
 export const getDatabases = async () => {
   const data = await coolifyFetch<Database[]>("/databases");
+  const filtered = await filterResourcesByTeam(
+    data,
+    (db) => db.destination.server.team_id,
+  );
   // Set individual database cache entries
-  data.forEach((database) => {
+  filtered.forEach((database) => {
     optimisticUpdateInsertOneToMany(DatabaseKeys.queries.all(), database);
     optimisticUpdateOne(DatabaseKeys.queries.single(database.uuid), database);
   });
@@ -97,9 +105,15 @@ export const getDatabases = async () => {
 
 export const getDatabase = async (uuid: string) => {
   const data = await coolifyFetch<Database>(`/databases/${uuid}`);
-  // Update the databases list cache with the new database
-  optimisticUpdateInsertOneToMany(DatabaseKeys.queries.all(), data);
-  return data;
+  const filtered = await filterResourceByTeam(
+    data,
+    (db) => db.destination.server.team_id,
+  );
+  if (filtered) {
+    // Update the databases list cache with the new database
+    optimisticUpdateInsertOneToMany(DatabaseKeys.queries.all(), filtered);
+  }
+  return filtered;
 };
 
 export const getDatabaseLogs = async (uuid: string, lines = 100) => {
