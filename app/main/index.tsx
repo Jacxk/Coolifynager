@@ -100,7 +100,7 @@ export default function MainIndex() {
 
   return (
     <ScrollView
-      contentContainerClassName="gap-10 p-4"
+      contentContainerClassName="gap-10 p-4 flex-1"
       refreshControl={
         <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
       }
