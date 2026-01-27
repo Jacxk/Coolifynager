@@ -1,8 +1,5 @@
 import { queryClient } from "@/app/_layout";
-import {
-  filterResourceByTeam,
-  filterResourcesByTeam,
-} from "@/lib/utils";
+import { filterResourceByTeam, filterResourcesByTeam } from "@/lib/utils";
 import {
   useMutation,
   UseMutationOptions,
@@ -229,7 +226,7 @@ export const useApplications = (
 
 export const useApplication = (
   uuid: string,
-  options?: Omit<UseQueryOptions<Application, Error>, "queryKey">,
+  options?: Omit<UseQueryOptions<Application | null, Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ApplicationKeys.queries.single(uuid),
@@ -284,7 +281,7 @@ export const useCreateApplicationEnv = (
       return update;
     },
     onError: onOptimisticUpdateError,
-    onSettled: onOptimisticUpdateSettled(),
+    onSettled: onOptimisticUpdateSettled(ApplicationKeys.queries.envs(uuid)),
   });
 };
 
@@ -351,8 +348,10 @@ export const useUpdateApplication: UseUpdateApplication = (
       return { update, insert };
     },
     onError: (error, variables, context) => {
-      onOptimisticUpdateError(error, variables, context?.update);
-      onOptimisticUpdateError(error, variables, context?.insert);
+      if (context) {
+        onOptimisticUpdateError(error, variables, context.update);
+        onOptimisticUpdateError(error, variables, context.insert);
+      }
     },
     onSettled: () => onOptimisticUpdateSettled(ApplicationKeys.queries.all())(),
   });

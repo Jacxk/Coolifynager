@@ -21,7 +21,7 @@ export const getServers = async () => {
   const data = await coolifyFetch<Server[]>("/servers");
   const filtered = await filterResourcesByTeam(
     data,
-    (server) => server.team_id,
+    (server) => server.team_id ?? undefined,
   );
   filtered.forEach((server) => {
     queryClient.setQueryData(ServerKeys.queries.single(server.uuid), server);
@@ -47,7 +47,7 @@ export const useServers = (
 
 export const useServer = (
   uuid: string,
-  options?: Omit<UseQueryOptions<SingleServer, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<SingleServer | null, Error>, "queryKey">
 ) => {
   return useQuery({
     queryKey: ServerKeys.queries.single(uuid),

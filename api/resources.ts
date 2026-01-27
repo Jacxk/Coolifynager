@@ -58,7 +58,7 @@ export const getResources = async () => {
 export const useResource = <T extends Resource>(
   uuid: string,
   type: ResourceType,
-  options?: Omit<UseQueryOptions<T, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<T | null, Error>, "queryKey">
 ) => {
   if (!type) {
     throw new Error("Resource type is required");

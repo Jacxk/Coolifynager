@@ -176,7 +176,7 @@ export const useServices = (
 
 export const useService = (
   uuid: string,
-  options?: Omit<UseQueryOptions<Service, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<Service | null, Error>, "queryKey">
 ) => {
   return useQuery({
     queryKey: ServiceKeys.queries.single(uuid),

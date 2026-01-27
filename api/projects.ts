@@ -117,7 +117,7 @@ export const useProjects = (
 
 export const useProject = (
   uuid: string,
-  options?: Omit<UseQueryOptions<Project, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<Project | null, Error>, "queryKey">
 ) => {
   return useQuery({
     queryKey: ProjectKeys.queries.single(uuid),

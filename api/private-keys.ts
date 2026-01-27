@@ -46,7 +46,7 @@ export const usePrivateKeys = (
 
 export const usePrivateKey = (
   uuid: string,
-  options?: Omit<UseQueryOptions<PrivateKey, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<PrivateKey | null, Error>, "queryKey">
 ) => {
   return useQuery({
     queryKey: PrivateKeyKeys.queries.single(uuid),

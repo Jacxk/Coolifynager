@@ -180,7 +180,7 @@ export const useDatabases = (
 
 export const useDatabase = (
   uuid: string,
-  options?: Omit<UseQueryOptions<Database, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<Database | null, Error>, "queryKey">
 ) => {
   return useQuery({
     queryKey: DatabaseKeys.queries.single(uuid),
@@ -250,10 +250,12 @@ export const useUpdateDatabase: UseUpdateDatabase = (uuid: string, options) => {
       return { update, insert };
     },
     onError: (error, variables, context) => {
-      onOptimisticUpdateError(error, variables, context?.update);
-      onOptimisticUpdateError(error, variables, context?.insert);
+      if (context) {
+        onOptimisticUpdateError(error, variables, context.update);
+        onOptimisticUpdateError(error, variables, context.insert);
+      }
     },
-    onSettled: () => onOptimisticUpdateSettled(DatabaseKeys.queries.all())(),
+    onSettled: onOptimisticUpdateSettled(DatabaseKeys.queries.all()),
   });
 };
 
@@ -274,6 +276,6 @@ export const useCreateDatabase = (
       type: CoolifyDatabases;
     }) => createDatabase(body, type),
     ...options,
-    onSettled: () => onOptimisticUpdateSettled(DatabaseKeys.queries.all())(),
+    onSettled: onOptimisticUpdateSettled(DatabaseKeys.queries.all()),
   });
 };
