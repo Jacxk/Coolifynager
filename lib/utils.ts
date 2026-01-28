@@ -13,18 +13,21 @@ export function isValidUrl(url: string) {
 
 export function groupBy<T, K extends keyof any>(
   list: T[],
-  getKey: (item: T) => K
+  getKey: (item: T) => K,
 ): Record<K, T[]> {
-  return list.reduce((acc, item) => {
-    const key = getKey(item);
-    (acc[key] ||= []).push(item);
-    return acc;
-  }, {} as Record<K, T[]>);
+  return list.reduce(
+    (acc, item) => {
+      const key = getKey(item);
+      (acc[key] ||= []).push(item);
+      return acc;
+    },
+    {} as Record<K, T[]>,
+  );
 }
 
 export function getDirtyData<T>(
   data: T,
-  dirtyFields: Record<string, boolean>
+  dirtyFields: Record<string, boolean>,
 ): Partial<T> {
   return Object.keys(dirtyFields).reduce((acc, key) => {
     if (dirtyFields[key]) {
@@ -43,7 +46,7 @@ export function getDirtyData<T>(
  */
 export function filterResourceByTeam<T>(
   resource: T,
-  getTeamId: (resource: T) => number | string | undefined
+  getTeamId: (resource: T) => number | string | undefined,
 ): Promise<T | null>;
 /**
  * Filters a single resource by team_id. Returns null if the resource doesn't belong to the selected team.
@@ -56,18 +59,21 @@ export function filterResourceByTeam<T>(
 export function filterResourceByTeam<T>(
   resource: T,
   currentTeam: string | null,
-  getTeamId: (resource: T) => number | string | undefined
+  getTeamId: (resource: T) => number | string | undefined,
 ): Promise<T | null>;
 export async function filterResourceByTeam<T>(
   resource: T,
-  currentTeamOrGetTeamId: string | null | ((resource: T) => number | string | undefined),
-  getTeamId?: (resource: T) => number | string | undefined
+  currentTeamOrGetTeamId:
+    | string
+    | null
+    | ((resource: T) => number | string | undefined),
+  getTeamId?: (resource: T) => number | string | undefined,
 ): Promise<T | null> {
   let currentTeam: string | null;
   let teamIdExtractor: (resource: T) => number | string | undefined;
 
   // Determine which overload was called
-  if (typeof currentTeamOrGetTeamId === 'function') {
+  if (typeof currentTeamOrGetTeamId === "function") {
     // First overload: (resource, getTeamId)
     currentTeam = await getCurrentTeam();
     teamIdExtractor = currentTeamOrGetTeamId;
@@ -77,8 +83,8 @@ export async function filterResourceByTeam<T>(
     teamIdExtractor = getTeamId!;
   }
 
-  if (!currentTeam) {
-    return resource;
+  if (!currentTeam || currentTeam === "NO_TEAM_SELECTED") {
+    return null;
   }
 
   const resourceTeamId = teamIdExtractor(resource);
@@ -102,7 +108,7 @@ export async function filterResourceByTeam<T>(
  */
 export function filterResourcesByTeam<T>(
   resources: T[],
-  getTeamId: (resource: T) => number | string | undefined
+  getTeamId: (resource: T) => number | string | undefined,
 ): Promise<T[]>;
 /**
  * Filters an array of resources by team_id. Returns only resources that belong to the selected team.
@@ -115,18 +121,21 @@ export function filterResourcesByTeam<T>(
 export function filterResourcesByTeam<T>(
   resources: T[],
   currentTeam: string | null,
-  getTeamId: (resource: T) => number | string | undefined
+  getTeamId: (resource: T) => number | string | undefined,
 ): Promise<T[]>;
 export async function filterResourcesByTeam<T>(
   resources: T[],
-  currentTeamOrGetTeamId: string | null | ((resource: T) => number | string | undefined),
-  getTeamId?: (resource: T) => number | string | undefined
+  currentTeamOrGetTeamId:
+    | string
+    | null
+    | ((resource: T) => number | string | undefined),
+  getTeamId?: (resource: T) => number | string | undefined,
 ): Promise<T[]> {
   let currentTeam: string | null;
   let teamIdExtractor: (resource: T) => number | string | undefined;
 
   // Determine which overload was called
-  if (typeof currentTeamOrGetTeamId === 'function') {
+  if (typeof currentTeamOrGetTeamId === "function") {
     // First overload: (resources, getTeamId)
     currentTeam = await getCurrentTeam();
     teamIdExtractor = currentTeamOrGetTeamId;
@@ -136,8 +145,8 @@ export async function filterResourcesByTeam<T>(
     teamIdExtractor = getTeamId!;
   }
 
-  if (!currentTeam) {
-    return resources;
+  if (!currentTeam || currentTeam === "NO_TEAM_SELECTED") {
+    return [];
   }
 
   return resources.filter((resource) => {

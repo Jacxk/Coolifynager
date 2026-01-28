@@ -13,13 +13,14 @@ import { H1, P } from "@/components/ui/typography";
 import useSetup from "@/hooks/useSetup";
 import { cn } from "@/lib/utils";
 import { Href, router, useLocalSearchParams } from "expo-router";
+import { openBrowserAsync } from "expo-web-browser";
 import { View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { scheduleOnRN } from "react-native-worklets";
 
 export default function TeamStep() {
   const { redirect } = useLocalSearchParams<{ redirect: Href<any> }>();
-  const { team, setTeam } = useSetup();
+  const { serverAddress, team, setTeam } = useSetup();
   const { data, isPending } = useTeams();
 
   if (isPending) {
@@ -30,11 +31,31 @@ export default function TeamStep() {
     return (
       <SetupScreenContainer scrollviewClassName="gap-4">
         <View>
-          <H1 className="text-white text-lg">No teams found</H1>
+          <H1>No teams found</H1>
+          <P>
+            We couldn't find any teams on the server. Please contact your
+            administrator. If you are the administrator, you can create a team
+            by{" "}
+            <Button
+              variant="link"
+              onPress={() => {
+                openBrowserAsync(`${serverAddress}/team`);
+              }}
+            >
+              clicking here.
+            </Button>
+          </P>
         </View>
       </SetupScreenContainer>
     );
   }
+
+  const isTeamSelected = team && team !== "NO_TEAM_SELECTED";
+  const onContinue = () => {
+    if (isTeamSelected) {
+      router.dismissTo(redirect ?? "/main");
+    }
+  };
 
   return (
     <SetupScreenContainer scrollviewClassName="gap-4">
@@ -65,11 +86,12 @@ export default function TeamStep() {
           </Card>
         </GestureDetector>
       ))}
-      <Button
-        onPress={() => {
-          router.dismissTo(redirect ?? "/main");
-        }}
-      >
+      {(!team || team === "NO_TEAM_SELECTED") && (
+        <Text className="text-destructive text-sm">
+          Please select a team to continue.
+        </Text>
+      )}
+      <Button disabled={!isTeamSelected} onPress={onContinue}>
         <Text>Continue</Text>
       </Button>
     </SetupScreenContainer>
