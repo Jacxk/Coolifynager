@@ -1,8 +1,5 @@
 import { queryClient } from "@/app/_layout";
-import {
-  filterResourceByTeam,
-  filterResourcesByTeam,
-} from "@/lib/utils";
+import { filterResourceByTeam, filterResourcesByTeam } from "@/lib/utils";
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { coolifyFetch } from "./client";
 import { Server, SingleServer } from "./types/server.types";
@@ -21,7 +18,7 @@ export const getServers = async () => {
   const data = await coolifyFetch<Server[]>("/servers");
   const filtered = await filterResourcesByTeam(
     data,
-    (server) => server.team_id ?? undefined,
+    (server) => server.team_id,
   );
   filtered.forEach((server) => {
     queryClient.setQueryData(ServerKeys.queries.single(server.uuid), server);
@@ -36,7 +33,7 @@ export const getServer = async (uuid: string) => {
 
 // Query hooks
 export const useServers = (
-  options?: Omit<UseQueryOptions<Server[], Error>, "queryKey">
+  options?: Omit<UseQueryOptions<Server[], Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ServerKeys.queries.all(),
@@ -47,7 +44,7 @@ export const useServers = (
 
 export const useServer = (
   uuid: string,
-  options?: Omit<UseQueryOptions<SingleServer | null, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<SingleServer | null, Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ServerKeys.queries.single(uuid),

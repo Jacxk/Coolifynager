@@ -1,8 +1,5 @@
 import { queryClient } from "@/app/_layout";
-import {
-  filterResourceByTeam,
-  filterResourcesByTeam,
-} from "@/lib/utils";
+import { filterResourceByTeam } from "@/lib/utils";
 import {
   useMutation,
   UseMutationOptions,
@@ -10,11 +7,7 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 import { coolifyFetch, onOptimisticUpdateError } from "./client";
-import {
-  PartialProject,
-  Project,
-  ProjectCreateBody,
-} from "./types/project.types";
+import { Project, ProjectBase, ProjectCreateBody } from "./types/project.types";
 import {
   ResourceActionResponse,
   ResourceCreateResponse,
@@ -35,49 +28,24 @@ export const ProjectKeys = {
 
 // Fetch functions
 export const getProjects = async () => {
-  const data = await coolifyFetch<PartialProject[]>("/projects");
-  
-  // Check if team_id exists in the response (API might return it even if type doesn't)
-  const hasTeamId = data.length > 0 && 'team_id' in data[0];
-  
-  let filtered: PartialProject[];
-  if (hasTeamId) {
-    // Filter directly if team_id is present
-    filtered = await filterResourcesByTeam(
-      data,
-      (project) => (project as PartialProject & { team_id?: number }).team_id,
-    );
-  } else {
-    // If team_id is not in the list response, fetch full projects to filter
-    // This is less efficient but necessary if API doesn't return team_id in list
-    const projectsWithTeam = await Promise.all(
-      data.map(async (project) => {
-        try {
-          const fullProject = await getProject(project.uuid);
-          return fullProject;
-        } catch {
-          return null;
-        }
-      })
-    );
-    const validProjects = projectsWithTeam.filter(
-      (p): p is Project => p !== null
-    );
-    const filteredProjects = await filterResourcesByTeam(
-      validProjects,
-      (project) => project.team_id,
-    );
-    // Convert back to PartialProject format
-    filtered = filteredProjects.map(({ team_id, created_at, updated_at, environments, ...rest }) => rest);
-  }
-  
-  filtered.forEach((project) => {
-    queryClient.prefetchQuery({
-      queryKey: ProjectKeys.queries.single(project.uuid),
-      queryFn: () => getProject(project.uuid),
-    });
+  const data = await coolifyFetch<ProjectBase[]>("/projects");
+
+  const projectsWithTeam = await Promise.all(
+    data.map(async (project) => {
+      try {
+        return await getProject(project.uuid);
+      } catch {
+        return null;
+      }
+    }),
+  );
+  const validProjects = projectsWithTeam.filter((p) => p !== null);
+
+  validProjects.forEach((project) => {
+    queryClient.setQueryData(ProjectKeys.queries.single(project.uuid), project);
   });
-  return filtered;
+
+  return validProjects;
 };
 
 export const getProject = async (uuid: string) => {
@@ -106,7 +74,7 @@ export const deleteProject = async (uuid: string) => {
 
 // Query hooks
 export const useProjects = (
-  options?: Omit<UseQueryOptions<PartialProject[], Error>, "queryKey">
+  options?: Omit<UseQueryOptions<ProjectBase[], Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ProjectKeys.queries.all(),
@@ -117,7 +85,7 @@ export const useProjects = (
 
 export const useProject = (
   uuid: string,
-  options?: Omit<UseQueryOptions<Project | null, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<Project | null, Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ProjectKeys.queries.single(uuid),
@@ -128,7 +96,11 @@ export const useProject = (
 
 // Mutation hooks
 export const useCreateProject = (
-  options?: UseMutationOptions<ResourceCreateResponse, Error, ProjectCreateBody>
+  options?: UseMutationOptions<
+    ResourceCreateResponse,
+    Error,
+    ProjectCreateBody
+  >,
 ) => {
   return useMutation({
     mutationKey: ProjectKeys.mutations.create(),
@@ -145,7 +117,7 @@ export const useCreateProject = (
 
 export const useDeleteProject = (
   uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>,
 ) => {
   return useMutation({
     mutationKey: ProjectKeys.mutations.delete(uuid),
