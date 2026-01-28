@@ -28,7 +28,10 @@ export default function ApiTokenStep() {
           if (reconfigure) {
             router.dismissTo("/main/settings");
           } else {
-            router.navigate("/setup/permissions");
+            router.navigate({
+              pathname: "/setup/team",
+              params: { nextStep: "permissions" },
+            });
           }
         })
         .catch((e) => setError(e.message))

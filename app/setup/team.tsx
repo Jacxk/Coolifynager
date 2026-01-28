@@ -12,14 +12,14 @@ import { Text } from "@/components/ui/text";
 import { H1, P } from "@/components/ui/typography";
 import useSetup from "@/hooks/useSetup";
 import { cn } from "@/lib/utils";
-import { Href, router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
 import { View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { scheduleOnRN } from "react-native-worklets";
 
 export default function TeamStep() {
-  const { redirect } = useLocalSearchParams<{ redirect: Href<any> }>();
+  const { nextStep } = useLocalSearchParams<{ nextStep: string }>();
   const { serverAddress, team, setTeam } = useSetup();
   const { data, isPending } = useTeams();
 
@@ -53,7 +53,9 @@ export default function TeamStep() {
   const isTeamSelected = team && team !== "NO_TEAM_SELECTED";
   const onContinue = () => {
     if (isTeamSelected) {
-      router.dismissTo(redirect ?? "/main");
+      router.dismissTo(
+        nextStep === "permissions" ? "/setup/permissions" : "/main",
+      );
     }
   };
 
