@@ -15,7 +15,7 @@ export default function useSetup() {
   const [setupComplete, setSetupCompleteState] = useState<boolean | null>(null);
   const [serverAddress, setServerAddressState] = useState<string | null>(null);
   const [permissions, setPermissionsState] = useState<boolean | null>(null);
-  const [team, setTeamState] = useState<string>("NO_TEAM_SELECTED");
+  const [team, setTeamState] = useState<string | null>(null);
 
   const setApiToken = async (key: string) => {
     const { success, message } = await validateToken(key);
@@ -83,7 +83,7 @@ export default function useSetup() {
       setPermissionsState(value === "true");
     });
     AsyncStorage.getItem(TEAM_STORAGE_KEY).then((value) => {
-      if (value) setTeamState(value);
+      setTeamState(value ?? "NO_TEAM_SELECTED");
     });
   }, []);
 
