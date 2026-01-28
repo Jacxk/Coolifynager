@@ -107,10 +107,9 @@ export async function optimisticUpdateOne<T>(
   return { previousData, queryKey };
 }
 
-export const onOptimisticUpdateError = (
-  data: unknown,
-  error: unknown,
-  variables: unknown,
+export const onOptimisticUpdateError = <TVariables = unknown>(
+  error: Error,
+  variables: TVariables,
   context?: {
     queryKey: (string | number)[];
     previousData: unknown;

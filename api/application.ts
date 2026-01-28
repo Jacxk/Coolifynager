@@ -1,4 +1,5 @@
 import { queryClient } from "@/app/_layout";
+import { filterResourceByTeam, filterResourcesByTeam } from "@/lib/utils";
 import {
   useMutation,
   UseMutationOptions,
@@ -98,10 +99,14 @@ export const ApplicationKeys = {
 // Fetch functions
 export const getApplications = async () => {
   const data = await coolifyFetch<Application[]>("/applications");
-  data.forEach((app) =>
+  const filtered = await filterResourcesByTeam(
+    data,
+    (app) => app.destination.server.team_id,
+  );
+  filtered.forEach((app) =>
     optimisticUpdateOne(ApplicationKeys.queries.single(app.uuid), app),
   );
-  return data;
+  return filtered;
 };
 
 export const getApplication = async (uuid: string) => {
@@ -109,7 +114,11 @@ export const getApplication = async (uuid: string) => {
     queryKey: ApplicationKeys.queries.all(),
     exact: true,
   });
-  return coolifyFetch<Application>(`/applications/${uuid}`);
+  const application = await coolifyFetch<Application>(`/applications/${uuid}`);
+  return filterResourceByTeam(
+    application,
+    (app) => app.destination.server.team_id,
+  );
 };
 
 export const getApplicationLogs = async (uuid: string, lines = 100) => {
@@ -217,7 +226,7 @@ export const useApplications = (
 
 export const useApplication = (
   uuid: string,
-  options?: Omit<UseQueryOptions<Application, Error>, "queryKey">,
+  options?: Omit<UseQueryOptions<Application | null, Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ApplicationKeys.queries.single(uuid),
@@ -272,7 +281,7 @@ export const useCreateApplicationEnv = (
       return update;
     },
     onError: onOptimisticUpdateError,
-    onSettled: onOptimisticUpdateSettled(),
+    onSettled: onOptimisticUpdateSettled(ApplicationKeys.queries.envs(uuid)),
   });
 };
 
@@ -339,8 +348,10 @@ export const useUpdateApplication: UseUpdateApplication = (
       return { update, insert };
     },
     onError: (error, variables, context) => {
-      onOptimisticUpdateError(error, variables, context?.update);
-      onOptimisticUpdateError(error, variables, context?.insert);
+      if (context) {
+        onOptimisticUpdateError(error, variables, context.update);
+        onOptimisticUpdateError(error, variables, context.insert);
+      }
     },
     onSettled: () => onOptimisticUpdateSettled(ApplicationKeys.queries.all())(),
   });

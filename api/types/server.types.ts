@@ -74,6 +74,7 @@ export type ServerBase = {
 
 export type Server = ServerBase & {
   proxy: ServerProxy;
+  team_id?: number;
 };
 
 export type SingleServer = ServerBase & {

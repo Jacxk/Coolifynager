@@ -5,10 +5,11 @@ import * as SplashScreen from "expo-splash-screen";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootIndex() {
-  const { setupComplete } = useSetup();
+  const { setupComplete, team } = useSetup();
 
-  if (setupComplete === null) return null;
+  if (setupComplete === null || team === null) return null;
 
+  if (team === "NO_TEAM_SELECTED") return <Redirect href="/setup/team" />;
   if (setupComplete) return <Redirect href="/main" />;
-  else return <Redirect href="/setup" />;
+  return <Redirect href="/setup" />;
 }

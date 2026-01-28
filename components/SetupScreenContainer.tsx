@@ -1,10 +1,13 @@
+import { cn } from "@/lib/utils";
 import * as SplashScreen from "expo-splash-screen";
 import { KeyboardAvoidingView, ScrollView } from "react-native";
 
 export default function SetupScreenContainer({
   children,
+  scrollviewClassName,
 }: {
   children: React.ReactNode;
+  scrollviewClassName?: string;
 }) {
   return (
     <KeyboardAvoidingView
@@ -17,7 +20,10 @@ export default function SetupScreenContainer({
       <ScrollView
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"
-        contentContainerClassName="flex-1 justify-center gap-2"
+        contentContainerClassName={cn(
+          "flex-1 justify-center gap-2",
+          scrollviewClassName,
+        )}
         bounces={false}
       >
         {children}
