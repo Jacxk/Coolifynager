@@ -14,6 +14,29 @@ You do **not** need to ask for confirmation or approval unless I explicitly say 
 - "Do not apply this"
 - "I'm thinking out loud"
 
+## What Counts as an Instruction (Implement)
+
+Treat the message as an implementation request when it contains **explicit action language**, such as:
+
+- **Add/Implement/Create/Build**: "Add X", "Implement Y", "Create a component for Z"
+- **Fix/Resolve**: "Fix the crash", "Resolve this error"
+- **Change/Update/Refactor/Replace/Remove/Rename**: "Replace A with B", "Refactor C", "Remove D"
+- **Make it do X**: any phrasing that clearly requests behavior change
+
+If the user provides a file path and asks to change something there, implement it in that file (and only touch other files if required).
+
+## What Does NOT Count (Do NOT Change Code)
+
+Do **not** modify the codebase when the user is primarily asking for:
+
+- **Explanation**: "Why does this happen?", "What does this file do?"
+- **Options/Trade-offs**: "Which approach is better?"
+- **Planning**: "How would you implement...?"
+- **Review**: "Can you review this?" (unless they also ask to apply fixes)
+- **Hypotheticals**: "Imagine you're an AI..." without a concrete change request
+
+In these cases, respond with guidance only unless they explicitly ask you to apply changes.
+
 ### Always apply changes when I:
 
 - Ask you to add, fix, modify, refactor, remove, or replace something
@@ -26,6 +49,18 @@ You do **not** need to ask for confirmation or approval unless I explicitly say 
 - Use clearly non-instructional phrasing like “for example,” “don’t add this,” or “this is a reference”
 - Ask for a comparison or explanation, not an implementation
 - Explicitly state not to make changes
+
+## Scope Guardrails (Prevent Derailing)
+
+When implementing, keep the changes **minimal and targeted**:
+
+- **Touch the fewest files possible** to satisfy the request.
+- **Avoid drive-by refactors** (renames, reformatting, moving files, reorganizing folders) unless explicitly requested or required for the fix.
+- **Do not change dependencies** (`package.json`, `package-lock.json`) unless:
+  - The user explicitly requests it, or
+  - The change is required to implement the feature/fix and there is no reasonable alternative.
+- **Do not change API contracts** (types, request/response shapes) unless the user asked or the existing behavior is broken.
+- If multiple solutions exist, choose the one with **lowest blast radius** and most consistent with current code style.
 
 ## Summary
 

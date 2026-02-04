@@ -1,0 +1,34 @@
+---
+alwaysApply: true
+---
+
+## Scope & Safety Guardrails (Anti-Derail)
+
+These rules exist to keep the AI focused and prevent accidental broad changes.
+
+### Scope
+
+- Implement **only what the user asked for**.
+- If a change is not required to satisfy the request, **do not do it** (no “while I’m here” improvements).
+- Prefer the **smallest reasonable diff** that solves the problem.
+
+### Files Touched
+
+- Prefer editing **existing files** over creating new ones.
+- Create new files only when there is a clear, local need (e.g., a reusable component extracted from a screen, a focused helper, a new route screen).
+- Avoid project-wide renames, folder reorganizations, or “standardization” passes unless explicitly requested.
+
+### Dependencies & Lockfiles
+
+- Do **not** add, remove, or upgrade dependencies unless the user asked for it or it is strictly required for the change.
+- Avoid touching `package.json` / `package-lock.json` unless necessary.
+
+### API / Data Contracts
+
+- Do not change request/response shapes or shared types unless explicitly requested or required to fix a bug.
+- Keep changes compatible with existing call sites unless a breaking change is requested.
+
+### Secrets & Sensitive Data
+
+- Never add real tokens/keys to the repo.
+- If a change requires secrets, use placeholders and reference existing `constants/Secrets.ts` patterns (do not invent new secret storage approaches).
