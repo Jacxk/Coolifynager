@@ -13,18 +13,23 @@ This project uses Expo with Expo Router and NativeWind. Please follow these nami
 - Components must be declared using **function declarations** (not anonymous arrow functions unless used inline).
 - All components should be **functional components** using hooks. Do not use class components.
 - Do not use `index.tsx` files unless re-exporting from a folder with multiple exports.
+- Prefer **one exported component per file** (helper subcomponents can stay internal to the file).
+- Reusable “primitive” UI building blocks should go under `components/ui/` (buttons, inputs, dialogs, etc.).
 
 ### Screens
 
 - Screens are located in the `app/` folder and should follow the **file-based routing** conventions of **Expo Router**.
 - Each screen file must use **camelCase** (e.g., `profile.tsx`, `settings.tsx`) unless defined by route pattern (e.g., `[id].tsx`, `index.tsx`, `(auth)/login.tsx`).
 - Screens should contain only the logic and layout for that screen. Extract subcomponents to `components/` as needed.
+- Screen modules should **default export** a component (required by Expo Router). Prefer a **named function** that matches the component naming rules below.
+- `_layout.tsx` files are **routing/layout** files. Keep them focused on navigation containers, headers, and route structure (avoid putting business logic or reusable UI there).
 
 ### Naming Rules:
 
 1. **Each directory or file segment becomes part of the component name** in PascalCase.
-2. **Dynamic segments (e.g., `[uuid]`) should be skipped** or abstracted as singular form if the segment contextually represents a single item.
-3. The final component name must end with the filename (typically `Index`, `Edit`, `Settings`, etc.).
+2. **Route groups** in parentheses (e.g., `(tabs)`, `(auth)`) should be **skipped** in the component name.
+3. **Dynamic segments** (e.g., `[uuid]`, `[id]`) should be skipped or abstracted as singular form if the segment contextually represents a single item.
+4. The final component name must end with the filename (typically `Index`, `Edit`, `Settings`, etc.).
 
 ### Examples:
 
@@ -32,10 +37,11 @@ This project uses Expo with Expo Router and NativeWind. Please follow these nami
 | -------------------------------------------- | -------------------------- |
 | `app/index.tsx`                              | `Index`                    |
 | `app/applications/index.tsx`                 | `ApplicationsIndex`        |
-| `app/applications/(uuid)/index.tsx`          | `ApplicationIndex`         |
-| `app/applications/(uuid)/settings/index.tsx` | `ApplicationSettingsIndex` |
+| `app/applications/[uuid]/index.tsx`          | `ApplicationIndex`         |
+| `app/applications/[uuid]/settings/index.tsx` | `ApplicationSettingsIndex` |
 | `app/auth/login.tsx`                         | `AuthLogin`                |
 | `app/(user)/dashboard/overview.tsx`          | `DashboardOverview`        |
+| `app/main/applications/[uuid]/(tabs)/logs.tsx` | `MainApplicationsLogs`   |
 
 ### Hooks
 
@@ -82,6 +88,7 @@ Follow this directory structure:
 - Keep screen-specific logic in `app/`, not `components/`.
 - Avoid deep nesting unless conceptually justified.
 - Each component or utility should be in its own file unless it is truly trivial.
+- Do **not** place reusable components inside `app/`. If it’s used by multiple screens (or is non-trivial UI), move it into `components/`.
 
 ---
 

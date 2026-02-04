@@ -10,6 +10,15 @@ This project is built using **Expo** and **NativeWind** with **TypeScript**. Ple
 - Follow idiomatic **React Native** conventions — do not use web-specific or DOM APIs (e.g., `document`, `window`, etc.).
 - Platform-specific behavior should use the `Platform` module from `react-native` or conditional file extensions (e.g., `Component.ios.tsx`, `Component.android.tsx`).
 
+## Navigation (Expo Router)
+
+- This app uses **Expo Router**. Prefer:
+  - `router.push`, `router.replace`, `router.back`
+  - `Link`
+  - `useLocalSearchParams`
+- Do **not** introduce direct `react-navigation` usage (e.g., `navigation.navigate`) unless it already exists in that area and changing it is out of scope.
+- If you need robust route pushing (especially relative paths), prefer the existing helper `navigatePath` in `lib/navigation.ts`.
+
 ## Styling with NativeWind
 
 - All styling must be done using **Tailwind utility classes via the `className` prop**.
@@ -24,6 +33,7 @@ This project is built using **Expo** and **NativeWind** with **TypeScript**. Ple
   ```tsx
   className = "mt-3";
   ```
+- For **conditional** Tailwind class strings, prefer the existing `cn(...)` helper in `lib/utils.ts` (it merges Tailwind classes safely).
 
 ## Component Structure
 
@@ -44,6 +54,7 @@ This project is built using **Expo** and **NativeWind** with **TypeScript**. Ple
 - All new code should be consistent with existing project conventions.
 - Prefer built-in React Native or Expo APIs over third-party packages unless necessary.
 - When suggesting new code, assume it will be committed unless the user explicitly says not to (e.g., “don’t add this” or “this is just an example”).
+- Avoid introducing new patterns globally. Keep changes local to the screen/component you are working on unless the user explicitly requests a broader refactor.
 
 ## Summary
 
