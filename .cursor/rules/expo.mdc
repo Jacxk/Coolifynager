@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: Framework related rules for the project
+alwaysApply: false
 ---
 
 This project is built using **Expo** and **NativeWind** with **TypeScript**. Please adhere to the following conventions and rules when writing, editing, or suggesting code:
