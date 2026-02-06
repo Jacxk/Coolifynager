@@ -3,12 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import useSetup from "@/hooks/useSetup";
-import { router, useLocalSearchParams } from "expo-router";
+import { RelativePathString, router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
 
 export default function ServerStep() {
-  const { reconfigure } = useLocalSearchParams<{ reconfigure: string }>();
+  const { reconfigure, redirect } = useLocalSearchParams<{
+    reconfigure: string;
+    redirect: RelativePathString;
+  }>();
   const { setServerAddress, serverAddress } = useSetup();
 
   const [server, setServer] = useState("");
@@ -24,7 +27,7 @@ export default function ServerStep() {
         .then(() =>
           router.navigate({
             pathname: "/setup/api_token",
-            params: { reconfigure },
+            params: { reconfigure, redirect },
           }),
         )
         .catch((error: Error) => setError(error.message))

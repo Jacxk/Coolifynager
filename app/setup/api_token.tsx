@@ -5,13 +5,16 @@ import { PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { APP_NAME } from "@/constants/AppDetails";
 import useSetup from "@/hooks/useSetup";
-import { router, useLocalSearchParams } from "expo-router";
+import { RelativePathString, router, useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
 import React, { useState } from "react";
 import { Alert as NativeAlert, View } from "react-native";
 
 export default function ApiTokenStep() {
-  const { reconfigure } = useLocalSearchParams<{ reconfigure: string }>();
+  const { reconfigure, redirect } = useLocalSearchParams<{
+    reconfigure: string;
+    redirect: RelativePathString;
+  }>();
   const { setApiToken, serverAddress, setupComplete } = useSetup();
 
   const [token, setToken] = useState("");
@@ -21,7 +24,7 @@ export default function ApiTokenStep() {
 
   const navigate = () => {
     if (reconfigure) {
-      router.dismissTo("/main/settings");
+      router.dismissTo(redirect ?? "/main/settings");
     } else {
       router.navigate("/setup/permissions");
     }

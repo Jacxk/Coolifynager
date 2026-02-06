@@ -36,8 +36,8 @@ export async function coolifyFetch<T>(
   }
 
   try {
+    console.log(`[${method}] ${endpoint}`);
     const response = await fetch(url, fetchOptions);
-    console.log(`[${method}] [${response.status}] ${endpoint}`);
 
     if (response.status >= 400) {
       const error = await response.json();

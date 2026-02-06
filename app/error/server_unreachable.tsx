@@ -2,32 +2,27 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 import useServerStatus from "@/hooks/useServerStatus";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { View } from "react-native";
 import { toast } from "sonner-native";
 
 export default function ServerUnreachable() {
   const router = useRouter();
   const { refetch } = useServerStatus();
-  const queryClient = useQueryClient();
   const [retrying, setRetrying] = useState(false);
-
-  useEffect(() => {
-    queryClient.cancelQueries();
-  }, []);
 
   const handleRetry = useCallback(async () => {
     setRetrying(true);
     try {
       const result = await refetch();
-      if (!result.data) {
+
+      if (result.data !== "OK") {
         toast.error(
           "Server still unreachable. Please check your connection or configuration.",
         );
       } else {
-        router.replace("/");
+        router.replace("/main");
       }
     } finally {
       setRetrying(false);
@@ -50,7 +45,15 @@ export default function ServerUnreachable() {
         </Button>
         <Button
           variant="secondary"
-          onPress={() => router.push("/setup/serverAddress")}
+          onPress={() =>
+            router.push({
+              pathname: "/setup/serverAddress",
+              params: {
+                reconfigure: "true",
+                redirect: "/main",
+              },
+            })
+          }
           disabled={retrying}
         >
           <Text>Reconfigure</Text>
