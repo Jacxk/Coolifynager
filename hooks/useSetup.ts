@@ -33,20 +33,21 @@ export default function useSetup() {
       throw new Error("INVALID_URL");
     }
 
-    const health = await getHealth(address);
+    const normalizedAddress = address.replace(/\/api$|\/$/, "");
+
+    const health = await getHealth(normalizedAddress);
 
     if (health !== "OK") throw new Error("INVALID_SERVER");
-    queryClient.setQueryData(["server-status", address], health);
 
-    address = address.replace(/\/api$|\/$/, "");
-
-    if (address !== serverAddress) {
+    if (normalizedAddress !== serverAddress) {
       queryClient.invalidateQueries();
       queryClient.clear();
     }
 
-    await SecureStore.setItemAsync(Secrets.SERVER_ADDRESS, address);
-    setServerAddressState(address);
+    queryClient.setQueryData(["server-status", normalizedAddress], health);
+
+    await SecureStore.setItemAsync(Secrets.SERVER_ADDRESS, normalizedAddress);
+    setServerAddressState(normalizedAddress);
   };
 
   const setPermissions = async (saved: boolean) => {

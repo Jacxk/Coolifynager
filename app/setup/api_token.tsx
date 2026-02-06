@@ -25,6 +25,8 @@ export default function ApiTokenStep() {
   const navigate = () => {
     if (reconfigure) {
       router.dismissTo(redirect ?? "/main/settings");
+    } else if (setupComplete) {
+      router.navigate(redirect ?? "/main");
     } else {
       router.navigate("/setup/permissions");
     }
