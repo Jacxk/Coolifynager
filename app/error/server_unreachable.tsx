@@ -17,7 +17,7 @@ export default function ServerUnreachable() {
     try {
       const result = await refetch();
 
-      if (result.data !== "OK") {
+      if (result.isError || result.data !== "OK") {
         toast.error(
           "Server still unreachable. Please check your connection or configuration.",
         );
