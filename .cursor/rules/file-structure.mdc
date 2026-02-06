@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: File structure related rules for the project
+alwaysApply: false
 ---
 
 ## Component Naming & Structure
@@ -33,15 +34,15 @@ This project uses Expo with Expo Router and NativeWind. Please follow these nami
 
 ### Examples:
 
-| File Path                                    | Component Name             |
-| -------------------------------------------- | -------------------------- |
-| `app/index.tsx`                              | `Index`                    |
-| `app/applications/index.tsx`                 | `ApplicationsIndex`        |
-| `app/applications/[uuid]/index.tsx`          | `ApplicationIndex`         |
-| `app/applications/[uuid]/settings/index.tsx` | `ApplicationSettingsIndex` |
-| `app/auth/login.tsx`                         | `AuthLogin`                |
-| `app/(user)/dashboard/overview.tsx`          | `DashboardOverview`        |
-| `app/main/applications/[uuid]/(tabs)/logs.tsx` | `MainApplicationsLogs`   |
+| File Path                                      | Component Name             |
+| ---------------------------------------------- | -------------------------- |
+| `app/index.tsx`                                | `Index`                    |
+| `app/applications/index.tsx`                   | `ApplicationsIndex`        |
+| `app/applications/[uuid]/index.tsx`            | `ApplicationIndex`         |
+| `app/applications/[uuid]/settings/index.tsx`   | `ApplicationSettingsIndex` |
+| `app/auth/login.tsx`                           | `AuthLogin`                |
+| `app/(user)/dashboard/overview.tsx`            | `DashboardOverview`        |
+| `app/main/applications/[uuid]/(tabs)/logs.tsx` | `MainApplicationsLogs`     |
 
 ### Hooks
 

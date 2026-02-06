@@ -1,5 +1,5 @@
 import { useCreateProject } from "@/api/projects";
-import { PartialProject } from "@/api/types/project.types";
+import { ProjectBase } from "@/api/types/project.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
@@ -13,7 +13,7 @@ export default function CreateProject() {
     control,
     formState: { isValid },
     handleSubmit,
-  } = useForm<PartialProject>({
+  } = useForm<ProjectBase>({
     defaultValues: {
       name: "",
       description: "",
@@ -22,7 +22,7 @@ export default function CreateProject() {
 
   const { mutateAsync, isPending } = useCreateProject();
 
-  const onSubmit = (data: PartialProject) => {
+  const onSubmit = (data: ProjectBase) => {
     toast.promise(mutateAsync(data), {
       loading: "Creating project...",
       success: ({ uuid }) => {

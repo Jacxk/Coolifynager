@@ -1,4 +1,5 @@
 import { queryClient } from "@/app/_layout";
+import { filterResourceByTeam } from "@/lib/utils";
 import {
   useMutation,
   UseMutationOptions,
@@ -6,11 +7,7 @@ import {
   UseQueryOptions,
 } from "@tanstack/react-query";
 import { coolifyFetch, onOptimisticUpdateError } from "./client";
-import {
-  PartialProject,
-  Project,
-  ProjectCreateBody,
-} from "./types/project.types";
+import { Project, ProjectBase, ProjectCreateBody } from "./types/project.types";
 import {
   ResourceActionResponse,
   ResourceCreateResponse,
@@ -31,18 +28,29 @@ export const ProjectKeys = {
 
 // Fetch functions
 export const getProjects = async () => {
-  const data = await coolifyFetch<PartialProject[]>("/projects");
-  data.forEach((project) => {
-    queryClient.prefetchQuery({
-      queryKey: ProjectKeys.queries.single(project.uuid),
-      queryFn: () => getProject(project.uuid),
-    });
+  const data = await coolifyFetch<ProjectBase[]>("/projects");
+
+  const projectsWithTeam = await Promise.all(
+    data.map(async (project) => {
+      try {
+        return await getProject(project.uuid);
+      } catch {
+        return null;
+      }
+    }),
+  );
+  const validProjects = projectsWithTeam.filter((p) => p !== null);
+
+  validProjects.forEach((project) => {
+    queryClient.setQueryData(ProjectKeys.queries.single(project.uuid), project);
   });
-  return data;
+
+  return validProjects;
 };
 
 export const getProject = async (uuid: string) => {
-  return coolifyFetch<Project>(`/projects/${uuid}`);
+  const project = await coolifyFetch<Project>(`/projects/${uuid}`);
+  return filterResourceByTeam(project, (p) => p.team_id);
 };
 
 export const createProject = async (data: ProjectCreateBody) => {
@@ -66,7 +74,7 @@ export const deleteProject = async (uuid: string) => {
 
 // Query hooks
 export const useProjects = (
-  options?: Omit<UseQueryOptions<PartialProject[], Error>, "queryKey">
+  options?: Omit<UseQueryOptions<ProjectBase[], Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ProjectKeys.queries.all(),
@@ -77,7 +85,7 @@ export const useProjects = (
 
 export const useProject = (
   uuid: string,
-  options?: Omit<UseQueryOptions<Project, Error>, "queryKey">
+  options?: Omit<UseQueryOptions<Project | null, Error>, "queryKey">,
 ) => {
   return useQuery({
     queryKey: ProjectKeys.queries.single(uuid),
@@ -88,7 +96,11 @@ export const useProject = (
 
 // Mutation hooks
 export const useCreateProject = (
-  options?: UseMutationOptions<ResourceCreateResponse, Error, ProjectCreateBody>
+  options?: UseMutationOptions<
+    ResourceCreateResponse,
+    Error,
+    ProjectCreateBody
+  >,
 ) => {
   return useMutation({
     mutationKey: ProjectKeys.mutations.create(),
@@ -105,7 +117,7 @@ export const useCreateProject = (
 
 export const useDeleteProject = (
   uuid: string,
-  options?: UseMutationOptions<ResourceActionResponse, Error, void>
+  options?: UseMutationOptions<ResourceActionResponse, Error, void>,
 ) => {
   return useMutation({
     mutationKey: ProjectKeys.mutations.delete(uuid),
