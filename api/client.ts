@@ -9,7 +9,7 @@ export async function coolifyFetch<T>(
     method?: string;
     body?: any;
     headers?: Record<string, string>;
-  } = {}
+  } = {},
 ): Promise<T> {
   const { method = "GET", body, headers = {}, isText = false } = options;
   const serverAddress = await SecureStore.getItemAsync(Secrets.SERVER_ADDRESS);
@@ -36,8 +36,8 @@ export async function coolifyFetch<T>(
   }
 
   try {
+    console.log(`[${method}] ${endpoint}`);
     const response = await fetch(url, fetchOptions);
-    console.log(`[${method}] [${response.status}] ${endpoint}`);
 
     if (response.status >= 400) {
       const error = await response.json();
@@ -56,7 +56,7 @@ export async function coolifyFetch<T>(
 }
 
 export async function optimisticUpdateInsertOneToMany<
-  T extends { uuid?: string; deployment_uuid?: string }
+  T extends { uuid?: string; deployment_uuid?: string },
 >(queryKey: (string | number)[], data: T) {
   await queryClient.cancelQueries({ queryKey });
 
@@ -74,7 +74,7 @@ export async function optimisticUpdateInsertOneToMany<
       (resource) =>
         (identifierKey === "deployment_uuid" &&
           resource.deployment_uuid === identifierValue) ||
-        (identifierKey === "uuid" && resource.uuid === identifierValue)
+        (identifierKey === "uuid" && resource.uuid === identifierValue),
     );
 
     if (index === -1) return [...old, data];
@@ -84,7 +84,7 @@ export async function optimisticUpdateInsertOneToMany<
         resource.deployment_uuid === identifierValue) ||
       (identifierKey === "uuid" && resource.uuid === identifierValue)
         ? { ...resource, ...data }
-        : resource
+        : resource,
     );
   });
 
@@ -93,7 +93,7 @@ export async function optimisticUpdateInsertOneToMany<
 
 export async function optimisticUpdateOne<T>(
   queryKey: (string | number)[],
-  data: T
+  data: T,
 ) {
   await queryClient.cancelQueries({ queryKey });
 
@@ -116,7 +116,7 @@ export const onOptimisticUpdateError = (
     previousData: unknown;
     queryKeyAll?: (string | number)[];
     previousDataAll?: unknown;
-  }
+  },
 ) => {
   if (!context) return;
   queryClient.setQueryData(context.queryKey, context.previousData);
@@ -132,7 +132,7 @@ export const onOptimisticUpdateSettled = (customKey?: (string | number)[]) => {
     data?: unknown,
     error?: unknown,
     variables?: unknown,
-    context?: { queryKey: (string | number)[] }
+    context?: { queryKey: (string | number)[] },
   ) => {
     queryClient.invalidateQueries({
       queryKey: customKey ?? context?.queryKey,

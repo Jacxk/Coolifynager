@@ -5,32 +5,39 @@ import { PasswordInput } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { APP_NAME } from "@/constants/AppDetails";
 import useSetup from "@/hooks/useSetup";
-import { router, useLocalSearchParams } from "expo-router";
+import { RelativePathString, router, useLocalSearchParams } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";
 import React, { useState } from "react";
 import { Alert as NativeAlert, View } from "react-native";
 
 export default function ApiTokenStep() {
-  const { reconfigure } = useLocalSearchParams<{ reconfigure: string }>();
-  const { setApiToken, serverAddress } = useSetup();
+  const { reconfigure, redirect } = useLocalSearchParams<{
+    reconfigure: string;
+    redirect: RelativePathString;
+  }>();
+  const { setApiToken, serverAddress, setupComplete } = useSetup();
 
   const [token, setToken] = useState("");
   const [valid, setValid] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
 
+  const navigate = () => {
+    if (reconfigure) {
+      router.dismissTo(redirect ?? "/main/settings");
+    } else if (setupComplete) {
+      router.navigate(redirect ?? "/main");
+    } else {
+      router.navigate("/setup/permissions");
+    }
+  };
+
   const saveKey = () => {
     if (valid) {
       setLoading(true);
       setApiToken(token)
         .then(() => setError(undefined))
-        .then(() => {
-          if (reconfigure) {
-            router.dismissTo("/main/settings");
-          } else {
-            router.navigate("/setup/permissions");
-          }
-        })
+        .then(() => navigate())
         .catch((e) => setError(e.message))
         .finally(() => setLoading(false));
     } else {
@@ -103,6 +110,11 @@ export default function ApiTokenStep() {
       >
         <Text className="text-black">Save</Text>
       </Button>
+      {setupComplete && (
+        <Button onPress={navigate} variant="ghost">
+          <Text>Skip</Text>
+        </Button>
+      )}
       {!!error && <Text className="text-red-400">{error}</Text>}
     </SetupScreenContainer>
   );
