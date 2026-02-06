@@ -7,10 +7,12 @@ import {
 import { isValidUrl } from "@/lib/utils";
 import SecureStore from "@/utils/SecureStorage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 
 export default function useSetup() {
+  const queryClient = useQueryClient();
   const [setupComplete, setSetupCompleteState] = useState<boolean | null>(null);
   const [serverAddress, setServerAddressState] = useState<string | null>(null);
   const [permissions, setPermissionsState] = useState<boolean | null>(null);
@@ -34,11 +36,16 @@ export default function useSetup() {
     const health = await getHealth(address);
 
     if (health !== "OK") throw new Error("INVALID_SERVER");
+    queryClient.setQueryData(["server-status", address], health);
 
-    await SecureStore.setItemAsync(
-      Secrets.SERVER_ADDRESS,
-      address.replace(/\/api$|\/$/, ""),
-    );
+    address = address.replace(/\/api$|\/$/, "");
+
+    if (address !== serverAddress) {
+      queryClient.invalidateQueries();
+      queryClient.clear();
+    }
+
+    await SecureStore.setItemAsync(Secrets.SERVER_ADDRESS, address);
     setServerAddressState(address);
   };
 
