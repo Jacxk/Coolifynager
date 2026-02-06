@@ -6,6 +6,10 @@ type VersionResponse = {
 };
 
 export async function getHealth(address: string): Promise<string> {
+  if (!address) throw new Error("Server address is required");
+
+  console.log(`[GET] /api/v1/health`);
+
   const normalizedAddress = address.replace(/\/+$/, "");
   return fetch(`${normalizedAddress}/api/v1/health`).then((res) => res.text());
 }

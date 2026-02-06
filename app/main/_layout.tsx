@@ -1,10 +1,18 @@
 import { AddResourceButton } from "@/components/AddResourceButton";
 import { SettingsIcon } from "@/components/icons/Settings";
 import { APP_NAME } from "@/constants/AppDetails";
+import useServerStatus from "@/hooks/useServerStatus";
 import { router, Stack } from "expo-router";
 import { TouchableOpacity } from "react-native";
 
 export default function MainLayout() {
+  const { healthy } = useServerStatus();
+
+  if (healthy === false) {
+    router.navigate("/error/server_unreachable");
+    return null;
+  }
+
   return (
     <Stack
       screenOptions={{
