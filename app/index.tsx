@@ -9,7 +9,7 @@ export default function RootIndex() {
 
   if (setupComplete === null || team === null) return null;
 
+  if (!setupComplete) return <Redirect href="/setup" />;
   if (team === "NO_TEAM_SELECTED") return <Redirect href="/setup/team" />;
-  if (setupComplete) return <Redirect href="/main" />;
-  return <Redirect href="/setup" />;
+  return <Redirect href="/main" />;
 }
